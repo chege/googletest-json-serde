@@ -1,0 +1,13 @@
+[package]
+name = "googletest-serde-json"
+description = "GoogleTest (googletest) matchers for serde_json::Value"
+version = "0.1.0"
+edition = "2024"
+repository = "https://github.com/you/googletest-serde-json"
+keywords = ["googletest", "gtest", "json", "serde_json", "matchers"]
+
+
+[dependencies]
+googletest = "0.14.2"
+serde_json = "1.0.143"
+
