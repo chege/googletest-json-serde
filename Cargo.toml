@@ -1,0 +1,26 @@
+[package]
+name = "googletest-json-serde"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.89.0"
+description = "GoogleTest matchers for serde_json::Value"
+authors = ["chege"]
+repository = "https://github.com/chege/googletest-json-serde"
+homepage = "https://github.com/chege/googletest-json-serde"
+readme = "README.md"
+keywords = ["googletest", "gtest", "json", "serde", "matchers"]
+categories = ["development-tools::testing"]
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+googletest = "0.14.2"
+serde_json = "1.0.145"
+
+[dev-dependencies]
+indoc = "2.0.6"
+
+[lib]
+doctest = true
+
+[badges]
+maintenance = { status = "actively-developed" }
