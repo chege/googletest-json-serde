@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [ main, "*-dev" ]
+
+permissions:
+  contents: read  # least-privilege
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  format:
+    name: Format
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      # No explicit rustup component adds needed; rust-toolchain.toml handles that
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --all -- --check
+
+  clippy:
+    name: Clippy (stable)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: Swatinem/rust-cache@v2
+
+      - name: clippy (stable, deny warnings)
+        env:
+          RUSTFLAGS: -D warnings
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+  minimal-versions:
+    name: Minimal dependency versions
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: Swatinem/rust-cache@v2
+      - name: Generate minimal lockfile
+        run: cargo +nightly generate-lockfile -Z minimal-versions
+      - name: Build with minimal versions
+        run: cargo +nightly build --all-features --locked
+
+  test:
+    name: Tests (stable)
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-24.04, macos-latest ] # omit windows due to POSIX commands in trycmd cases
+    steps:
+      - uses: actions/checkout@v5
+      - uses: Swatinem/rust-cache@v2
+      - name: Build (locked)
+        env:
+          RUSTFLAGS: -D warnings
+        run: cargo build --all-features --locked
+      - name: Run unit + integration tests
+        run: cargo test --all-features -- --nocapture
