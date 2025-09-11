@@ -1,0 +1,69 @@
+version: 2
+updates:
+  # Keep Cargo (Rust) dependencies updated
+  - package-ecosystem: "cargo"
+    # Directory where Cargo.toml is located
+    directory: "/"
+    # How often to check for updates
+    schedule:
+      interval: "weekly"
+    # Limit number of open Dependabot PRs
+    open-pull-requests-limit: 10
+    # Branch Dependabot targets for updates
+    target-branch: "main"
+    # Customize PR commit messages
+    commit-message:
+      prefix: "chore"
+      include: scope
+    reviewers:
+      - "chege"
+    labels:
+      - "dependencies"
+      - "rust"
+    # Only allow direct dependencies (skip transitive)
+    allow:
+      - dependency-type: "direct"
+    # Group related updates into a single PR
+    groups:
+      cargo-minor:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Keep GitHub Actions workflows updated
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    target-branch: "main"
+    commit-message:
+      prefix: "chore"
+      include: scope
+    reviewers:
+      - "chege"
+    labels:
+      - "dependencies"
+      - "ci"
+    groups:
+      gh-actions:
+        patterns:
+          - "*"
+
+  # (Experimental) Update Rust toolchain pinned in rust-toolchain.toml
+  - package-ecosystem: "rust-toolchain"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 1
+    target-branch: "main"
+    commit-message:
+      prefix: "chore"
+      include: scope
+    reviewers:
+      - "chege"
+    labels:
+      - "dependencies"
+      - "rust"
