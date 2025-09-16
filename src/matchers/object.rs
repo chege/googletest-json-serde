@@ -24,7 +24,7 @@
 /// );
 /// ```
 #[macro_export]
-macro_rules! __json_pat {
+macro_rules! __json_matches_pattern {
     // Strict version: no `..`
     ({ $($key:literal : $val:expr),* $(,)? }) => {{
         let fields = vec![
