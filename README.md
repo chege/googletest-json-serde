@@ -1,11 +1,12 @@
 # googletest-serde-json
 
-Tiny, focused matchers and macros that make it effortless to assert on `serde_json::Value` in Rust tests
-using [googletest-rust](https://docs.rs/googletest/).
+Tiny, focused matchers and macros that make it effortless to assert on `serde_json::Value` in Rust tests using [googletest-rust](https://docs.rs/googletest/).
 
-- ✅ **Scalar** assertions for JSON strings, numbers (i64/f64), and booleans
-- ✅ **Object** pattern matching with strict / non-strict modes
-- ✅ **Array** element-by-element matching (supports heterogenous types)
+- ✅ **Scalar** assertions for JSON strings, numbers (i64/f64), and booleans  
+- ✅ **Object** pattern matching with strict / non-strict modes  
+- ✅ **Array** element-by-element matching (supports heterogeneous types)  
+- ✅ **Unordered array** matching  
+- ✅ **Containment** assertions (check if JSON contains a subset)  
 - ✅ Clear, structured **failure explanations**
 
 ## Installation
@@ -16,9 +17,7 @@ Add to your `Cargo.toml`:
 [dev-dependencies]
 googletest = "0.14"
 serde_json = "1"
-
-# this crate
-googletest-serde-json = { path = "." } # or use the registry name/version when published
+googletest-serde-json = "0.1" # replace with the latest version on crates.io
 ```
 
 In tests:
@@ -29,11 +28,12 @@ use googletest_serde_json::json;
 use serde_json::json as j;
 ```
 
-> The crate re-exports a `json` namespace with everything you need:
->
-> - `json::scalar(...)` – match a scalar inside a JSON `Value`
-> - `json::pat!{...}` – match a JSON object by fields
-> - `json::elements_are!(...)` – match arrays element-by-element
+> The crate re-exports a `json` namespace with everything you need:  
+> - `json::scalar(...)` – match a scalar inside a JSON `Value`  
+> - `json::pat!{...}` – match a JSON object by fields  
+> - `json::elements_are![...]` – match arrays element-by-element (ordered)  
+> - `json::unordered_elements_are![...]` – match arrays element-by-element (unordered)  
+> - `json::is_contained_in![...]` – assert containment of JSON elements
 
 ---
 
@@ -44,10 +44,10 @@ use serde_json::json as j;
 ```rust
 #[test]
 fn scalars() {
-    assert_that!(j!(42),       json::scalar(gt(40)));           // i64
-    assert_that!(j!(3.14),     json::scalar(close_to(3.1, 0.1))); // f64
-    assert_that!(j!("hello"),  json::scalar(starts_with("he"))); // &str
-    assert_that!(j!(true),     json::scalar(is_true()));         // bool
+    assert_that!(j!(42),        json::scalar(gt(40)));             // i64
+    assert_that!(j!(3.14),      json::scalar(close_to(3.1, 0.1))); // f64
+    assert_that!(j!("hello"),   json::scalar(starts_with("he"))); // &str
+    assert_that!(j!(true),      json::scalar(is_true()));          // bool
 }
 ```
 
@@ -89,14 +89,45 @@ fn object_non_strict() {
 
 ---
 
-### Match arrays with `json::elements_are!`
+### Match arrays with `json::elements_are!` (ordered)
 
 ```rust
 #[test]
-fn arrays() {
+fn arrays_ordered() {
     assert_that!(
         j!(["hello", 42, true]),
-        json::elements_are!(eq("hello"), eq(42), eq(true))
+        json::elements_are![eq("hello"), eq(42), eq(true)]
+    );
+}
+```
+
+---
+
+### Match arrays with `json::unordered_elements_are!` (unordered)
+
+```rust
+#[test]
+fn arrays_unordered() {
+    assert_that!(
+        j!([42, "hello", true]),
+        json::unordered_elements_are![eq("hello"), eq(42), eq(true)]
+    );
+}
+```
+
+---
+
+### Assert containment with `json::is_contained_in!`
+
+```rust
+#[test]
+fn containment() {
+    assert_that!(
+        j!({"a": 1, "b": 2, "c": 3}),
+        json::is_contained_in!({
+            "a": eq(1),
+            "c": eq(3),
+        })
     );
 }
 ```
@@ -105,9 +136,7 @@ fn arrays() {
 
 ## Combined example
 
-You can compose all three together for complex structures.  
-Here we have a Rust struct with a JSON field, using `matches_pattern!` for the struct and nested JSON matchers for the
-field:
+Compose all together for complex structures. Here is a Rust struct with a JSON field, using `matches_pattern!` for the struct and nested JSON matchers for the field:
 
 ```rust
 use googletest::prelude::*;
@@ -142,7 +171,7 @@ fn combined_match() {
             payload: json::pat!({
                 "user": json::pat!({
                     "name": json::scalar(starts_with("Ali")),
-                    "tags": json::elements_are!(eq("admin"), eq("tester")),
+                    "tags": json::elements_are![eq("admin"), eq("tester")],
                     "active": json::scalar(is_true()),
                     ..
                 })
