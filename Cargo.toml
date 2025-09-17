@@ -9,5 +9,6 @@ keywords = ["googletest", "gtest", "json", "serde_json", "matchers"]
 
 [dependencies]
 googletest = "0.14.2"
+indoc = "2.0.6"
 serde_json = "1.0.145"
 
