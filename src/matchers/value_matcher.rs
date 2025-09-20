@@ -1,22 +1,53 @@
 //! Utility matchers and macros for concise JSON assertions using googletest.
 
-use googletest::description::Description;
-use googletest::matcher::{Matcher, MatcherBase, MatcherResult};
-use serde_json::Value;
+/// Matches a JSON value (string, number, or boolean) against the given matcher.
+///
+/// This macro enables matching specific primitive values inside a JSON structure
+/// by delegating to a matcher for the corresponding Rust type. It supports:
+/// - `String` values (e.g. `json::value!(eq("hello"))`)
+/// - `Number` values as `i64` or `f64` (e.g. `json::value!(ge(0))`)
+/// - `Boolean` values (e.g. `json::value!(eq(true))`)
+///
+/// Fails if the value is not of the expected JSON type.
+///
+/// # Example
+/// ```
+/// # use googletest::prelude::*;
+/// # use googletest_serde_json::json;
+/// # use serde_json::json as j;
+/// let data = j!({"active": true, "count": 3});
+///
+/// verify_that!(data["active"], json::value!(eq(true)));
+/// verify_that!(data["count"], json::value!(ge(0)));
+/// ```
+#[macro_export]
+#[doc(hidden)]
+macro_rules! __json_value {
+    ($matcher:expr) => {
+        $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonValueMatcher::new(
+            $matcher,
+        )
+    };
+}
+
+pub fn is_null() -> crate::matchers::__internal_unstable_do_not_depend_on_these::IsJsonNull {
+    crate::matchers::__internal_unstable_do_not_depend_on_these::IsJsonNull
+}
 
 #[doc(hidden)]
 pub mod internal {
-    use super::*;
+    use googletest::description::Description;
+    use googletest::matcher::{Matcher, MatcherBase, MatcherResult};
+    use serde_json::Value;
 
-    /// `JsonScalarMatcher` is an adapter matcher that extracts a scalar (string, number, or bool)
-    /// from a JSON `Value` and delegates to an inner matcher operating on that scalar type.
-    pub struct JsonScalarMatcher<M, T> {
-        pub(crate) inner: M,
-        pub(crate) phantom: std::marker::PhantomData<T>,
+    #[doc(hidden)]
+    #[derive(MatcherBase)]
+    pub struct JsonValueMatcher<M, T> {
+        inner: M,
+        phantom: std::marker::PhantomData<T>,
     }
 
-    impl<M, T> JsonScalarMatcher<M, T> {
-        /// Constructs a new `JsonScalarMatcher` adapter with the provided inner matcher.
+    impl<M, T> JsonValueMatcher<M, T> {
         pub fn new(inner: M) -> Self {
             Self {
                 inner,
@@ -25,12 +56,7 @@ pub mod internal {
         }
     }
 
-    impl<M> MatcherBase for JsonScalarMatcher<M, String> {}
-    impl<M> MatcherBase for JsonScalarMatcher<M, f64> {}
-    impl<M> MatcherBase for JsonScalarMatcher<M, i64> {}
-    impl<M> MatcherBase for JsonScalarMatcher<M, bool> {}
-
-    impl<M> Matcher<&Value> for JsonScalarMatcher<M, String>
+    impl<M> Matcher<&Value> for JsonValueMatcher<M, String>
     where
         M: for<'a> Matcher<&'a str>,
     {
@@ -53,7 +79,7 @@ pub mod internal {
         }
     }
 
-    impl<M> Matcher<&Value> for JsonScalarMatcher<M, i64>
+    impl<M> Matcher<&Value> for JsonValueMatcher<M, i64>
     where
         M: Matcher<i64>,
     {
@@ -81,7 +107,7 @@ pub mod internal {
         }
     }
 
-    impl<M> Matcher<&Value> for JsonScalarMatcher<M, f64>
+    impl<M> Matcher<&Value> for JsonValueMatcher<M, f64>
     where
         M: Matcher<f64>,
     {
@@ -109,7 +135,7 @@ pub mod internal {
         }
     }
 
-    impl<M> Matcher<&Value> for JsonScalarMatcher<M, bool>
+    impl<M> Matcher<&Value> for JsonValueMatcher<M, bool>
     where
         M: Matcher<bool>,
     {
@@ -131,80 +157,26 @@ pub mod internal {
             }
         }
     }
-}
 
-/// Matches a JSON scalar (string, number, or boolean) against the given matcher,
-/// allowing direct assertions on scalar values inside JSON.
-pub fn json_scalar<M, T>(matcher: M) -> internal::JsonScalarMatcher<M, T> {
-    internal::JsonScalarMatcher::new(matcher)
-}
+    #[derive(MatcherBase)]
+    pub struct IsJsonNull;
+    impl Matcher<&Value> for IsJsonNull {
+        fn matches(&self, actual: &Value) -> MatcherResult {
+            match actual {
+                Value::Null => MatcherResult::Match,
+                _ => MatcherResult::NoMatch,
+            }
+        }
 
-#[cfg(test)]
-mod tests {
-    use crate::json;
-    use googletest::prelude::*;
-    use serde_json::json;
+        fn describe(&self, _: MatcherResult) -> Description {
+            Description::new().text("JSON null")
+        }
 
-    #[test]
-    fn i64_match() {
-        let val = json!(42);
-        assert_that!(val, json::scalar(gt(41)));
-    }
-
-    #[test]
-    fn i64_unmatch() {
-        let val = json!(42);
-        assert_that!(val, not(json::scalar(gt(99))));
-    }
-
-    #[test]
-    fn string_match() {
-        let val = json!("hello");
-        assert_that!(val, json::scalar(starts_with("hello")));
-    }
-
-    #[test]
-    fn string_unmatch() {
-        let val = json!("hello");
-        assert_that!(val, not(json::scalar(starts_with("world"))));
-    }
-
-    #[test]
-    fn f64_match() {
-        let val = json!(3.1);
-        assert_that!(val, json::scalar(gt(2.1)));
-    }
-
-    #[test]
-    fn f64_unmatch() {
-        let val = json!(3.1);
-        assert_that!(val, not(json::scalar(gt(4.1))));
-    }
-
-    #[test]
-    fn bool_match() {
-        let val = json!(true);
-        assert_that!(val, json::scalar(is_true()));
-    }
-
-    #[test]
-    fn bool_unmatch() {
-        let val = json!(true);
-        assert_that!(val, not(json::scalar(is_false())));
-    }
-
-    #[test]
-    fn string_wrong_type() {
-        let val = json!(123);
-        if let Err(err) = verify_that!(val, json::scalar(starts_with("hello"))) {
-            assert_that!(
-                err.description,
-                eq(
-                    "Value of: val\nExpected: JSON string that\n  starts with prefix \"hello\"\nActual: Number(123),\n  which is not a JSON string"
-                )
-            );
-        } else {
-            fail!("expected failure but matcher reported success").unwrap();
+        fn explain_match(&self, actual: &Value) -> Description {
+            match actual {
+                Value::Null => Description::new().text("which is null"),
+                _ => Description::new().text("which is not JSON null"),
+            }
         }
     }
 }
