@@ -1,15 +1,27 @@
-# googletest-serde-json
+# GoogleTest Serde Json
 
-Tiny, focused matchers and macros that make it effortless to assert on `serde_json::Value` in Rust tests using [googletest-rust](https://docs.rs/googletest/).
+A set of matcher macros for ergonomic JSON testing with [googletest-rust](https://docs.rs/googletest/).
 
-- ✅ **Value** assertions for JSON strings, numbers (i64/f64), booleans, and null  
-- ✅ **Object** pattern matching with strict / non-strict modes  
-- ✅ **Array** element-by-element matching (supports heterogeneous types)  
-- ✅ **Unordered array** matching  
-- ✅ **Containment** assertions (check if JSON contains a subset)  
-- ✅ Clear, structured **failure explanations**
+These tiny, focused matchers make it effortless to assert on `serde_json::Value` in Rust tests.
 
-## Installation
+## Features
+
+- **Value**: Match JSON primitive values (`string`, `number` (i64/f64), `bool`) using the `json::value!` macro, and
+  match `null` values with `json::is_null()`.
+- **Object**: Pattern-match JSON objects by fields using the `json::matches_pattern!{...}` macro; supports both *
+  *strict** mode (
+  all fields must match and no extra fields) and **non-strict** mode (extra fields allowed via `..`).
+- **Array**: Match arrays element-by-element (ordered, supports heterogeneous types) using the
+  `json::elements_are![...]` macro.
+- **Unordered array**: Match arrays where order does not matter using the `json::unordered_elements_are![...]` macro.
+- **Contains-each (arrays)**: Require that each expected matcher matches a unique element in any order, allowing extra
+  elements, with the `json::contains_each![...]` macro.
+- **Containment (arrays)**: Assert that an array is a subset of the expected matchers (i.e., every actual element is
+  accounted for) using the `json::is_contained_in![...]` macro.
+- Clear, structured **diagnostic failure messages**: When a match fails, detailed explanations show which part of the
+  JSON structure did not match and why.
+
+## Getting Started
 
 Add to your `Cargo.toml`:
 
@@ -20,6 +32,8 @@ serde_json = "1"
 googletest-serde-json = "0.1" # replace with the latest version on crates.io
 ```
 
+This crate is typically only needed as a dev-dependency.
+
 In tests:
 
 ```rust
@@ -28,37 +42,48 @@ use googletest_serde_json::json;
 use serde_json::json as j;
 ```
 
-> The crate re-exports a `json` namespace with everything you need:  
-> - `json::value(...)` – match a value inside a JSON `Value`  
-> - `json::pat!{...}` – match a JSON object by fields  
-> - `json::elements_are![...]` – match arrays element-by-element (ordered)  
-> - `json::unordered_elements_are![...]` – match arrays element-by-element (unordered)  
+> The crate re-exports a `json` namespace with everything you need:
+> - `json::value!(...)` – match a value inside a JSON `Value`
+> - `json::matches_pattern!` – explicitly match JSON objects by fields (with `json::pat!` as an alias)
+> - `json::elements_are![...]` – match arrays element-by-element (ordered)
+> - `json::unordered_elements_are![...]` – match arrays element-by-element (unordered)
 > - `json::is_contained_in![...]` – assert containment of JSON elements
 
 ---
 
 ## Quick start
 
-### Match JSON values with `json::value`
+### Values
+
+#### Match JSON values with `json::value`
 
 ```rust
-#[test]
+# use googletest::prelude::*;
+# use googletest_serde_json::json;
+# use serde_json::json as j;
+
 fn values() {
-    assert_that!(j!(42),        json::value(gt(40)));             // i64
-    assert_that!(j!(3.14),      json::value(close_to(3.1, 0.1))); // f64
-    assert_that!(j!("hello"),   json::value(starts_with("he"))); // &str
-    assert_that!(j!(true),      json::value(is_true()));          // bool
+    assert_that!(j!(42),        json::value!(gt(40i64)));
+    assert_that!(j!(3.14),      json::value!(near(3.1f64, 0.1f64)));
+    assert_that!(j!("hello"),   json::value!(starts_with("he")));
+    assert_that!(j!(true),      json::value!(is_true()));
+    assert_that!(j!(null),     json::is_null());
 }
 ```
 
 ---
 
-### Match JSON objects with `json::pat!`
+### Objects
+
+#### Match JSON objects with `json::pat!`
 
 Strict match:
 
 ```rust
-#[test]
+# use googletest::prelude::*;
+# use googletest_serde_json::json;
+# use serde_json::json as j;
+
 fn object_strict() {
     let v = j!({"name": "Alice", "age": 30.0});
     assert_that!(
@@ -74,7 +99,10 @@ fn object_strict() {
 Non-strict match (with `..`):
 
 ```rust
-#[test]
+# use googletest::prelude::*;
+# use googletest_serde_json::json;
+# use serde_json::json as j;
+
 fn object_non_strict() {
     let v = j!({"name": "Alice", "age": 30.0, "extra": "ignored"});
     assert_that!(
@@ -89,10 +117,15 @@ fn object_non_strict() {
 
 ---
 
-### Match arrays with `json::elements_are!` (ordered)
+### Arrays 
+
+#### Match arrays with `json::elements_are!` (ordered)
 
 ```rust
-#[test]
+# use googletest::prelude::*;
+# use googletest_serde_json::json;
+# use serde_json::json as j;
+
 fn arrays_ordered() {
     assert_that!(
         j!(["hello", 42, true]),
@@ -101,12 +134,15 @@ fn arrays_ordered() {
 }
 ```
 
----
 
-### Match arrays with `json::unordered_elements_are!` (unordered)
+
+#### Match arrays with `json::unordered_elements_are!` (unordered)
 
 ```rust
-#[test]
+# use googletest::prelude::*;
+# use googletest_serde_json::json;
+# use serde_json::json as j;
+
 fn arrays_unordered() {
     assert_that!(
         j!([42, "hello", true]),
@@ -115,28 +151,28 @@ fn arrays_unordered() {
 }
 ```
 
----
 
-### Assert containment with `json::is_contained_in!`
+#### Assert containment with `json::is_contained_in!`
 
 ```rust
-#[test]
+# use googletest::prelude::*;
+# use googletest_serde_json::json;
+# use serde_json::json as j;
+
 fn containment() {
     assert_that!(
-        j!({"a": 1, "b": 2, "c": 3}),
-        json::is_contained_in!({
-            "a": eq(1),
-            "c": eq(3),
-        })
+        j!(["a", "b", "c"]),
+        json::is_contained_in![eq("a"), eq("c")]
     );
 }
 ```
 
 ---
 
-## Combined example
+### Combined example
 
-Compose all together for complex structures. Here is a Rust struct with a JSON field, using `matches_pattern!` for the struct and nested JSON matchers for the field:
+Compose all together for complex structures. Here is a Rust struct with a JSON field, using `matches_pattern!` for the
+struct and nested JSON matchers for the field:
 
 ```rust
 use googletest::prelude::*;
@@ -150,16 +186,15 @@ struct Response {
     payload: serde_json::Value,
 }
 
-#[test]
 fn combined_match() {
     let resp = Response {
         status: 200,
         payload: j!({
             "user": {
-                "name": "Alice",
+                "name": "Ali",
                 "tags": ["admin", "tester"],
                 "active": true,
-                "extra": "ignored"
+                "ignored": false,
             }
         }),
     };
@@ -167,12 +202,12 @@ fn combined_match() {
     assert_that!(
         resp,
         matches_pattern!(Response {
-            status: eq(200),
+            status: eq(&200),
             payload: json::pat!({
                 "user": json::pat!({
-                    "name": json::value(starts_with("Ali")),
+                    "name": json::value!(starts_with("Ali")),
                     "tags": json::elements_are![eq("admin"), eq("tester")],
-                    "active": json::value(is_true()),
+                    "active": json::value!(is_true()),
                     ..
                 })
             })
@@ -180,5 +215,3 @@ fn combined_match() {
     );
 }
 ```
-
----
