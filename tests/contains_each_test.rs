@@ -1,6 +1,6 @@
 use googletest::Result;
 use googletest::prelude::*;
-use googletest_serde_json::json;
+use googletest_json_serde::json;
 use serde_json::json as j;
 
 #[test]

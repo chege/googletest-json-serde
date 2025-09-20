@@ -1,7 +1,7 @@
 // tests/json_matchers_integration.rs
 
 use googletest::prelude::*;
-use googletest_serde_json::json;
+use googletest_json_serde::json;
 // JSON matchers live under this module
 use indoc::indoc;
 use serde_json::json as j;

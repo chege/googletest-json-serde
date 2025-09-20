@@ -1,9 +1,9 @@
 [package]
-name = "googletest-serde-json"
+name = "googletest-json-serde"
 description = "GoogleTest (googletest) matchers for serde_json::Value"
 version = "0.1.0"
 edition = "2024"
-repository = "https://github.com/you/googletest-serde-json"
+repository = "https://github.com/chege/googletest-json-serde"
 keywords = ["googletest", "gtest", "json", "serde_json", "matchers"]
 
 

@@ -15,7 +15,7 @@
 /// ```
 /// # use googletest::prelude::*;
 /// # use serde_json::json as j;
-/// # use crate::googletest_serde_json::json;
+/// # use crate::googletest_json_serde::json;
 /// let value = j!(["a", "b", "c"]);
 /// assert_that!(
 ///     value,
@@ -27,7 +27,7 @@
 /// ```
 /// # use googletest::prelude::*;
 /// # use serde_json::json as j;
-/// # use crate::googletest_serde_json::json;
+/// # use crate::googletest_json_serde::json;
 /// let value = j!([["x", "y"], ["z"]]);
 /// assert_that!(
 ///     value,

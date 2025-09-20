@@ -14,7 +14,7 @@
 /// ```
 /// # use googletest::prelude::*;
 /// # use serde_json::json;
-/// # use crate::googletest_serde_json::json;
+/// # use crate::googletest_json_serde::json;
 /// # fn should_pass() -> Result<()> {
 /// verify_that!(json!(["c", "b", "a"]), json::contains_each![eq("a"), eq("b")])?;   // Passes
 /// verify_that!(json!(["x", "y", "y"]), json::contains_each![eq("y"), eq("x")])?;   // Passes

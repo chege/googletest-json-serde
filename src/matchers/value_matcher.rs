@@ -13,7 +13,7 @@
 /// # Example
 /// ```
 /// # use googletest::prelude::*;
-/// # use googletest_serde_json::json;
+/// # use googletest_json_serde::json;
 /// # use serde_json::json as j;
 /// let data = j!({"active": true, "count": 3});
 ///

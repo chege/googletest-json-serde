@@ -11,7 +11,7 @@
 /// ```
 /// # use googletest::prelude::*;
 /// # use serde_json::json;
-/// # use googletest_serde_json::json;
+/// # use googletest_json_serde::json;
 /// let value = json!({ "name": "Alice", "age": 30i64 });
 /// assert_that!(
 ///     value,
@@ -27,7 +27,7 @@
 /// ```
 /// # use googletest::prelude::*;
 /// # use serde_json::json;
-/// # use googletest_serde_json::json;
+/// # use googletest_json_serde::json;
 /// let value = json!({
 ///     "user": {
 ///         "id": 1,

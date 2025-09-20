@@ -17,7 +17,7 @@
 /// ```
 /// # use googletest::prelude::*;
 /// # use serde_json::json;
-/// # use crate::googletest_serde_json::json;
+/// # use crate::googletest_json_serde::json;
 /// let value = json!(["a", "b", "c"]);
 /// assert_that!(
 ///     value,
@@ -33,7 +33,7 @@
 /// ```should_panic
 /// # use googletest::prelude::*;
 /// # use serde_json::json;
-/// # use crate::googletest_serde_json::json;
+/// # use crate::googletest_json_serde::json;
 /// let value = json!(["a", "x", "c"]);
 /// assert_that!(
 ///     value,
@@ -49,7 +49,7 @@
 /// ```should_panic
 /// # use googletest::prelude::*;
 /// # use serde_json::json;
-/// # use crate::googletest_serde_json::json;
+/// # use crate::googletest_json_serde::json;
 /// let value = json!("not an array");
 /// assert_that!(
 ///     value,

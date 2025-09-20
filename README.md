@@ -1,4 +1,4 @@
-# GoogleTest Serde Json
+# GoogleTest Json Serde
 
 A set of matcher macros for ergonomic JSON testing with [googletest-rust](https://docs.rs/googletest/).
 
@@ -29,7 +29,7 @@ Add to your `Cargo.toml`:
 [dev-dependencies]
 googletest = "0.14"
 serde_json = "1"
-googletest-serde-json = "0.1" # replace with the latest version on crates.io
+googletest-json-serde = "0.1" # replace with the latest version on crates.io
 ```
 
 This crate is typically only needed as a dev-dependency.
@@ -38,7 +38,7 @@ In tests:
 
 ```rust
 use googletest::prelude::*;
-use googletest_serde_json::json;
+use googletest_json_serde::json;
 use serde_json::json as j;
 ```
 
@@ -59,7 +59,7 @@ use serde_json::json as j;
 
 ```rust
 # use googletest::prelude::*;
-# use googletest_serde_json::json;
+# use googletest_json_serde::json;
 # use serde_json::json as j;
 
 fn values() {
@@ -81,7 +81,7 @@ Strict match:
 
 ```rust
 # use googletest::prelude::*;
-# use googletest_serde_json::json;
+# use googletest_json_serde::json;
 # use serde_json::json as j;
 
 fn object_strict() {
@@ -100,7 +100,7 @@ Non-strict match (with `..`):
 
 ```rust
 # use googletest::prelude::*;
-# use googletest_serde_json::json;
+# use googletest_json_serde::json;
 # use serde_json::json as j;
 
 fn object_non_strict() {
@@ -123,7 +123,7 @@ fn object_non_strict() {
 
 ```rust
 # use googletest::prelude::*;
-# use googletest_serde_json::json;
+# use googletest_json_serde::json;
 # use serde_json::json as j;
 
 fn arrays_ordered() {
@@ -140,7 +140,7 @@ fn arrays_ordered() {
 
 ```rust
 # use googletest::prelude::*;
-# use googletest_serde_json::json;
+# use googletest_json_serde::json;
 # use serde_json::json as j;
 
 fn arrays_unordered() {
@@ -156,7 +156,7 @@ fn arrays_unordered() {
 
 ```rust
 # use googletest::prelude::*;
-# use googletest_serde_json::json;
+# use googletest_json_serde::json;
 # use serde_json::json as j;
 
 fn containment() {
@@ -177,7 +177,7 @@ struct and nested JSON matchers for the field:
 ```rust
 use googletest::prelude::*;
 use googletest::matchers::matches_pattern;
-use googletest_serde_json::json;
+use googletest_json_serde::json;
 use serde_json::json as j;
 
 #[derive(Debug)]

@@ -30,7 +30,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "googletest-serde-json"
+name = "googletest-json-serde"
 version = "0.1.0"
 dependencies = [
  "googletest",
