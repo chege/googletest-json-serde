@@ -2,7 +2,7 @@
 
 Tiny, focused matchers and macros that make it effortless to assert on `serde_json::Value` in Rust tests using [googletest-rust](https://docs.rs/googletest/).
 
-- ✅ **Scalar** assertions for JSON strings, numbers (i64/f64), and booleans  
+- ✅ **Value** assertions for JSON strings, numbers (i64/f64), booleans, and null  
 - ✅ **Object** pattern matching with strict / non-strict modes  
 - ✅ **Array** element-by-element matching (supports heterogeneous types)  
 - ✅ **Unordered array** matching  
@@ -29,7 +29,7 @@ use serde_json::json as j;
 ```
 
 > The crate re-exports a `json` namespace with everything you need:  
-> - `json::scalar(...)` – match a scalar inside a JSON `Value`  
+> - `json::value(...)` – match a value inside a JSON `Value`  
 > - `json::pat!{...}` – match a JSON object by fields  
 > - `json::elements_are![...]` – match arrays element-by-element (ordered)  
 > - `json::unordered_elements_are![...]` – match arrays element-by-element (unordered)  
@@ -39,15 +39,15 @@ use serde_json::json as j;
 
 ## Quick start
 
-### Match JSON scalars with `json::scalar`
+### Match JSON values with `json::value`
 
 ```rust
 #[test]
-fn scalars() {
-    assert_that!(j!(42),        json::scalar(gt(40)));             // i64
-    assert_that!(j!(3.14),      json::scalar(close_to(3.1, 0.1))); // f64
-    assert_that!(j!("hello"),   json::scalar(starts_with("he"))); // &str
-    assert_that!(j!(true),      json::scalar(is_true()));          // bool
+fn values() {
+    assert_that!(j!(42),        json::value(gt(40)));             // i64
+    assert_that!(j!(3.14),      json::value(close_to(3.1, 0.1))); // f64
+    assert_that!(j!("hello"),   json::value(starts_with("he"))); // &str
+    assert_that!(j!(true),      json::value(is_true()));          // bool
 }
 ```
 
@@ -170,9 +170,9 @@ fn combined_match() {
             status: eq(200),
             payload: json::pat!({
                 "user": json::pat!({
-                    "name": json::scalar(starts_with("Ali")),
+                    "name": json::value(starts_with("Ali")),
                     "tags": json::elements_are![eq("admin"), eq("tester")],
-                    "active": json::scalar(is_true()),
+                    "active": json::value(is_true()),
                     ..
                 })
             })

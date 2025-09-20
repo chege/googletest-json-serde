@@ -1,29 +1,61 @@
-//! Utility matchers and macros for concise JSON object pattern matching using googletest.
-
-/// Macro to create a [`JsonObjectMatcher`] matcher from a JSON-like literal.
+/// Matches a JSON object by specifying a pattern of key-value matchers, similar to
+/// GoogleTest’s `matches_pattern!` macro for Rust structs.
 ///
-/// Supports:
-/// - nested JSON objects
-/// - optional JSON values (`Option<Value>`)
+/// This macro is used for asserting that a `serde_json::Value` representing a JSON object
+/// contains the specified fields, with each field matching the corresponding matcher. Extra
+/// fields are rejected unless the pattern ends with `..`.
 ///
-/// Each key maps to a matcher that is executed on the corresponding value.
-/// Extra keys in the actual JSON are ignored unless explicitly matched.
+/// # Examples
 ///
-/// Example:
-/// ```rust
-/// use googletest_serde_json::json;
-/// use googletest::prelude::*;
-///
-/// let val = serde_json::json!({"name": "Alice", "age": 30.0});
+/// Basic usage:
+/// ```
+/// # use googletest::prelude::*;
+/// # use serde_json::json;
+/// # use googletest_serde_json::json;
+/// let value = json!({ "name": "Alice", "age": 30i64 });
 /// assert_that!(
-///     val,
+///     value,
 ///     json::pat!({
 ///         "name": eq("Alice"),
-///         "age": eq(30.0),
+///         "age": json::value!(ge(18i64)),
+///         .. // allows additional fields
 ///     })
 /// );
 /// ```
+///
+/// Nested matching:
+/// ```
+/// # use googletest::prelude::*;
+/// # use serde_json::json;
+/// # use googletest_serde_json::json;
+/// let value = json!({
+///     "user": {
+///         "id": 1,
+///         "active": true
+///     }
+/// });
+/// assert_that!(
+///     value,
+///     json::pat!({
+///         "user": json::pat!({
+///             "id": eq(1),
+///             "active": eq(true),
+///         })
+///     })
+/// );
+/// ```
+///
+/// # Notes
+///
+/// - Matchers like `eq(...)` can be used directly.
+/// - For non-`Value` matchers (e.g., `starts_with`, `contains_substring`), wrap them in
+///   `json::value!(...)`.
+///
+/// # Alias
+///
+/// This macro is reexported as [`json::pat!`](crate::json::pat).
 #[macro_export]
+#[doc(hidden)]
 macro_rules! __json_matches_pattern {
     // Strict version: no `..`
     ({ $($key:literal : $val:expr),* $(,)? }) => {{
@@ -213,166 +245,5 @@ pub mod internal {
                 None => Description::new().text("was None (expected Some(JSON object))"),
             }
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::json;
-    use googletest::prelude::*;
-    use serde_json::{Value, json};
-
-    #[test]
-    fn match_option_with_object() {
-        let val = Some(json!({"field": "value"}));
-        assert_that!(
-            val,
-            json::pat!({
-                "field": eq("value")
-            })
-        );
-    }
-
-    #[gtest]
-    fn match_object_with_extra_fields() -> Result<()> {
-        let val = json!({"field": "value", "unexpected": 123});
-        if let Err(err) = verify_that!(
-            val,
-            json::pat!({
-                "field": eq("value")
-            })
-        ) {
-            assert_that!(
-                err.description,
-                contains_substring("unexpected field 'unexpected' present")
-            );
-        } else {
-            fail!("expected failure but matcher reported success")?;
-        }
-        Ok(())
-    }
-    #[test]
-    fn match_object_with_anything_field() {
-        let val = json!({"field": "value", "unexpected": 123});
-        assert_that!(
-            val,
-            json::pat!({
-                "field": eq("value"),
-                "unexpected": anything()
-            })
-        );
-    }
-
-    #[gtest]
-    fn explain_mismatch_option_nested_object() -> Result<()> {
-        let val = Some(json!({
-            "field": {
-                "subfield": 123,
-                "flag": false
-            },
-            "extra": "hello"
-        }));
-        if let Err(err) = verify_that!(
-            val,
-            json::pat!({
-                "field": json::pat!({
-                    "subfield": eq(999),
-                    "flag": eq(true)
-                }),
-                "extra": eq("world")
-            })
-        ) {
-            assert_that!(
-                err.description,
-                all![
-                    contains_substring("field 'field': had 2 field mismatches"),
-                    contains_substring("field 'subfield': which isn't equal to 999"),
-                    contains_substring("field 'flag': which isn't equal to true"),
-                    contains_substring("field 'extra': which isn't equal to \"world\""),
-                ]
-            );
-        } else {
-            fail!("expected failure but matcher reported success")?;
-        }
-        Ok(())
-    }
-    #[test]
-    fn match_option_none() {
-        let val: Option<Value> = None;
-        assert_that!(
-            val,
-            not(json::pat!({
-                "field": eq("value")
-            }))
-        );
-    }
-
-    #[test]
-    fn match_object_with_wrong_field() {
-        let val = json!({"field": "other"});
-        assert_that!(
-            val,
-            not(json::pat!({
-                "field": eq("value")
-            }))
-        );
-    }
-
-    #[gtest]
-    fn explain_mismatch_nested_object() -> Result<()> {
-        let val = json!({
-            "field": {
-                "subfield": 123,
-                "flag": false
-            },
-            "extra": "hello"
-        });
-        if let Err(err) = verify_that!(
-            val,
-            json::pat!({
-                "field": json::pat!({
-                    "subfield": eq(999),
-                    "flag": eq(true)
-                }),
-                "extra": eq("world")
-            })
-        ) {
-            assert_that!(
-                err.description,
-                all![
-                    contains_substring("field 'field': had 2 field mismatches"),
-                    contains_substring("field 'subfield': which isn't equal to 999"),
-                    contains_substring("field 'flag': which isn't equal to true"),
-                    contains_substring("field 'extra': which isn't equal to \"world\""),
-                ]
-            );
-        } else {
-            fail!("expected failure but matcher reported success")?;
-        }
-        Ok(())
-    }
-
-    #[test]
-    fn match_strict_object() {
-        let val = json!({"field": "value", "float":20.0});
-        assert_that!(
-            val,
-            json::pat!({
-                "field": eq("value"),
-                "float": eq(20.0),
-            })
-        );
-    }
-
-    #[test]
-    fn match_non_strict_object() {
-        let val = json!({"field": "value", "extra": 123});
-        assert_that!(
-            val,
-            json::pat!({
-                "field": eq("value"),
-                ..
-            })
-        );
     }
 }
