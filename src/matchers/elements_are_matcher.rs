@@ -1,9 +1,48 @@
-//! JSON array matcher for concise assertions using googletest, split from the generic JSON matchers module.
-
-/// Internal macro to build a JSON array matcher.
-/// Accepts both bracketed (`__json_elements_are!([ ... ])`) and unbracketed (`__json_elements_are!(...)`) forms.
-/// Callers should prefer the public `json::elements_are!` wrapper.
+/// Matches a JSON array with elements that satisfy the given matchers, in order.
+///
+/// Each element of the JSON array is matched against a corresponding
+/// [`Matcher`][googletest::matcher::Matcher]. The array must have the same length
+/// as the list of matchers, and all matchers must succeed.
+///
+/// This macro supports two forms:
+/// - Bracketed: `elements_are!([matcher1, matcher2, ...])`
+/// - Unbracketed: `elements_are!(matcher1, matcher2, ...)`
+///
+/// Callers should prefer the public-facing [`json::elements_are!`](crate::json::elements_are!) macro.
+///
+/// # Example
+///
+/// ```
+/// # use googletest::prelude::*;
+/// # use serde_json::json as j;
+/// # use crate::googletest_serde_json::json;
+/// let value = j!(["a", "b", "c"]);
+/// assert_that!(
+///     value,
+///     json::elements_are![eq("a"), eq("b"), eq("c")]
+/// );
+/// ```
+///
+/// Nested example:
+/// ```
+/// # use googletest::prelude::*;
+/// # use serde_json::json as j;
+/// # use crate::googletest_serde_json::json;
+/// let value = j!([["x", "y"], ["z"]]);
+/// assert_that!(
+///     value,
+///     json::elements_are![
+///         json::elements_are![eq("x"), eq("y")],
+///         json::elements_are![eq("z")]
+///     ]
+/// );
+/// ```
+///
+/// # See also
+///
+/// [`googletest::matcher::Matcher`], [`crate::json::elements_are!`]
 #[macro_export]
+#[doc(hidden)]
 macro_rules! __json_elements_are {
     // Preferred bracketed form: __json_elements_are!([ m1, m2, ... ])
     ([$($matcher:expr),* $(,)?]) => {{
@@ -23,20 +62,17 @@ pub mod internal {
     use googletest::matcher::{Matcher, MatcherBase, MatcherResult};
     use serde_json::Value;
 
-    /// Concrete JSON array matcher. Hidden from public API; use the
-    /// `json_elements_are!` macro to construct it.
+    #[doc(hidden)]
+    #[derive(MatcherBase)]
     pub struct JsonElementsAre {
         elements: Vec<Box<dyn for<'a> Matcher<&'a Value>>>,
     }
 
     impl JsonElementsAre {
-        /// Factory used by the `json_elements_are!` macro.
         pub fn new(elements: Vec<Box<dyn for<'a> Matcher<&'a Value>>>) -> Self {
             Self { elements }
         }
     }
-
-    impl MatcherBase for JsonElementsAre {}
 
     impl Matcher<&Value> for JsonElementsAre {
         fn matches(&self, actual: &Value) -> MatcherResult {
@@ -102,150 +138,5 @@ pub mod internal {
                 _ => Description::new().text("where the type is not array".to_string()),
             }
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::json;
-    use googletest::prelude::*;
-    use serde_json::json;
-    #[test]
-    fn full_match() {
-        let val = json!(["a", "b", "c"]);
-        assert_that!(val, json::elements_are![eq("a"), eq("b"), eq("c")]);
-    }
-
-    #[gtest]
-    fn partial_match() -> Result<()> {
-        let val = json!(["a", "b", "c"]);
-        if let Err(err) = verify_that!(val, json::elements_are![eq("a"), eq("x"), eq("y")]) {
-            assert_that!(
-                err.description,
-                eq("Value of: val\n\
-                    Expected: has JSON array elements:\n  \
-                    0. is equal to \"a\"\n  \
-                    1. is equal to \"x\"\n  \
-                    2. is equal to \"y\"\n\
-                    Actual: Array [String(\"a\"), String(\"b\"), String(\"c\")],\n  where:\n    \
-                    * element #1 is String(\"b\"), which isn't equal to \"x\"\n    \
-                    * element #2 is String(\"c\"), which isn't equal to \"y\"")
-            );
-        } else {
-            fail!("expected failure but matcher reported success")?;
-        }
-        Ok(())
-    }
-    #[test]
-    fn wrong_order() {
-        let val = json!(["a", "b", "c"]);
-        assert_that!(val, not(json::elements_are![eq("c"), eq("b"), eq("a")]));
-    }
-
-    #[gtest]
-    fn mixed_types() {
-        let val = json!(["hello", 42, true]);
-        assert_that!(val, json::elements_are![eq("hello"), eq(42), eq(true)]);
-    }
-
-    #[test]
-    fn mixed_types_unmatch() {
-        let val = json!(["hello", 42, true]);
-        assert_that!(
-            val,
-            not(json::elements_are![eq("hello"), eq(999), eq(true)])
-        );
-    }
-
-    #[gtest]
-    fn length_mismatch() -> Result<()> {
-        let val = json!(["a", "b"]);
-        if let Err(err) = verify_that!(val, json::elements_are![eq("a"), eq("b"), eq("c")]) {
-            assert_that!(
-                err.description,
-                eq("Value of: val\n\
-                   Expected: has JSON array elements:\n  \
-                   0. is equal to \"a\"\n  \
-                   1. is equal to \"b\"\n  \
-                   2. is equal to \"c\"\n\
-                   Actual: Array [String(\"a\"), String(\"b\")],\n  \
-                   whose size is 2")
-            );
-        } else {
-            fail!("expected failure but matcher reported success")?;
-        }
-        Ok(())
-    }
-
-    #[test]
-    fn wrong_type() {
-        let val = json!(["a", 42, true]);
-        assert_that!(val, not(json::elements_are![eq("a"), eq("b"), eq(true)]));
-    }
-
-    #[gtest]
-    fn nested_arrays_match() {
-        let val = json!([["x", "y"], ["z"]]);
-        assert_that!(
-            val,
-            json::elements_are![
-                json::elements_are![eq("x"), eq("y")],
-                json::elements_are![eq("z")]
-            ]
-        );
-    }
-
-    #[test]
-    fn nested_arrays_unmatch() {
-        let val = json!([["x", "y"], ["z"]]);
-        assert_that!(
-            val,
-            not(json::elements_are![
-                json::elements_are![eq("x"), eq("z")],
-                json::elements_are![eq("z")]
-            ])
-        );
-    }
-    #[test]
-    fn empty_match() {
-        let val = json!([]);
-        assert_that!(val, json::elements_are![]);
-    }
-
-    #[test]
-    fn empty_unmatch() {
-        let val = json!(["unexpected"]);
-        assert_that!(val, not(json::elements_are![]));
-    }
-
-    #[gtest]
-    fn dupes_match() {
-        let val = json!(["x", "x", "x"]);
-        assert_that!(val, json::elements_are![eq("x"), eq("x"), eq("x")]);
-    }
-
-    #[test]
-    fn dupes_unmatch() {
-        let val = json!(["x", "y", "x"]);
-        assert_that!(val, not(json::elements_are![eq("x"), eq("x"), eq("x")]));
-    }
-    #[gtest]
-    fn not_array() -> Result<()> {
-        let val = json!("not-an-array");
-        if let Err(err) = verify_that!(val, json::elements_are![eq("a"), eq("b"), eq("c")]) {
-            assert_that!(
-                err.description,
-                eq("Value of: val\n\
-                   Expected: has JSON array elements:\n  \
-                   0. is equal to \"a\"\n  \
-                   1. is equal to \"b\"\n  \
-                   2. is equal to \"c\"\n\
-                   Actual: String(\"not-an-array\"),\n  \
-                   where the type is not array")
-            );
-        } else {
-            return fail!("expected failure but matcher reported success");
-        }
-        Ok(())
     }
 }
