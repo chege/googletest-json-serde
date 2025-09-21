@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5
-      # No explicit rustup component adds needed; rust-toolchain.toml handles that
+      - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - run: cargo fmt --all -- --check
 
@@ -32,6 +32,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
 
       - name: clippy (stable, deny warnings)
@@ -39,12 +40,39 @@ jobs:
           RUSTFLAGS: -D warnings
         run: cargo clippy --all-targets --all-features -- -D warnings
 
-  minimal-versions:
-    name: Minimal dependency versions
+  msrv:
+    name: MSRV 1.89.0 build
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@1.89.0
+      - uses: Swatinem/rust-cache@v2
+      - name: Build on MSRV (locked)
+        run: cargo build --all-features --locked
+
+  docs:
+    name: Docs build
+    needs: [format, clippy]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build docs (deny warnings)
+        env:
+          RUSTDOCFLAGS: -D warnings
+        run: cargo doc --all-features --no-deps
+
+  minimal-versions:
+    name: Minimal dependency versions
+    needs: [format, clippy]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@nightly
       - uses: Swatinem/rust-cache@v2
       - name: Generate minimal lockfile
         run: cargo +nightly generate-lockfile -Z minimal-versions
@@ -53,18 +81,22 @@ jobs:
 
   test:
     name: Tests (stable)
+    needs: [format, clippy, msrv]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-24.04, macos-latest ] # omit windows due to POSIX commands in trycmd cases
+        os: [ ubuntu-24.04, macos-latest, windows-latest ]
     steps:
       - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - name: Build (locked)
         env:
           RUSTFLAGS: -D warnings
         run: cargo build --all-features --locked
       - name: Run unit + integration tests
+        env:
+          RUSTFLAGS: -D warnings
         run: cargo test --all-features -- --nocapture
