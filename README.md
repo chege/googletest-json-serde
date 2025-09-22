@@ -1,4 +1,24 @@
-# GoogleTest Json Serde
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.svg" >
+  <source media="(prefers-color-scheme: light)" srcset="assets/logo-light.svg" >
+  <img alt="GoogleTest JSON Serde logo" src="assets/logo-light.svg">
+</picture>
+<div align="center">
+  <h3>
+    <a href="#getting-started">Getting Started</a>
+    <span> | </span>
+    <a href="#examples">Examples</a>
+    <span> | </span>
+    <a href="#values">Values</a>
+    <span> | </span>
+    <a href="#objects">Objects</a>
+    <span> | </span>
+    <a href="#arrays">Arrays</a>
+    <span> | </span>
+    <a href="#combined-example">Combined example</a>
+  </h3>
+</div>
+
 
 A set of matcher macros for ergonomic JSON testing with [googletest-rust](https://docs.rs/googletest/).
 
@@ -49,8 +69,6 @@ use serde_json::json as j;
 > - `json::unordered_elements_are![...]` – match arrays element-by-element (unordered)
 > - `json::is_contained_in![...]` – assert containment of JSON elements
 
----
-
 ## Examples
 
 ### Values
@@ -71,11 +89,9 @@ fn values() {
 }
 ```
 
----
-
 ### Objects
 
-#### Match JSON objects with `json::pat!`
+#### Match JSON objects with `json::matches_pattern!`
 
 Strict match:
 
@@ -88,7 +104,7 @@ fn object_strict() {
     let v = j!({"name": "Alice", "age": 30.0});
     assert_that!(
         v,
-        json::pat!({
+        json::matches_pattern!({
             "name": eq("Alice"),
             "age":  eq(30.0),
         })
@@ -107,15 +123,13 @@ fn object_non_strict() {
     let v = j!({"name": "Alice", "age": 30.0, "extra": "ignored"});
     assert_that!(
         v,
-        json::pat!({
+        json::matches_pattern!({
             "name": eq("Alice"),
             ..
         })
     );
 }
 ```
-
----
 
 ### Arrays
 
@@ -131,6 +145,10 @@ fn arrays_ordered() {
         j!(["hello", 42, true]),
         json::elements_are![eq("hello"), eq(42), eq(true)]
     );
+    assert_that!(
+        j!(["hello", 42, true]),
+        not(json::elements_are![eq("hello"), eq(42), eq(false)])
+    );
 }
 ```
 
@@ -144,7 +162,11 @@ fn arrays_ordered() {
 fn arrays_unordered() {
     assert_that!(
         j!([42, "hello", true]),
-        json::unordered_elements_are![eq("hello"), eq(42), eq(true)]
+        json::unordered_elements_are![eq(42), eq(true), eq("hello")]
+    );
+    assert_that!(
+        j!([42, "hello", true]),
+        not(json::unordered_elements_are![eq(42), eq(false), eq("hello")])
     );
 }
 ```
@@ -161,10 +183,43 @@ fn containment() {
         j!(["a", "b", "c"]),
         json::is_contained_in![eq("a"), eq("c")]
     );
+    assert_that!(
+        j!(["a", "b", "c"]),
+        not(json::is_contained_in![eq("a"), eq("d")])
+    );
 }
 ```
 
----
+#### Assert each matcher finds a unique element with json::contains_each!
+
+```rust
+# use googletest::prelude::*;
+# use googletest_json_serde::json;
+# use serde_json::json as j;
+
+fn contains_each() {
+    // Array can have extra elements, but must contain all required ones
+    assert_that!(
+        j!(["admin", "user", "tester", "viewer"]),
+        json::contains_each![eq("admin"), eq("tester")]
+    );
+    assert_that!(
+        j!(["admin", "user", "tester", "viewer"]),
+        not(json::contains_each![eq("admin"), eq("missing")])
+    );
+}
+```
+
+#### Array Matcher Quick Reference
+
+Here’s a quick reference matrix comparing the array matchers:
+
+| Matcher                   | Order Matters | Extra Elements OK | Missing Elements OK | Use Case                                                      |
+|---------------------------|---------------|-------------------|---------------------|---------------------------------------------------------------|
+| `elements_are!`           | Yes           | No                | No                  | Exact ordered match of all elements                           |
+| `unordered_elements_are!` | No            | No                | No                  | Exact unordered match of all elements                         |
+| `contains_each!`          | No            | Yes               | No                  | Require each matcher to match a unique element, extra allowed |
+| `is_contained_in!`        | No            | No                | Yes                 | Actual elements are subset of expected                        |
 
 ### Combined example
 
@@ -172,10 +227,10 @@ Compose all together for complex structures. Here is a Rust struct with a JSON f
 struct and nested JSON matchers for the field:
 
 ```rust
-use googletest::prelude::*;
-use googletest::matchers::matches_pattern;
-use googletest_json_serde::json;
-use serde_json::json as j;
+# use googletest::prelude::*;
+# use googletest::matchers::matches_pattern;
+# use googletest_json_serde::json;
+# use serde_json::json as j;
 
 #[derive(Debug)]
 struct Response {
@@ -188,10 +243,17 @@ fn combined_match() {
         status: 200,
         payload: j!({
             "user": {
-                "name": "Ali",
-                "tags": ["admin", "tester"],
-                "active": true,
-                "ignored": false,
+                "id": 123,
+                "name": "Alice",
+                "roles": ["admin", "user", "tester"],
+                "permissions": ["read", "write", "delete", "extra_perm"],
+                "settings": {
+                    "theme": "dark",
+                    "notifications": true,
+                    "beta_features": null
+                },
+                "login_times": [1640995200, 1641081600, 1641168000],
+                "metadata": {"created": "2021-01-01", "source": "api"}
             }
         }),
     };
@@ -200,27 +262,46 @@ fn combined_match() {
         resp,
         matches_pattern!(Response {
             status: eq(&200),
-            payload: json::pat!({
-                "user": json::pat!({
+            payload: json::matches_pattern!({
+                "user": json::matches_pattern!({
+                    // Value matchers
+                    "id": json::value!(gt(100i64)),
                     "name": json::value!(starts_with("Ali")),
-                    "tags": json::elements_are![eq("admin"), eq("tester")],
-                    "active": json::value!(is_true()),
+                    
+                    // Ordered array matching
+                    "roles": json::elements_are![eq("admin"), eq("user"), eq("tester")],
+                    
+                    // Unordered array matching (subset with unique matches)
+                    "permissions": json::contains_each![eq("read"), eq("write")],
+                    
+                    // Nested object with null value
+                    "settings": json::matches_pattern!({
+                        "theme": json::value!(eq("dark")),
+                        "notifications": json::value!(is_true()),
+                        "beta_features": json::is_null(),
+                    }),
+                    
+                    // Unordered array matching (exact)
+                    "login_times": json::unordered_elements_are![
+                        eq(1641168000), eq(1640995200), eq(1641081600)
+                    ],
+                    
+                    // Non-strict object matching (allows extra fields)
+                    "metadata": json::matches_pattern!({
+                        "created": json::value!(starts_with("2021")),
+                        ..
+                    }),
+                    
+                    // Allow extra fields in user object
                     ..
                 })
             })
         })
-    );
+      );
 }
 ```
 
-## License
+## Acknowledgements
 
-Licensed under either of
-
-- [Apache License, Version 2.0](LICENSE-APACHE)
-- [MIT license](LICENSE-MIT)
-
-at your option.
-
-Files that are copied or adapted from [googletest-rust](https://github.com/google/googletest-rust) retain their original
-Apache 2.0 license header with a notice of modifications.
+Parts of this crate are adapted from [googletest-rust](https://github.com/google/googletest-rust), which is licensed
+under Apache 2.0.
