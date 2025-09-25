@@ -14,6 +14,20 @@ fn is_contained_in_matches_empty_array_trailing_comma() -> Result<()> {
 }
 
 #[test]
+fn is_contained_in_matches_with_parentheses() -> Result<()> {
+    verify_that!(j!([2, 3]), json::is_contained_in!(eq(2), eq(3), eq(4)))
+}
+
+#[test]
+fn is_contained_in_wrong_type_gives_error_message() -> Result<()> {
+    let matcher = json::is_contained_in![eq(1)];
+    verify_that!(
+        matcher.explain_match(&j!({"not": "an array"})),
+        displays_as(contains_substring("which is not a JSON array"))
+    )
+}
+
+#[test]
 fn is_contained_in_matches_subset() -> Result<()> {
     verify_that!(j!([2, 3]), json::is_contained_in![eq(2), eq(3), eq(4)])
 }
