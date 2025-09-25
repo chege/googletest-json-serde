@@ -166,3 +166,72 @@ fn explain_mismatch_nested_object() {
         panic!("expected failure but matcher reported success");
     }
 }
+
+#[test]
+fn explain_single_field_mismatch() {
+    let val = json!({"foo": 1});
+    if let Err(err) = verify_that!(
+        val,
+        json::pat!({
+            "foo": eq(2)
+        })
+    ) {
+        assert_that!(
+            err.description,
+            contains_substring("field 'foo': which isn't equal to 2")
+        );
+    } else {
+        panic!("expected failure but matcher reported success");
+    }
+}
+
+#[test]
+fn explain_wrong_type() {
+    let val = json!(123);
+    if let Err(err) = verify_that!(
+        val,
+        json::pat!({
+            "foo": eq(1)
+        })
+    ) {
+        assert_that!(
+            err.description,
+            contains_substring("was 123 (expected object)")
+        );
+    } else {
+        panic!("expected failure but matcher reported success");
+    }
+}
+
+#[test]
+fn explain_option_none() {
+    let val: Option<serde_json::Value> = None;
+    if let Err(err) = verify_that!(
+        val,
+        json::pat!({
+            "foo": eq(1)
+        })
+    ) {
+        assert_that!(err.description, contains_substring("was None"));
+    } else {
+        panic!("expected failure but matcher reported success");
+    }
+}
+
+#[test]
+fn explain_option_some_mismatch() {
+    let val = Some(json!({"foo": 1}));
+    if let Err(err) = verify_that!(
+        val,
+        json::pat!({
+            "foo": eq(2)
+        })
+    ) {
+        assert_that!(
+            err.description,
+            contains_substring("field 'foo': which isn't equal to 2")
+        );
+    } else {
+        panic!("expected failure but matcher reported success");
+    }
+}
