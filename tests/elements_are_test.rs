@@ -11,11 +11,40 @@ fn elements_are_matches_json_array() -> Result<()> {
 }
 
 #[test]
+fn elements_are_matches_json_array_with_parentheses() -> Result<()> {
+    let value = j!(["a", "b", "c"]);
+    verify_that!(value, json::elements_are!(eq("a"), eq("b"), eq("c")))
+}
+
+#[test]
 fn elements_are_supports_trailing_comma() -> Result<()> {
     let value = j!(["a", "b", "c"]);
     verify_that!(value, json::elements_are![eq("a"), eq("b"), eq("c"),])
 }
 
+#[test]
+fn elements_are_size_mismatch_extra_expected() -> Result<()> {
+    let value = j!(["a", "b"]);
+    verify_that!(value, not(json::elements_are![eq("a"), eq("b"), eq("c")]))
+}
+
+#[test]
+fn elements_are_input_not_array_failure_message() -> Result<()> {
+    let result = verify_that!(j!("not-an-array"), json::elements_are![eq("a")]);
+    verify_that!(
+        result,
+        err(displays_as(contains_substring("the type is not array")))
+    )
+}
+
+#[test]
+fn elements_are_input_wrong_type_number() -> Result<()> {
+    let result = verify_that!(j!(42), json::elements_are![eq(42)]);
+    verify_that!(
+        result,
+        err(displays_as(contains_substring("the type is not array")))
+    )
+}
 #[test]
 fn elements_are_returns_no_match_when_expected_and_actual_sizes_differ() -> Result<()> {
     let value = j!(["a", "b"]);
