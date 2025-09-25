@@ -67,3 +67,68 @@ fn contains_each_explains_missing_element_in_mismatch() -> Result<()> {
         displays_as(eq("which has no element matching the expected element #2"))
     )
 }
+
+#[test]
+fn contains_each_mixed_types_match() -> Result<()> {
+    verify_that!(
+        j!(["a", 1, true]),
+        json::contains_each![eq("a"), eq(1), eq(true)]
+    )
+}
+
+#[test]
+fn contains_each_mixed_types_unmatch() -> Result<()> {
+    verify_that!(
+        j!(["b", 2, false]),
+        not(json::contains_each![eq("b"), eq(2), eq(true)])
+    )
+}
+
+#[test]
+fn contains_each_with_parentheses() -> Result<()> {
+    verify_that!(j!(["x", "y"]), json::contains_each!(eq("x"), eq("y")))
+}
+
+#[test]
+fn contains_each_empty_input_and_nonempty_matchers() -> Result<()> {
+    verify_that!(j!([]), not(json::contains_each![eq("a")]))
+}
+
+#[test]
+fn contains_each_duplicate_elements() -> Result<()> {
+    verify_that!(
+        j!(["a", "a", "b"]),
+        json::contains_each![eq("a"), eq("a"), eq("b")]
+    )
+}
+
+#[test]
+fn contains_each_input_smaller_than_matchers() -> Result<()> {
+    verify_that!(j!(["a"]), not(json::contains_each![eq("a"), eq("b")]))
+}
+
+#[test]
+fn contains_each_multiple_missing_elements_in_mismatch() -> Result<()> {
+    let matcher = json::contains_each![eq(&2), eq(&3), eq(&4), eq(&5)];
+    verify_that!(
+        matcher.explain_match(&j!([2])),
+        displays_as(eq("which has size 1 (expected at least 4)"))
+    )
+}
+
+#[test]
+fn contains_each_completely_unmatched_elements() -> Result<()> {
+    verify_that!(
+        j!(["x", "y", "z"]),
+        not(json::contains_each![eq("a"), eq("b"), eq("c")])
+    )
+}
+
+#[test]
+fn contains_each_wrong_type_failure_message() -> Result<()> {
+    let result = verify_that!(j!({"a": 1, "b": 2}), json::contains_each![eq("a")]);
+    verify_that!(
+        result,
+        err(displays_as(contains_substring("which is not a JSON array")))
+    )
+}
