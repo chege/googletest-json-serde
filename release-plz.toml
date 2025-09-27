@@ -1,0 +1,64 @@
+[changelog]
+header = """# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+"""
+
+body = """
+
+## [{{ version }}]\
+{%- if release_link -%}\
+({{ release_link }})\
+{% endif %} \
+- {{ timestamp | date(format="%Y-%m-%d") }}
+
+{% if previous.version -%}\
+[View diff on diff.rs](https://diff.rs/{{ package }}/{{ previous.version }}/{{ package }}/{{ version }}/Cargo.toml)
+{%- endif %}
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group | upper_first }}
+
+{% for commit in commits %}
+{%- if commit.scope -%}
+- *({{commit.scope}})* {% if commit.breaking %}[**breaking**] {% endif %}\
+{{ commit.message }}\
+{%- if commit.links %} \
+({% for link in commit.links %}[{{link.text}}]({{link.href}}) {% endfor -%})\
+{% endif %}
+{% else -%}
+- {% if commit.breaking %}[**breaking**] {% endif %}{{ commit.message }}
+{% endif -%}
+{% endfor -%}
+{% endfor %}
+"""
+
+
+commit_parsers = [
+    { message = "^feat", group = "<!-- 0 -->⛰️ Features" },
+    { message = "^fix", group = "<!-- 1 -->🐛 Bug Fixes" },
+    { message = "^doc", group = "<!-- 3 -->📚 Documentation" },
+    { message = "^perf", group = "<!-- 4 -->⚡ Performance" },
+    { message = "^refactor\\(clippy\\)", skip = true },
+    { message = "^refactor", group = "<!-- 2 -->🚜 Refactor" },
+    { message = "^style", group = "<!-- 5 -->🎨 Styling" },
+    { message = "^test", group = "<!-- 6 -->🧪 Testing" },
+    { message = "^chore\\(release\\):", skip = true },
+    { message = "^chore: release", skip = true },
+    { message = "^chore\\(deps.*\\)", skip = true },
+    { message = "^chore\\(pr\\)", skip = true },
+    { message = "^chore\\(pull\\)", skip = true },
+    { message = "^chore\\(npm\\).*yarn\\.lock", skip = true },
+    { message = "^chore|^ci", group = "<!-- 7 -->⚙️ Miscellaneous Tasks" },
+    { body = ".*security", group = "<!-- 8 -->🛡️ Security" },
+    { message = "^revert", group = "<!-- 9 -->◀️ Revert" },
+]
+
+link_parsers = [
+    { pattern = "#(\\d+)", href = "{{ remote.link }}/issues/$1" },
+    { pattern = "RFC(\\d+)", text = "ietf-rfc$1", href = "https://datatracker.ietf.org/doc/html/rfc$1" },
+]
