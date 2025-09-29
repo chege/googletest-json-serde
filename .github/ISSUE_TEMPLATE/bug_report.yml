@@ -1,0 +1,100 @@
+name: Bug Report
+description: Report a bug or unexpected behavior
+labels: [ bug ]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please provide a **minimal reproducible test case**. This crate is used for testing, so it should be possible to isolate the issue in a short test.
+        
+        **Include all necessary imports** in your reproduction code:
+        ```rust
+        use googletest::prelude::*;
+        use googletest_json_serde::json;
+        use serde_json::json as j;
+        ```
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission checklist
+      options:
+        - label: I have searched existing issues for duplicates
+          required: true
+        - label: I have included a minimal reproducible example
+          required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe what you expected to happen and what actually happened.
+      placeholder: |
+        The json::matches_pattern! macro fails when asserting against nested objects with null values...
+        
+        Expected: The assertion should pass
+        Actual: Got a panic with "pattern matching failed"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal test case
+      description: |
+        Include a **complete** minimal test case that reproduces the issue.
+        Do **not** omit imports, macro invocations, or test function wrappers.
+        Include the JSON data that causes the issue.
+      placeholder: |
+        ```rust
+        use googletest::prelude::*;
+        use googletest_json_serde::json;
+        use serde_json::json as j;
+        
+        #[test]
+        fn test_bug() {
+            let data = j!({"user": {"name": "Alice", "settings": null}});
+            verify_that!(
+                data,
+                json::matches_pattern!({
+                    "user": json::matches_pattern!({
+                        "name": json::value!(eq("Alice")),
+                        "settings": json::is_null(),
+                    })
+                })
+            );
+        }
+        ```
+      render: markdown
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Crate version
+      description: Output of `cargo tree | grep googletest-json-serde`
+      placeholder: e.g. googletest-json-serde v0.1.0
+    validations:
+      required: true
+  - type: input
+    id: serde_json_version
+    attributes:
+      label: serde_json version
+      description: Output of `cargo tree | grep serde_json` (first line)
+      placeholder: e.g. serde_json v1.0.108
+    validations:
+      required: false
+  - type: input
+    id: rust_version
+    attributes:
+      label: Rust version
+      description: Output of `rustc --version`
+      placeholder: e.g. rustc 1.75.0 (82e1608df 2023-12-21)
+    validations:
+      required: false
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional context
+      description: Anything else you want to share?
+      placeholder: |
+        Platform info (OS, architecture), optional stack traces, or notes about related crates.
+        
+        If the issue involves specific JSON structures or edge cases, please describe them here.
