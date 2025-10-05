@@ -93,3 +93,46 @@ fn is_contained_in_explains_mismatch_due_to_no_graph_matching_found() -> Result<
               Expected element `is greater than or equal to 3` at index 1 did not match any remaining actual element."))
     ))
 }
+
+#[test]
+fn is_contained_in_matches_nested_arrays() -> Result<()> {
+    let data = j!([[1, 2], [3, 4]]);
+    verify_that!(
+        data,
+        json::is_contained_in![
+            json::is_contained_in![eq(1), eq(2)],
+            json::is_contained_in![eq(3), eq(4)]
+        ]
+    )
+}
+
+#[test]
+fn is_contained_in_handles_mixed_types() -> Result<()> {
+    let data = j!([1, "a", true]);
+    verify_that!(
+        data,
+        json::is_contained_in![eq(1), eq("a"), eq(true), eq(false)]
+    )
+}
+
+#[test]
+fn is_contained_in_with_duplicates_should_fail() -> Result<()> {
+    verify_that!(j!([1, 1, 2]), not(json::is_contained_in![eq(1), eq(2)]))
+}
+
+#[test]
+fn is_contained_in_with_empty_expected_should_fail() -> Result<()> {
+    verify_that!(j!([1, 2, 3]), not(json::is_contained_in![]))
+}
+
+#[test]
+fn is_contained_in_explains_nested_mismatch() -> Result<()> {
+    let matcher = json::is_contained_in![
+        json::is_contained_in![eq(1), eq(999)],
+        json::is_contained_in![eq(3), eq(4)]
+    ];
+    verify_that!(
+        matcher.explain_match(&j!([[1, 2], [3, 4]])),
+        displays_as(contains_substring("element #0"))
+    )
+}

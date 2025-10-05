@@ -92,7 +92,34 @@ fn unordered_elements_are_unmatchable_actual_description_mismatch() -> Result<()
         displays_as(eq("whose element #1 does not match any expected elements"))
     )
 }
+#[test]
+fn unordered_elements_are_matches_when_expected_duplicates_are_fully_matched() -> Result<()> {
+    let value = json!(["a", "b"]);
+    verify_that!(
+        value,
+        json::unordered_elements_are![eq("a"), eq("a"), eq("b")]
+    )
+}
+#[test]
+fn unordered_elements_are_fails_with_extra_actual_elements() -> Result<()> {
+    let value = json!(["a", "b", "c", "d"]);
+    verify_that!(
+        value,
+        not(json::unordered_elements_are![eq("a"), eq("b"), eq("c")])
+    )
+}
 
+#[test]
+fn unordered_elements_are_matches_nested_unordered_arrays() -> Result<()> {
+    let value = json!([["x", "y"], ["z"]]);
+    verify_that!(
+        value,
+        json::unordered_elements_are![
+            json::unordered_elements_are![eq("z")],
+            json::unordered_elements_are![eq("y"), eq("x")]
+        ]
+    )
+}
 #[test]
 fn unordered_elements_are_fails_and_includes_full_message() -> Result<()> {
     let result = verify_that!(
