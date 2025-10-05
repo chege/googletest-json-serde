@@ -20,18 +20,105 @@
 /// verify_that!(data["active"], json::value!(eq(true)));
 /// verify_that!(data["count"], json::value!(ge(0)));
 /// ```
+
+#[deprecated(since = "0.2.0", note = "please use `json::primitive!` instead")]
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_value {
+    ($matcher:expr) => {
+        $crate::__json_primitive!($matcher)
+    };
+}
+
+/// Matches a JSON value (string, number, or boolean) against the given matcher.
+///
+/// This macro enables matching specific primitive values inside a JSON structure
+/// by delegating to a matcher for the corresponding Rust type. It supports:
+/// - `String` values (e.g. `json::primitive!(eq("hello"))`)
+/// - `Number` values as `i64` or `f64` (e.g. `json::primitive!(ge(0))`)
+/// - `Boolean` values (e.g. `json::primitive!(eq(true))`)
+///
+/// Fails if the value is not of the expected JSON type.
+///
+/// # Example
+/// ```
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// let data = j!({"active": true, "count": 3});
+///
+/// verify_that!(data["active"], json::primitive!(eq(true)));
+/// verify_that!(data["count"], json::primitive!(ge(0)));
+/// ```
+#[macro_export]
+#[doc(hidden)]
+macro_rules! __json_primitive {
     ($matcher:expr) => {
         $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonValueMatcher::new(
             $matcher,
         )
     };
 }
+pub fn any_value()
+-> crate::matchers::__internal_unstable_do_not_depend_on_these::JsonAnyValueMatcher {
+    crate::matchers::__internal_unstable_do_not_depend_on_these::JsonAnyValueMatcher::new(
+        |v| !v.is_null(),
+        "any JSON value",
+    )
+}
+pub fn any_non_null_value()
+-> crate::matchers::__internal_unstable_do_not_depend_on_these::JsonAnyValueMatcher {
+    crate::matchers::__internal_unstable_do_not_depend_on_these::JsonAnyValueMatcher::new(
+        |v| !v.is_null(),
+        "any non-null JSON value",
+    )
+}
 
-pub fn is_null() -> crate::matchers::__internal_unstable_do_not_depend_on_these::IsJsonNull {
-    crate::matchers::__internal_unstable_do_not_depend_on_these::IsJsonNull
+pub fn is_null() -> crate::matchers::__internal_unstable_do_not_depend_on_these::JsonAnyValueMatcher
+{
+    crate::matchers::__internal_unstable_do_not_depend_on_these::JsonAnyValueMatcher::new(
+        |v| v.is_null(),
+        "any Null JSON value",
+    )
+}
+
+pub fn any_string()
+-> crate::matchers::__internal_unstable_do_not_depend_on_these::JsonAnyValueMatcher {
+    crate::matchers::__internal_unstable_do_not_depend_on_these::JsonAnyValueMatcher::new(
+        |v| v.is_string(),
+        "any String JSON value",
+    )
+}
+
+pub fn any_number()
+-> crate::matchers::__internal_unstable_do_not_depend_on_these::JsonAnyValueMatcher {
+    crate::matchers::__internal_unstable_do_not_depend_on_these::JsonAnyValueMatcher::new(
+        |v| v.is_number(),
+        "any Number JSON value",
+    )
+}
+
+pub fn any_boolean()
+-> crate::matchers::__internal_unstable_do_not_depend_on_these::JsonAnyValueMatcher {
+    crate::matchers::__internal_unstable_do_not_depend_on_these::JsonAnyValueMatcher::new(
+        |v| v.is_boolean(),
+        "any Boolean JSON value",
+    )
+}
+
+pub fn any_array()
+-> crate::matchers::__internal_unstable_do_not_depend_on_these::JsonAnyValueMatcher {
+    crate::matchers::__internal_unstable_do_not_depend_on_these::JsonAnyValueMatcher::new(
+        |v| v.is_array(),
+        "any Array JSON value",
+    )
+}
+pub fn any_object()
+-> crate::matchers::__internal_unstable_do_not_depend_on_these::JsonAnyValueMatcher {
+    crate::matchers::__internal_unstable_do_not_depend_on_these::JsonAnyValueMatcher::new(
+        |v| v.is_object(),
+        "any Object JSON value",
+    )
 }
 
 #[doc(hidden)]
@@ -151,24 +238,45 @@ pub mod internal {
     }
 
     #[derive(MatcherBase)]
-    pub struct IsJsonNull;
-    impl Matcher<&Value> for IsJsonNull {
+    pub struct JsonAnyValueMatcher {
+        kind_check: fn(&Value) -> bool,
+        description: &'static str,
+    }
+
+    impl JsonAnyValueMatcher {
+        pub fn new(kind_check: fn(&Value) -> bool, description: &'static str) -> Self {
+            Self {
+                kind_check,
+                description,
+            }
+        }
+    }
+
+    impl Matcher<&Value> for JsonAnyValueMatcher {
         fn matches(&self, actual: &Value) -> MatcherResult {
-            match actual {
-                Value::Null => MatcherResult::Match,
-                _ => MatcherResult::NoMatch,
+            if (self.kind_check)(actual) {
+                MatcherResult::Match
+            } else {
+                MatcherResult::NoMatch
             }
         }
 
-        fn describe(&self, _: MatcherResult) -> Description {
-            Description::new().text("JSON null")
+        fn describe(&self, _matcher_result: MatcherResult) -> Description {
+            Description::new().text(self.description)
         }
 
         fn explain_match(&self, actual: &Value) -> Description {
-            match actual {
-                Value::Null => Description::new().text("which is null"),
-                _ => Description::new().text("which is not JSON null"),
-            }
+            Description::new().text(format!("which is {actual}"))
         }
+    }
+
+    impl JsonMatcher for JsonAnyValueMatcher {}
+
+    /// Marker trait for JSON-aware matchers.
+    pub trait JsonMatcher: for<'a> Matcher<&'a Value> {}
+
+    impl<M, T> JsonMatcher for JsonValueMatcher<M, T> where
+        JsonValueMatcher<M, T>: for<'a> Matcher<&'a Value>
+    {
     }
 }
