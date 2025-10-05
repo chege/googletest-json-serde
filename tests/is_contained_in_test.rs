@@ -15,12 +15,12 @@ fn is_contained_in_matches_empty_array_trailing_comma() -> Result<()> {
 
 #[test]
 fn is_contained_in_matches_with_parentheses() -> Result<()> {
-    verify_that!(j!([2, 3]), json::is_contained_in!(eq(2), eq(3), eq(4)))
+    verify_that!(j!([2, 3]), json::is_contained_in!(ge(2), ge(3), ge(4)))
 }
 
 #[test]
 fn is_contained_in_wrong_type_gives_error_message() -> Result<()> {
-    let matcher = json::is_contained_in![eq(1)];
+    let matcher = json::is_contained_in![ge(1)];
     verify_that!(
         matcher.explain_match(&j!({"not": "an array"})),
         displays_as(contains_substring("which is not a JSON array"))
@@ -29,31 +29,31 @@ fn is_contained_in_wrong_type_gives_error_message() -> Result<()> {
 
 #[test]
 fn is_contained_in_matches_subset() -> Result<()> {
-    verify_that!(j!([2, 3]), json::is_contained_in![eq(2), eq(3), eq(4)])
+    verify_that!(j!([2, 3]), json::is_contained_in![ge(2), ge(3), ge(4)])
 }
 
 #[test]
 fn is_contained_in_supports_trailing_comma() -> Result<()> {
-    verify_that!(j!([2, 3]), json::is_contained_in![eq(2), eq(3),])
+    verify_that!(j!([2, 3]), json::is_contained_in![ge(2), ge(3),])
 }
 
 #[test]
 fn is_contained_in_matches_when_actual_is_empty() -> Result<()> {
     // Empty actual is always a subset of expected.
-    verify_that!(j!([]), json::is_contained_in![eq(2), eq(3), eq(4)])
+    verify_that!(j!([]), json::is_contained_in![ge(2), ge(3), ge(4)])
 }
 
 #[test]
 fn is_contained_in_does_not_match_when_an_element_is_unmatched() -> Result<()> {
     verify_that!(
         j!([1, 2, 3]),
-        not(json::is_contained_in![eq(2), eq(3), eq(4)])
+        not(json::is_contained_in![ge(2), ge(3), ge(4)])
     )
 }
 
 #[test]
 fn is_contained_in_explains_mismatch_due_to_wrong_size() -> Result<()> {
-    let matcher = json::is_contained_in![eq(2), eq(3)];
+    let matcher = json::is_contained_in![ge(2), ge(3)];
     verify_that!(
         matcher.explain_match(&j!([2, 3, 4])),
         displays_as(eq("which has size 3 (expected at most 2)"))
@@ -62,7 +62,7 @@ fn is_contained_in_explains_mismatch_due_to_wrong_size() -> Result<()> {
 
 #[test]
 fn is_contained_in_explains_missing_element_in_mismatch() -> Result<()> {
-    let matcher = json::is_contained_in![eq(2), eq(3), eq(4)];
+    let matcher = json::is_contained_in![ge(2), ge(3), ge(4)];
     verify_that!(
         matcher.explain_match(&j!([1, 2, 3])),
         displays_as(eq("whose element #0 does not match any expected elements"))
@@ -71,7 +71,7 @@ fn is_contained_in_explains_missing_element_in_mismatch() -> Result<()> {
 
 #[test]
 fn is_contained_in_explains_missing_elements_in_mismatch() -> Result<()> {
-    let matcher = json::is_contained_in![eq(2), eq(3), eq(4), eq(5)];
+    let matcher = json::is_contained_in![ge(2), ge(3), ge(4), ge(5)];
     verify_that!(
         matcher.explain_match(&j!([0, 1, 2, 3])),
         displays_as(eq(

@@ -3,7 +3,7 @@ mod matches_pattern_matcher;
 mod unordered_elements_are_matcher;
 mod value_matcher;
 
-pub use value_matcher::is_null;
+pub use value_matcher::{any_value, is_null};
 
 #[allow(deprecated)]
 #[doc(inline)]
@@ -19,7 +19,9 @@ pub mod __internal_unstable_do_not_depend_on_these {
     pub use super::elements_are_matcher::internal::JsonElementsAre;
     pub use super::matches_pattern_matcher::internal::JsonObjectMatcher;
     pub use super::unordered_elements_are_matcher::internal::JsonUnorderedElementsAreMatcher;
+    pub use super::value_matcher::internal::IntoJsonMatcher;
     pub use super::value_matcher::internal::IsJsonNull;
+    pub use super::value_matcher::internal::JsonAnyValueMatcher;
     pub use super::value_matcher::internal::JsonValueMatcher;
     pub use crate::matcher_support::match_matrix::internal::Requirements;
 }
