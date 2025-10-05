@@ -71,9 +71,9 @@ use serde_json::json as j;
 
 ## Examples
 
-### Values
+### Primitives
 
-#### Match JSON values with `json::value`
+#### Match JSON primitives with `json::primitive`
 
 ```rust
 # use googletest::prelude::*;
