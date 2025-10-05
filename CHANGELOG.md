@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1](https://github.com-chege/chege/googletest-json-serde/compare/v0.1.0...v0.1.1) - 2025-10-05
+
+[View diff on diff.rs](https://diff.rs/googletest-json-serde/0.1.0/googletest-json-serde/0.1.1/Cargo.toml)
+
+### <!-- 0 -->⛰️ Features
+
+- support native matchers in array macros; add any_value for JSON non-null match
+- add `json::primitive!` macro and deprecate `json::value!`
+- add structured GitHub issue templates for bugs and feature requests
+
+### <!-- 2 -->🚜 Refactor
+
+- move __json_is_contained_in macro from elements_are_matcher
+
+### <!-- 3 -->📚 Documentation
+
+- *(readme)* replace deprecated json::value with json::primitive and update section title
+
+### <!-- 6 -->🧪 Testing
+
+- add nested and edge case coverage for JSON matchers
+
+### <!-- 7 -->⚙️ Miscellaneous Tasks
+
+- test
+
 ## [0.1.0](https://github.com-chege/chege/googletest-json-serde/releases/tag/v0.1.0) - 2025-09-27
 
 
