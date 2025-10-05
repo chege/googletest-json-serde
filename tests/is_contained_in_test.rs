@@ -82,7 +82,7 @@ fn is_contained_in_explains_missing_elements_in_mismatch() -> Result<()> {
 
 #[test]
 fn is_contained_in_explains_mismatch_due_to_no_graph_matching_found() -> Result<()> {
-    let matcher = json::is_contained_in![json::value!(ge(1_i64)), json::value!(ge(3_i64))];
+    let matcher = json::is_contained_in![json::primitive!(ge(1_i64)), json::primitive!(ge(3_i64))];
     verify_that!(
         matcher.explain_match(&j!([1, 2])),
         displays_as(eq(indoc!(

@@ -17,7 +17,7 @@
 ///     value,
 ///     json::pat!({
 ///         "name": eq("Alice"),
-///         "age": json::value!(ge(18i64)),
+///         "age": json::primitive!(ge(18i64)),
 ///         .. // allows additional fields
 ///     })
 /// );
@@ -49,7 +49,7 @@
 ///
 /// - Matchers like `eq(...)` can be used directly.
 /// - For non-`Value` matchers (e.g., `starts_with`, `contains_substring`), wrap them in
-///   `json::value!(...)`.
+///   `json::primitive!(...)`.
 ///
 /// # Alias
 ///

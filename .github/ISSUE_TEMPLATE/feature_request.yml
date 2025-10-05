@@ -38,8 +38,8 @@ body:
         assert_that!(
             j!(["item1", "item2", "target", "other", "another_target", "item3"]),
             json::contains_sequence![
-                json::value!(eq("target")),
-                json::value!(eq("another_target"))
+                json::primitive!(eq("target")),
+                json::primitive!(eq("another_target"))
             ]
         );
         ```

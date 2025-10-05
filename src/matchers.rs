@@ -5,11 +5,12 @@ mod value_matcher;
 
 pub use value_matcher::is_null;
 
+#[allow(deprecated)]
 #[doc(inline)]
 pub use crate::{
     __json_contains_each as contains_each, __json_elements_are as elements_are,
     __json_is_contained_in as is_contained_in, __json_matches_pattern as pat,
-    __json_matches_pattern as matches_pattern,
+    __json_matches_pattern as matches_pattern, __json_primitive as primitive,
     __json_unordered_elements_are as unordered_elements_are, __json_value as value,
 };
 
