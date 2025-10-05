@@ -6,8 +6,11 @@ use serde_json::{Value, json as j};
 
 #[test]
 fn elements_are_matches_json_array() -> Result<()> {
-    let value = j!(["a", "b", "c"]);
-    verify_that!(value, json::elements_are![eq("a"), eq("b"), eq("c")])
+    let value = j!(["alex", "b", "c"]);
+    verify_that!(
+        value,
+        json::elements_are![starts_with("a"), eq("b"), eq("c")]
+    )
 }
 
 #[test]
@@ -132,11 +135,11 @@ fn elements_are_works_when_matcher_is_created_in_subroutine() -> Result<()> {
 
 #[test]
 fn elements_are_nested_arrays_match() -> Result<()> {
-    let value = j!([["x", "y"], ["z"]]);
+    let value = j!([["moving", "y"], ["z"]]);
     verify_that!(
         value,
         json::elements_are![
-            json::elements_are![eq("x"), eq("y")],
+            json::elements_are![starts_with("m"), eq("y")],
             json::elements_are![eq("z")]
         ]
     )
