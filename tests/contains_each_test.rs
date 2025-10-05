@@ -132,3 +132,51 @@ fn contains_each_wrong_type_failure_message() -> Result<()> {
         err(displays_as(contains_substring("which is not a JSON array")))
     )
 }
+
+#[test]
+fn contains_each_nested_full_match() -> Result<()> {
+    verify_that!(
+        j!([["x", "y"], ["a", "b"]]),
+        json::contains_each![
+            json::contains_each![eq("x"), eq("y")],
+            json::contains_each![eq("a"), eq("b")]
+        ]
+    )
+}
+#[test]
+fn contains_each_nested_partial_match() -> Result<()> {
+    verify_that!(
+        j!([["x", "y"], ["a", "b"]]),
+        json::contains_each![json::contains_each![eq("x")], json::contains_each![eq("a")]]
+    )
+}
+
+#[test]
+fn contains_each_partial_nested_mismatch() -> Result<()> {
+    verify_that!(
+        j!([["x", "y"], ["a", "b"]]),
+        not(json::contains_each![
+            json::contains_each![eq("x"), eq("z")],
+            json::contains_each![eq("a"), eq("b")]
+        ])
+    )
+}
+
+#[test]
+fn contains_each_nested_wrong_type() -> Result<()> {
+    verify_that!(
+        j!([{"x": 1}, ["a", "b"]]),
+        not(json::contains_each![
+            json::contains_each![eq("x")],
+            json::contains_each![eq("a"), eq("b")]
+        ])
+    )
+}
+
+#[test]
+fn contains_each_empty_input_nested_matchers() -> Result<()> {
+    verify_that!(
+        j!([]),
+        not(json::contains_each![json::contains_each![eq("a")]])
+    )
+}
