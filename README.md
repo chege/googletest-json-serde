@@ -26,7 +26,7 @@ These tiny, focused matchers make it effortless to assert on `serde_json::Value`
 
 ## Features
 
-- **Value**: Match JSON primitive values (`string`, `number` (i64/f64), `bool`) using the `json::value!` macro, and
+- **Value**: Match JSON primitive values (`string`, `number` (i64/f64), `bool`) using the `json::primitive!` macro, and
   match `null` values with `json::is_null()`.
 - **Object**: Pattern-match JSON objects by fields using the `json::matches_pattern!{...}` macro; supports both *
   *strict** mode (
@@ -63,7 +63,7 @@ use serde_json::json as j;
 ```
 
 > The crate re-exports a `json` namespace with everything you need:
-> - `json::value!(...)` – match a value inside a JSON `Value`
+> - `json::primitive!(...)` – match a value inside a JSON `Value`
 > - `json::matches_pattern!` – explicitly match JSON objects by fields (with `json::pat!` as an alias)
 > - `json::elements_are![...]` – match arrays element-by-element (ordered)
 > - `json::unordered_elements_are![...]` – match arrays element-by-element (unordered)
@@ -81,10 +81,10 @@ use serde_json::json as j;
 # use serde_json::json as j;
 
 fn values() {
-    assert_that!(j!(42),        json::value!(gt(40i64)));
-    assert_that!(j!(3.14),      json::value!(near(3.1f64, 0.1f64)));
-    assert_that!(j!("hello"),   json::value!(starts_with("he")));
-    assert_that!(j!(true),      json::value!(is_true()));
+    assert_that!(j!(42),        json::primitive!(gt(40i64)));
+    assert_that!(j!(3.14),      json::primitive!(near(3.1f64, 0.1f64)));
+    assert_that!(j!("hello"),   json::primitive!(starts_with("he")));
+    assert_that!(j!(true),      json::primitive!(is_true()));
     assert_that!(j!(null),     json::is_null());
 }
 ```
@@ -265,8 +265,8 @@ fn combined_match() {
             payload: json::matches_pattern!({
                 "user": json::matches_pattern!({
                     // Value matchers
-                    "id": json::value!(gt(100i64)),
-                    "name": json::value!(starts_with("Ali")),
+                    "id": json::primitive!(gt(100i64)),
+                    "name": json::primitive!(starts_with("Ali")),
                     
                     // Ordered array matching
                     "roles": json::elements_are![eq("admin"), eq("user"), eq("tester")],
@@ -276,8 +276,8 @@ fn combined_match() {
                     
                     // Nested object with null value
                     "settings": json::matches_pattern!({
-                        "theme": json::value!(eq("dark")),
-                        "notifications": json::value!(is_true()),
+                        "theme": json::primitive!(eq("dark")),
+                        "notifications": json::primitive!(is_true()),
                         "beta_features": json::is_null(),
                     }),
                     
@@ -288,7 +288,7 @@ fn combined_match() {
                     
                     // Non-strict object matching (allows extra fields)
                     "metadata": json::matches_pattern!({
-                        "created": json::value!(starts_with("2021")),
+                        "created": json::primitive!(starts_with("2021")),
                         ..
                     }),
                     

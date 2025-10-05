@@ -6,7 +6,7 @@ use serde_json::json;
 #[test]
 fn i64_wrong_type() -> Result<()> {
     let val = json!(true);
-    let result = verify_that!(val, json::value!(gt(10)));
+    let result = verify_that!(val, json::primitive!(gt(10)));
     verify_that!(
         result,
         err(displays_as(starts_with(indoc!(
@@ -21,7 +21,7 @@ fn i64_wrong_type() -> Result<()> {
 #[test]
 fn f64_wrong_type() -> Result<()> {
     let val = json!("wat");
-    let result = verify_that!(val, json::value!(gt(1.0)));
+    let result = verify_that!(val, json::primitive!(gt(1.0)));
     verify_that!(
         result,
         err(displays_as(starts_with(indoc!(
@@ -36,7 +36,7 @@ fn f64_wrong_type() -> Result<()> {
 #[test]
 fn bool_wrong_type() -> Result<()> {
     let val = json!(123);
-    let result = verify_that!(val, json::value!(is_true()));
+    let result = verify_that!(val, json::primitive!(is_true()));
     verify_that!(
         result,
         err(displays_as(starts_with(indoc!(
@@ -51,26 +51,26 @@ fn bool_wrong_type() -> Result<()> {
 #[test]
 fn f64_nan_not_match() -> Result<()> {
     let val = json!(f64::NAN);
-    verify_that!(val, not(json::value!(eq(5.0))))
+    verify_that!(val, not(json::primitive!(eq(5.0))))
 }
 
 #[test]
 fn string_type() -> Result<()> {
     let val = json!("hello");
-    verify_that!(val, json::value!(eq("hello")))
+    verify_that!(val, json::primitive!(eq("hello")))
 }
 #[test]
 fn i64_type() -> Result<()> {
     let val = json!(99i64);
-    verify_that!(val, json::value!(eq(99i64)))
+    verify_that!(val, json::primitive!(eq(99i64)))
 }
 #[test]
 fn f64_type() -> Result<()> {
     let val = json!(99.3f64);
-    verify_that!(val, json::value!(eq(99.3f64)))
+    verify_that!(val, json::primitive!(eq(99.3f64)))
 }
 #[test]
 fn bool_type() -> Result<()> {
     let val = json!(false);
-    verify_that!(val, json::value!(is_false()))
+    verify_that!(val, json::primitive!(is_false()))
 }

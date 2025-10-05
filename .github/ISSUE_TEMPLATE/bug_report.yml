@@ -55,7 +55,7 @@ body:
                 data,
                 json::matches_pattern!({
                     "user": json::matches_pattern!({
-                        "name": json::value!(eq("Alice")),
+                        "name": json::primitive!(eq("Alice")),
                         "settings": json::is_null(),
                     })
                 })

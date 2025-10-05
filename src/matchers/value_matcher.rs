@@ -20,9 +20,38 @@
 /// verify_that!(data["active"], json::value!(eq(true)));
 /// verify_that!(data["count"], json::value!(ge(0)));
 /// ```
+#[deprecated(since = "0.2.0", note = "please use `json::primitive!` instead")]
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_value {
+    ($matcher:expr) => {
+        $crate::__json_primitive!($matcher)
+    };
+}
+
+/// Matches a JSON value (string, number, or boolean) against the given matcher.
+///
+/// This macro enables matching specific primitive values inside a JSON structure
+/// by delegating to a matcher for the corresponding Rust type. It supports:
+/// - `String` values (e.g. `json::primitive!(eq("hello"))`)
+/// - `Number` values as `i64` or `f64` (e.g. `json::primitive!(ge(0))`)
+/// - `Boolean` values (e.g. `json::primitive!(eq(true))`)
+///
+/// Fails if the value is not of the expected JSON type.
+///
+/// # Example
+/// ```
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// let data = j!({"active": true, "count": 3});
+///
+/// verify_that!(data["active"], json::primitive!(eq(true)));
+/// verify_that!(data["count"], json::primitive!(ge(0)));
+/// ```
+#[macro_export]
+#[doc(hidden)]
+macro_rules! __json_primitive {
     ($matcher:expr) => {
         $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonValueMatcher::new(
             $matcher,
