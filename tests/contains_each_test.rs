@@ -6,16 +6,16 @@ use serde_json::json as j;
 #[test]
 fn contains_each_matches_one_to_one() -> Result<()> {
     verify_that!(
-        j!(["a", "b", "c"]),
-        json::contains_each![eq("a"), eq("b"), eq("c")]
+        j!(["alpha", "bravo", "charlie"]),
+        json::contains_each![starts_with("a"), starts_with("b"), starts_with("c")]
     )
 }
 
 #[test]
 fn contains_each_trailing_comma() -> Result<()> {
     verify_that!(
-        j!(["a", "b", "c"]),
-        json::contains_each![eq("a"), eq("b"), eq("c"),]
+        j!(["alpha", "bravo", "charlie"]),
+        json::contains_each![starts_with("a"), starts_with("b"), starts_with("c"),]
     )
 }
 
@@ -37,22 +37,26 @@ fn contains_each_empty_input_and_matchers() -> Result<()> {
 #[test]
 fn contains_each_excess_elements() -> Result<()> {
     verify_that!(
-        j!(["a", "b", "c", "d"]),
-        json::contains_each![eq("b"), eq("c"), eq("d")]
+        j!(["admin", "beta", "cool", "delta"]),
+        json::contains_each![starts_with("b"), starts_with("c"), starts_with("d")]
     )
 }
 
 #[test]
 fn contains_each_unmatched_fails() -> Result<()> {
     verify_that!(
-        j!(["a", "b", "c"]),
-        not(json::contains_each![eq("b"), eq("c"), eq("x")])
+        j!(["alpha", "beta", "charlie"]),
+        not(json::contains_each![
+            starts_with("b"),
+            starts_with("c"),
+            starts_with("x")
+        ])
     )
 }
 
 #[test]
 fn contains_each_explains_mismatch_due_to_wrong_size() -> Result<()> {
-    let matcher = json::contains_each![eq(&2), eq(&3), eq(&4)];
+    let matcher = json::contains_each![gt(2), eq(3), eq(4)];
     verify_that!(
         matcher.explain_match(&j!([2, 3])),
         displays_as(eq("which has size 2 (expected at least 3)"))
@@ -61,7 +65,7 @@ fn contains_each_explains_mismatch_due_to_wrong_size() -> Result<()> {
 
 #[test]
 fn contains_each_explains_missing_element_in_mismatch() -> Result<()> {
-    let matcher = json::contains_each![eq(&2), eq(&3), eq(&4)];
+    let matcher = json::contains_each![eq(2), eq(3), eq(4)];
     verify_that!(
         matcher.explain_match(&j!([1, 2, 3])),
         displays_as(eq("which has no element matching the expected element #2"))
@@ -71,45 +75,51 @@ fn contains_each_explains_missing_element_in_mismatch() -> Result<()> {
 #[test]
 fn contains_each_mixed_types_match() -> Result<()> {
     verify_that!(
-        j!(["a", 1, true]),
-        json::contains_each![eq("a"), eq(1), eq(true)]
+        j!(["alpha", 1, true]),
+        json::contains_each![starts_with("a"), eq(1), eq(true)]
     )
 }
 
 #[test]
 fn contains_each_mixed_types_unmatch() -> Result<()> {
     verify_that!(
-        j!(["b", 2, false]),
-        not(json::contains_each![eq("b"), eq(2), eq(true)])
+        j!(["bravo", 2, false]),
+        not(json::contains_each![starts_with("b"), eq(2), eq(true)])
     )
 }
 
 #[test]
 fn contains_each_with_parentheses() -> Result<()> {
-    verify_that!(j!(["x", "y"]), json::contains_each!(eq("x"), eq("y")))
+    verify_that!(
+        j!(["xeno", "yodel"]),
+        json::contains_each!(starts_with("x"), starts_with("y"))
+    )
 }
 
 #[test]
 fn contains_each_empty_input_and_nonempty_matchers() -> Result<()> {
-    verify_that!(j!([]), not(json::contains_each![eq("a")]))
+    verify_that!(j!([]), not(json::contains_each![starts_with("a")]))
 }
 
 #[test]
 fn contains_each_duplicate_elements() -> Result<()> {
     verify_that!(
-        j!(["a", "a", "b"]),
-        json::contains_each![eq("a"), eq("a"), eq("b")]
+        j!(["alpha", "atom", "bravo"]),
+        json::contains_each![starts_with("a"), starts_with("a"), starts_with("b")]
     )
 }
 
 #[test]
 fn contains_each_input_smaller_than_matchers() -> Result<()> {
-    verify_that!(j!(["a"]), not(json::contains_each![eq("a"), eq("b")]))
+    verify_that!(
+        j!(["alpha"]),
+        not(json::contains_each![starts_with("a"), starts_with("b")])
+    )
 }
 
 #[test]
 fn contains_each_multiple_missing_elements_in_mismatch() -> Result<()> {
-    let matcher = json::contains_each![eq(&2), eq(&3), eq(&4), eq(&5)];
+    let matcher = json::contains_each![eq(2), eq(3), eq(4), eq(5)];
     verify_that!(
         matcher.explain_match(&j!([2])),
         displays_as(eq("which has size 1 (expected at least 4)"))
@@ -119,14 +129,18 @@ fn contains_each_multiple_missing_elements_in_mismatch() -> Result<()> {
 #[test]
 fn contains_each_completely_unmatched_elements() -> Result<()> {
     verify_that!(
-        j!(["x", "y", "z"]),
-        not(json::contains_each![eq("a"), eq("b"), eq("c")])
+        j!(["xeno", "yodel", "zeta"]),
+        not(json::contains_each![
+            starts_with("a"),
+            starts_with("b"),
+            starts_with("c")
+        ])
     )
 }
 
 #[test]
 fn contains_each_wrong_type_failure_message() -> Result<()> {
-    let result = verify_that!(j!({"a": 1, "b": 2}), json::contains_each![eq("a")]);
+    let result = verify_that!(j!({"a": 1, "b": 2}), json::contains_each![starts_with("a")]);
     verify_that!(
         result,
         err(displays_as(contains_substring("which is not a JSON array")))

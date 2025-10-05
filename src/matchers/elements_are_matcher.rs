@@ -16,10 +16,10 @@
 /// # use googletest::prelude::*;
 /// # use serde_json::json as j;
 /// # use crate::googletest_json_serde::json;
-/// let value = j!(["a", "b", "c"]);
+/// let value = j!(["alex", "bart", "cucumberbatch"]);
 /// assert_that!(
 ///     value,
-///     json::elements_are![eq("a"), eq("b"), eq("c")]
+///     json::elements_are![starts_with("a"), eq("bart"), char_count(eq(13))]
 /// );
 /// ```
 ///
@@ -47,7 +47,9 @@ macro_rules! __json_elements_are {
     // Preferred bracketed form: __json_elements_are!([ m1, m2, ... ])
     ([$($matcher:expr),* $(,)?]) => {{
         $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonElementsAre::new(vec![
-            $(Box::new($matcher) as Box<dyn for<'a> googletest::matcher::Matcher<&'a serde_json::Value>>),*
+            $(
+                $crate::matchers::__internal_unstable_do_not_depend_on_these::IntoJsonMatcher::into_json_matcher($matcher)
+            ),*
         ])
     }};
     // Convenience: allow unbracketed list and forward to the bracketed arm.
@@ -58,6 +60,7 @@ macro_rules! __json_elements_are {
 
 #[doc(hidden)]
 pub mod internal {
+    use crate::matchers::value_matcher::internal::JsonMatcher;
     use googletest::description::Description;
     use googletest::matcher::{Matcher, MatcherBase, MatcherResult};
     use serde_json::Value;
@@ -67,6 +70,8 @@ pub mod internal {
     pub struct JsonElementsAre {
         elements: Vec<Box<dyn for<'a> Matcher<&'a Value>>>,
     }
+
+    impl JsonMatcher for JsonElementsAre {}
 
     impl JsonElementsAre {
         pub fn new(elements: Vec<Box<dyn for<'a> Matcher<&'a Value>>>) -> Self {

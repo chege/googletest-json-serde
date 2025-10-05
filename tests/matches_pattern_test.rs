@@ -77,7 +77,7 @@ fn match_option_nested_mixed_matchers() {
             "type": eq("Dog"),
             "props": json::pat!({
                 "bark": eq(true),
-                "age": anything(),
+                "age": gt(2),
             }),
         })
     );
@@ -100,13 +100,13 @@ fn fail_on_unexpected_fields_strict() {
     );
 }
 #[test]
-fn match_object_with_anything_field() {
+fn match_object_with_any_value_field() {
     let val = json!({"field": "value", "unexpected": 123});
     assert_that!(
         val,
         json::pat!({
             "field": eq("value"),
-            "unexpected": anything()
+            "unexpected": json::any_value()
         })
     );
 }

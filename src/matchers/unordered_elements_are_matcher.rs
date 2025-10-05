@@ -78,7 +78,9 @@ macro_rules! __json_unordered_elements_are {
         $crate::matchers::__internal_unstable_do_not_depend_on_these::
         JsonUnorderedElementsAreMatcher::new(
             vec![
-                $( Box::new($matcher) as Box<dyn for<'a> googletest::matcher::Matcher<&'a serde_json::Value>> ),*
+                $(
+                    $crate::matchers::__internal_unstable_do_not_depend_on_these::IntoJsonMatcher::into_json_matcher($matcher)
+                ),*
             ],
             $crate::matchers::__internal_unstable_do_not_depend_on_these::Requirements::PerfectMatch,
         )
@@ -132,8 +134,7 @@ macro_rules! __json_contains_each {
         JsonUnorderedElementsAreMatcher::new(
             vec![
                 $(
-                    Box::new($matcher)
-                        as Box<dyn for<'a> googletest::matcher::Matcher<&'a serde_json::Value>>
+                    $crate::matchers::__internal_unstable_do_not_depend_on_these::IntoJsonMatcher::into_json_matcher($matcher)
                 ),*
             ],
             $crate::matchers::__internal_unstable_do_not_depend_on_these::Requirements::Superset,
@@ -144,7 +145,6 @@ macro_rules! __json_contains_each {
         $crate::__json_contains_each!([$($matcher),*])
     }};
 }
-
 /// Matches a JSON array where every element matches one of the provided matchers.
 ///
 /// This macro succeeds if:
@@ -187,7 +187,9 @@ macro_rules! __json_is_contained_in {
     ([$($matcher:expr),* $(,)?]) => {{
         $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonUnorderedElementsAreMatcher::new(
             vec![
-                $( Box::new($matcher) as Box<dyn for<'a> googletest::matcher::Matcher<&'a serde_json::Value>> ),*
+                $(
+                    $crate::matchers::__internal_unstable_do_not_depend_on_these::IntoJsonMatcher::into_json_matcher($matcher)
+                ),*
             ],
             $crate::matchers::__internal_unstable_do_not_depend_on_these::Requirements::Subset,
         )
@@ -197,10 +199,10 @@ macro_rules! __json_is_contained_in {
         $crate::__json_is_contained_in!([$($matcher),*])
     }};
 }
-
 #[doc(hidden)]
 pub mod internal {
     use crate::matcher_support::match_matrix::internal::{MatchMatrix, Requirements};
+    use crate::matchers::value_matcher::internal::JsonMatcher;
     use googletest::description::Description;
     use googletest::matcher::{Matcher, MatcherBase, MatcherResult};
     use serde_json::Value;
@@ -211,6 +213,7 @@ pub mod internal {
         elements: Vec<Box<dyn for<'a> Matcher<&'a Value>>>,
         requirements: Requirements,
     }
+    impl JsonMatcher for JsonUnorderedElementsAreMatcher {}
 
     impl JsonUnorderedElementsAreMatcher {
         pub fn new(

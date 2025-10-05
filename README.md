@@ -80,13 +80,11 @@ use serde_json::json as j;
 # use googletest_json_serde::json;
 # use serde_json::json as j;
 
-fn values() {
-    assert_that!(j!(42),        json::primitive!(gt(40i64)));
-    assert_that!(j!(3.14),      json::primitive!(near(3.1f64, 0.1f64)));
-    assert_that!(j!("hello"),   json::primitive!(starts_with("he")));
-    assert_that!(j!(true),      json::primitive!(is_true()));
-    assert_that!(j!(null),     json::is_null());
-}
+assert_that!(j!(42),        json::primitive!(gt(40i64)));
+assert_that!(j!(3.14),      json::primitive!(near(3.1f64, 0.1f64)));
+assert_that!(j!("hello"),   json::primitive!(starts_with("he")));
+assert_that!(j!(true),      json::primitive!(is_true()));
+assert_that!(j!(null),     json::is_null());
 ```
 
 ### Objects
@@ -100,16 +98,14 @@ Strict match:
 # use googletest_json_serde::json;
 # use serde_json::json as j;
 
-fn object_strict() {
-    let v = j!({"name": "Alice", "age": 30.0});
-    assert_that!(
-        v,
-        json::matches_pattern!({
-            "name": eq("Alice"),
-            "age":  eq(30.0),
-        })
-    );
-}
+let v = j!({"name": "Alice", "age": 30.0});
+assert_that!(
+    v,
+    json::matches_pattern!({
+        "name": eq("Alice"),
+        "age":  ge(30.0),
+    })
+);
 ```
 
 Non-strict match (with `..`):
@@ -119,16 +115,14 @@ Non-strict match (with `..`):
 # use googletest_json_serde::json;
 # use serde_json::json as j;
 
-fn object_non_strict() {
-    let v = j!({"name": "Alice", "age": 30.0, "extra": "ignored"});
-    assert_that!(
-        v,
-        json::matches_pattern!({
-            "name": eq("Alice"),
-            ..
-        })
-    );
-}
+let v = j!({"name": "Alice", "age": 30.0, "extra": "ignored"});
+assert_that!(
+    v,
+    json::matches_pattern!({
+        "name": eq("Alice"),
+        ..
+    })
+);
 ```
 
 ### Arrays
@@ -140,16 +134,14 @@ fn object_non_strict() {
 # use googletest_json_serde::json;
 # use serde_json::json as j;
 
-fn arrays_ordered() {
-    assert_that!(
-        j!(["hello", 42, true]),
-        json::elements_are![eq("hello"), eq(42), eq(true)]
-    );
-    assert_that!(
-        j!(["hello", 42, true]),
-        not(json::elements_are![eq("hello"), eq(42), eq(false)])
-    );
-}
+assert_that!(
+    j!(["hello", 42, true]),
+    json::elements_are![eq("hello"), eq(42), eq(true)]
+);
+assert_that!(
+    j!(["hello", 42, true]),
+    not(json::elements_are![eq("hello"), eq(42), eq(false)])
+);
 ```
 
 #### Match arrays with `json::unordered_elements_are!` (unordered)
@@ -159,16 +151,14 @@ fn arrays_ordered() {
 # use googletest_json_serde::json;
 # use serde_json::json as j;
 
-fn arrays_unordered() {
-    assert_that!(
-        j!([42, "hello", true]),
-        json::unordered_elements_are![eq(42), eq(true), eq("hello")]
-    );
-    assert_that!(
-        j!([42, "hello", true]),
-        not(json::unordered_elements_are![eq(42), eq(false), eq("hello")])
-    );
-}
+assert_that!(
+    j!([42, "hello", true]),
+    json::unordered_elements_are![eq(42), eq(true), eq("hello")]
+);
+assert_that!(
+    j!([42, "hello", true]),
+    not(json::unordered_elements_are![eq(42), eq(false), eq("hello")])
+);
 ```
 
 #### Assert containment with `json::is_contained_in!`
@@ -178,16 +168,14 @@ fn arrays_unordered() {
 # use googletest_json_serde::json;
 # use serde_json::json as j;
 
-fn containment() {
-    assert_that!(
-        j!(["a", "b", "c"]),
-        json::is_contained_in![eq("a"), eq("c")]
-    );
-    assert_that!(
-        j!(["a", "b", "c"]),
-        not(json::is_contained_in![eq("a"), eq("d")])
-    );
-}
+assert_that!(
+    j!(["a", "b", "c"]),
+    json::is_contained_in![eq("a"), starts_with("b"), eq("c"), eq("d")]
+);
+assert_that!(
+    j!(["a", "b", "c"]),
+    not(json::is_contained_in![eq("a"), eq("c")])
+);
 ```
 
 #### Assert each matcher finds a unique element with json::contains_each!
@@ -197,17 +185,15 @@ fn containment() {
 # use googletest_json_serde::json;
 # use serde_json::json as j;
 
-fn contains_each() {
-    // Array can have extra elements, but must contain all required ones
-    assert_that!(
-        j!(["admin", "user", "tester", "viewer"]),
-        json::contains_each![eq("admin"), eq("tester")]
-    );
-    assert_that!(
-        j!(["admin", "user", "tester", "viewer"]),
-        not(json::contains_each![eq("admin"), eq("missing")])
-    );
-}
+// Array can have extra elements, but must contain all required ones
+assert_that!(
+    j!(["admin", "user", "tester", "viewer"]),
+    json::contains_each![eq("admin"), eq("tester")]
+);
+assert_that!(
+    j!(["admin", "user", "tester", "viewer"]),
+    not(json::contains_each![eq("admin"), eq("missing")])
+);
 ```
 
 #### Array Matcher Quick Reference
@@ -221,6 +207,9 @@ Here’s a quick reference matrix comparing the array matchers:
 | `contains_each!`          | No            | Yes               | No                  | Require each matcher to match a unique element, extra allowed |
 | `is_contained_in!`        | No            | No                | Yes                 | Actual elements are subset of expected                        |
 
+> 💡 **Note:** All JSON matcher macros support both direct matchers (e.g. `starts_with("x")`) and explicit
+> `json::primitive!(...)` wrappers. Use whichever makes intent clearer.
+
 ### Combined example
 
 Compose all together for complex structures. Here is a Rust struct with a JSON field, using `matches_pattern!` for the
@@ -228,7 +217,6 @@ struct and nested JSON matchers for the field:
 
 ```rust
 # use googletest::prelude::*;
-# use googletest::matchers::matches_pattern;
 # use googletest_json_serde::json;
 # use serde_json::json as j;
 
@@ -238,68 +226,79 @@ struct Response {
     payload: serde_json::Value,
 }
 
-fn combined_match() {
-    let resp = Response {
-        status: 200,
-        payload: j!({
-            "user": {
-                "id": 123,
-                "name": "Alice",
-                "roles": ["admin", "user", "tester"],
-                "permissions": ["read", "write", "delete", "extra_perm"],
-                "settings": {
-                    "theme": "dark",
-                    "notifications": true,
-                    "beta_features": null
-                },
-                "login_times": [1640995200, 1641081600, 1641168000],
-                "metadata": {"created": "2021-01-01", "source": "api"}
+let resp = Response {
+    status: 200,
+    payload: j!({
+        "user": {
+            "id": 42,
+            "name": "Jeff",
+            "roles": ["admin", "user", "tester"],
+            "tags": ["rust", "serde", "dev"],
+            "scores": [99, 87, 75],
+            "matrix": [
+                ["alpha", 1],
+                ["beta", 2, "extra"]
+            ],
+            "settings": {
+                "theme": "dark",
+                "email": true,
+                "beta": null
+            },
+            "metadata": {
+                "created": "2025-10-05"
             }
-        }),
-    };
+        },
+        "extra": { "debug": true }
+    }),
+};
 
-    assert_that!(
-        resp,
-        matches_pattern!(Response {
-            status: eq(&200),
-            payload: json::matches_pattern!({
-                "user": json::matches_pattern!({
-                    // Value matchers
-                    "id": json::primitive!(gt(100i64)),
-                    "name": json::primitive!(starts_with("Ali")),
-                    
-                    // Ordered array matching
-                    "roles": json::elements_are![eq("admin"), eq("user"), eq("tester")],
-                    
-                    // Unordered array matching (subset with unique matches)
-                    "permissions": json::contains_each![eq("read"), eq("write")],
-                    
-                    // Nested object with null value
-                    "settings": json::matches_pattern!({
-                        "theme": json::primitive!(eq("dark")),
-                        "notifications": json::primitive!(is_true()),
-                        "beta_features": json::is_null(),
-                    }),
-                    
-                    // Unordered array matching (exact)
-                    "login_times": json::unordered_elements_are![
-                        eq(1641168000), eq(1640995200), eq(1641081600)
-                    ],
-                    
-                    // Non-strict object matching (allows extra fields)
-                    "metadata": json::matches_pattern!({
-                        "created": json::primitive!(starts_with("2021")),
-                        ..
-                    }),
-                    
-                    // Allow extra fields in user object
-                    ..
-                })
-            })
+assert_that!(
+    resp,
+    matches_pattern!(Response {
+        status: eq(&200),
+        payload: json::matches_pattern!({
+            "user": json::matches_pattern!({
+                // native matchers inside objects
+                "id": gt(0),
+                "name": starts_with("Je"),
+
+                // ordered array of native matchers
+                "roles": json::elements_are![
+                    starts_with("adm"),
+                    eq("user"),
+                    ends_with("er")
+                ],
+
+                // unordered array, native matchers directly
+                "tags": json::unordered_elements_are![
+                    starts_with("se"),
+                    eq("dev"),
+                    ends_with("st")
+                ],
+
+                // array of arrays — demonstrate nesting twice
+                "matrix": json::elements_are![
+                    json::is_contained_in![starts_with("al"), json::any_value()],
+                    json::is_contained_in![starts_with("be"), json::any_value(), json::any_value()]
+                ],
+
+                // object with mixed matchers
+                "settings": json::matches_pattern!({
+                    "theme": eq("dark"),
+                    "email": is_true(),
+                    "beta": json::is_null(),
+                }),
+
+                // remaining fields ignored
+                ..
+            }),
+            ..
         })
-      );
-}
+    })
+);
+
 ```
+
 
 ## Acknowledgements
 

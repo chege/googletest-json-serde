@@ -19,10 +19,10 @@ fn unordered_elements_are_matches_empty_array_with_trailing_comma() -> Result<()
 
 #[test]
 fn unordered_elements_are_matches_array() -> Result<()> {
-    let value = json!(["a", "b", "c"]);
+    let value = json!(["a", "geddy", "c"]);
     verify_that!(
         value,
-        json::unordered_elements_are![eq("a"), eq("b"), eq("c")]
+        json::unordered_elements_are![eq("a"), starts_with("g"), eq("c")]
     )
 }
 
@@ -77,7 +77,7 @@ fn unordered_elements_are_description_no_full_match() -> Result<()> {
 
 #[test]
 fn unordered_elements_are_unmatchable_expected_description_mismatch() -> Result<()> {
-    let matcher = json::unordered_elements_are![eq(&1), eq(&2), eq(&3)];
+    let matcher = json::unordered_elements_are![eq(1), eq(2), eq(3)];
     verify_that!(
         matcher.explain_match(&json!([1, 1, 3])),
         displays_as(eq("which has no element matching the expected element #1"))
@@ -153,6 +153,47 @@ fn unordered_elements_are_all_mismatch_unmatchable_message() -> Result<()> {
         result,
         err(displays_as(contains_substring(
             "whose elements #0, #1 do not match any expected elements and no elements match the expected elements #0, #1"
+        )))
+    )
+}
+
+#[test]
+fn unordered_elements_are_nested_arrays_match() -> Result<()> {
+    let value = json!([[1, 2], [3, 4]]);
+    verify_that!(
+        value,
+        json::unordered_elements_are![
+            json::unordered_elements_are![eq(1), eq(2)],
+            json::unordered_elements_are![eq(3), eq(4)]
+        ]
+    )
+}
+
+#[test]
+fn unordered_elements_are_nested_arrays_unmatch() -> Result<()> {
+    let value = json!([[1, 2], [3, 5]]);
+    verify_that!(
+        value,
+        not(json::unordered_elements_are![
+            json::unordered_elements_are![eq(1), eq(2)],
+            json::unordered_elements_are![eq(3), eq(4)]
+        ])
+    )
+}
+
+#[test]
+fn unordered_elements_are_produces_correct_failure_message_nested() -> Result<()> {
+    let result = verify_that!(
+        json!([[1, 2], [3, 5]]),
+        json::unordered_elements_are![
+            json::unordered_elements_are![eq(1), eq(2)],
+            json::unordered_elements_are![eq(3), eq(4)]
+        ]
+    );
+    verify_that!(
+        result,
+        err(displays_as(contains_substring(
+            "whose element #1 does not match any expected elements and no elements match the expected element #1"
         )))
     )
 }

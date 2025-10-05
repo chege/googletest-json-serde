@@ -62,7 +62,7 @@ macro_rules! __json_matches_pattern {
         let fields = vec![
             $(
                 ($key,
-                 Box::new($val) as Box<dyn for<'a> googletest::matcher::Matcher<&'a serde_json::Value>>
+                 $crate::matchers::__internal_unstable_do_not_depend_on_these::IntoJsonMatcher::into_json_matcher($val)
                 )
             ),*
         ];
@@ -73,7 +73,7 @@ macro_rules! __json_matches_pattern {
         let fields = vec![
             $(
                 ($key,
-                 Box::new($val) as Box<dyn for<'a> googletest::matcher::Matcher<&'a serde_json::Value>>
+                 $crate::matchers::__internal_unstable_do_not_depend_on_these::IntoJsonMatcher::into_json_matcher($val)
                 )
             ),*
         ];
@@ -83,6 +83,7 @@ macro_rules! __json_matches_pattern {
 
 #[doc(hidden)]
 pub mod internal {
+    use crate::matchers::value_matcher::internal::JsonMatcher;
     use googletest::{
         description::Description,
         matcher::{Matcher, MatcherBase, MatcherResult},
@@ -95,6 +96,8 @@ pub mod internal {
         fields: Vec<FieldMatcherPair>,
         strict: bool,
     }
+
+    impl JsonMatcher for JsonObjectMatcher {}
 
     impl JsonObjectMatcher {
         pub fn new(fields: Vec<FieldMatcherPair>, strict: bool) -> Self {
