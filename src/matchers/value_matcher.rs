@@ -63,6 +63,11 @@ pub fn is_null() -> crate::matchers::__internal_unstable_do_not_depend_on_these:
     crate::matchers::__internal_unstable_do_not_depend_on_these::IsJsonNull
 }
 
+pub fn any_value()
+-> crate::matchers::__internal_unstable_do_not_depend_on_these::JsonAnyValueMatcher {
+    crate::matchers::__internal_unstable_do_not_depend_on_these::JsonAnyValueMatcher
+}
+
 #[doc(hidden)]
 pub mod internal {
     use googletest::description::Description;
@@ -198,6 +203,166 @@ pub mod internal {
                 Value::Null => Description::new().text("which is null"),
                 _ => Description::new().text("which is not JSON null"),
             }
+        }
+    }
+
+    #[derive(MatcherBase)]
+    pub struct JsonAnyValueMatcher;
+    impl JsonMatcher for JsonAnyValueMatcher {}
+    impl Matcher<&Value> for JsonAnyValueMatcher {
+        fn matches(&self, actual: &Value) -> MatcherResult {
+            match actual {
+                Value::Null => MatcherResult::NoMatch,
+                _ => MatcherResult::Match,
+            }
+        }
+
+        fn describe(&self, matcher_result: MatcherResult) -> Description {
+            match matcher_result {
+                MatcherResult::Match => Description::new().text("is any JSON value"),
+                MatcherResult::NoMatch => Description::new().text("never matches"),
+            }
+        }
+
+        fn explain_match(&self, actual: &Value) -> Description {
+            Description::new().text(format!("which is {actual}"))
+        }
+    }
+
+    /// Marker trait for JSON-aware matchers.
+    pub trait JsonMatcher: for<'a> Matcher<&'a Value> {}
+
+    impl<M, T> JsonMatcher for JsonValueMatcher<M, T> where
+        JsonValueMatcher<M, T>: for<'a> Matcher<&'a Value>
+    {
+    }
+
+    impl JsonMatcher for IsJsonNull {}
+
+    /// Trait for converting into a boxed JSON matcher.
+    pub trait IntoJsonMatcher<T> {
+        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>>;
+    }
+
+    impl<J> IntoJsonMatcher<()> for J
+    where
+        J: JsonMatcher + 'static,
+    {
+        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+            Box::new(self)
+        }
+    }
+
+    impl<M> IntoJsonMatcher<i64> for M
+    where
+        M: Matcher<i64> + 'static,
+    {
+        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+            Box::new(JsonValueMatcher::<M, i64>::new(self))
+        }
+    }
+
+    impl<M> Matcher<&Value> for JsonValueMatcher<M, u64>
+    where
+        M: Matcher<u64>,
+    {
+        fn matches(&self, actual: &Value) -> MatcherResult {
+            match actual {
+                Value::Number(n) => n
+                    .as_u64()
+                    .map_or(MatcherResult::NoMatch, |u| self.inner.matches(u)),
+                _ => MatcherResult::NoMatch,
+            }
+        }
+        fn describe(&self, r: MatcherResult) -> Description {
+            self.inner.describe(r)
+        }
+        fn explain_match(&self, actual: &Value) -> Description {
+            match actual {
+                Value::Number(n) => match n.as_u64() {
+                    Some(u) => self.inner.explain_match(u),
+                    None => Description::new().text(format!("number out of u64 range: {n}")),
+                },
+                _ => Description::new().text("which is not a JSON number"),
+            }
+        }
+    }
+
+    impl<M> IntoJsonMatcher<u64> for M
+    where
+        M: Matcher<u64> + 'static,
+    {
+        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+            Box::new(JsonValueMatcher::<M, u64>::new(self))
+        }
+    }
+
+    impl<M> IntoJsonMatcher<f64> for M
+    where
+        M: Matcher<f64> + 'static,
+    {
+        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+            Box::new(JsonValueMatcher::<M, f64>::new(self))
+        }
+    }
+
+    impl<M> IntoJsonMatcher<String> for M
+    where
+        M: for<'a> Matcher<&'a str> + 'static,
+    {
+        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+            Box::new(JsonValueMatcher::<M, String>::new(self))
+        }
+    }
+
+    impl<M> IntoJsonMatcher<bool> for M
+    where
+        M: Matcher<bool> + 'static,
+    {
+        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+            Box::new(JsonValueMatcher::<M, bool>::new(self))
+        }
+    }
+
+    impl<M> Matcher<&Value> for JsonValueMatcher<M, i32>
+    where
+        M: Matcher<i32>,
+    {
+        fn matches(&self, actual: &Value) -> MatcherResult {
+            match actual {
+                Value::Number(n) => match n.as_i64() {
+                    Some(i) => match i32::try_from(i) {
+                        Ok(i32_val) => self.inner.matches(i32_val),
+                        Err(_) => MatcherResult::NoMatch,
+                    },
+                    None => MatcherResult::NoMatch,
+                },
+                _ => MatcherResult::NoMatch,
+            }
+        }
+        fn describe(&self, r: MatcherResult) -> Description {
+            self.inner.describe(r)
+        }
+        fn explain_match(&self, actual: &Value) -> Description {
+            match actual {
+                Value::Number(n) => match n.as_i64() {
+                    Some(i) => match i32::try_from(i) {
+                        Ok(i32_val) => self.inner.explain_match(i32_val),
+                        Err(_) => Description::new().text(format!("number out of i32 range: {n}")),
+                    },
+                    None => Description::new().text(format!("number out of i64 range: {n}")),
+                },
+                _ => Description::new().text("which is not a JSON number"),
+            }
+        }
+    }
+
+    impl<M> IntoJsonMatcher<i32> for M
+    where
+        M: Matcher<i32> + 'static,
+    {
+        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+            Box::new(JsonValueMatcher::<M, i32>::new(self))
         }
     }
 }
