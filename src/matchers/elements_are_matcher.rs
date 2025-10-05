@@ -56,59 +56,6 @@ macro_rules! __json_elements_are {
     }};
 }
 
-/// Matches a JSON array where every element matches one of the provided matchers.
-///
-/// This macro succeeds if:
-/// - the input is a JSON array
-/// - every element in the array matches exactly one matcher
-/// - matchers are not reused
-/// - extra matchers may be provided and left unmatched
-/// - order does not matter
-///
-/// This macro fails if:
-/// - the input is not a JSON array
-/// - any element in the array fails to match all matchers
-///
-/// Accepts both bracketed (`json::is_contained_in!([ ... ])`) and unbracketed (`json::is_contained_in!(...)`) forms.
-///
-/// Example:
-/// ```
-/// # use googletest::prelude::*;
-/// # use serde_json::json as j;
-/// # use crate::googletest_json_serde::json;
-/// let value = j!(["a", "b", "c"]);
-/// assert_that!(
-///     value,
-///     json::is_contained_in![eq("a"), eq("b"), eq("c"), eq("d")]
-/// );
-/// ```
-///
-/// # How it works
-///
-/// - Each matcher can match at most one element
-/// - Extra matchers may remain unused
-/// - Every element in the array must be matched
-///
-/// # Alias
-///
-/// This macro is re-exported as [`json::is_contained_in!`](crate::json::is_contained_in).
-#[macro_export]
-#[doc(hidden)]
-macro_rules! __json_is_contained_in {
-    ([$($matcher:expr),* $(,)?]) => {{
-        $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonUnorderedElementsAreMatcher::new(
-            vec![
-                $( Box::new($matcher) as Box<dyn for<'a> googletest::matcher::Matcher<&'a serde_json::Value>> ),*
-            ],
-            $crate::matchers::__internal_unstable_do_not_depend_on_these::Requirements::Subset,
-        )
-    }};
-    // Convenience: allow unbracketed list and forward to the bracketed arm.
-    ($($matcher:expr),* $(,)?) => {{
-        $crate::__json_is_contained_in!([$($matcher),*])
-    }};
-}
-
 #[doc(hidden)]
 pub mod internal {
     use googletest::description::Description;
