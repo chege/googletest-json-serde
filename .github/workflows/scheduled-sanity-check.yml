@@ -1,0 +1,19 @@
+name: Weekly Sanity Check
+
+on:
+  schedule:
+    - cron: '0 4 * * 1' # Every Monday 04:00 UTC
+  workflow_dispatch:
+
+jobs:
+  sanity-check:
+    name: Download Crate and Run Sanity Test
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Run sanity script
+        run: |
+          curl -sL https://raw.githubusercontent.com/chege/googletest-json-serde/main/scripts/test-downloaded-crate.sh \
+          | bash
