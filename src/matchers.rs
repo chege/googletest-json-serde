@@ -1,9 +1,10 @@
 mod elements_are_matcher;
+mod json_matcher;
 mod matches_pattern_matcher;
+mod primitive_matcher;
 mod unordered_elements_are_matcher;
-mod value_matcher;
 
-pub use value_matcher::{any_value, is_null};
+pub use json_matcher::{any_value, is_null};
 
 #[allow(deprecated)]
 #[doc(inline)]
@@ -17,11 +18,11 @@ pub use crate::{
 #[doc(hidden)]
 pub mod __internal_unstable_do_not_depend_on_these {
     pub use super::elements_are_matcher::internal::JsonElementsAre;
+    pub use super::json_matcher::internal::IntoJsonMatcher;
+    pub use super::json_matcher::internal::IsJsonNull;
+    pub use super::json_matcher::internal::JsonAnyValueMatcher;
     pub use super::matches_pattern_matcher::internal::JsonObjectMatcher;
+    pub use super::primitive_matcher::internal::JsonPrimitiveMatcher;
     pub use super::unordered_elements_are_matcher::internal::JsonUnorderedElementsAreMatcher;
-    pub use super::value_matcher::internal::IntoJsonMatcher;
-    pub use super::value_matcher::internal::IsJsonNull;
-    pub use super::value_matcher::internal::JsonAnyValueMatcher;
-    pub use super::value_matcher::internal::JsonValueMatcher;
     pub use crate::matcher_support::match_matrix::internal::Requirements;
 }

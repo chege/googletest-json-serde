@@ -77,7 +77,7 @@ macro_rules! __json_matches_pattern {
 
 #[doc(hidden)]
 pub mod internal {
-    use crate::matchers::value_matcher::internal::JsonMatcher;
+    use crate::matchers::json_matcher::internal::JsonMatcher;
     use googletest::{
         description::Description,
         matcher::{Matcher, MatcherBase, MatcherResult},

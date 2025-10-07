@@ -202,7 +202,7 @@ macro_rules! __json_is_contained_in {
 #[doc(hidden)]
 pub mod internal {
     use crate::matcher_support::match_matrix::internal::{MatchMatrix, Requirements};
-    use crate::matchers::value_matcher::internal::JsonMatcher;
+    use crate::matchers::json_matcher::internal::JsonMatcher;
     use googletest::description::Description;
     use googletest::matcher::{Matcher, MatcherBase, MatcherResult};
     use serde_json::Value;

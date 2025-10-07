@@ -53,35 +53,27 @@ macro_rules! __json_value {
 #[doc(hidden)]
 macro_rules! __json_primitive {
     ($matcher:expr) => {
-        $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonValueMatcher::new(
+        $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonPrimitiveMatcher::new(
             $matcher,
         )
     };
 }
 
-pub fn is_null() -> crate::matchers::__internal_unstable_do_not_depend_on_these::IsJsonNull {
-    crate::matchers::__internal_unstable_do_not_depend_on_these::IsJsonNull
-}
-
-pub fn any_value()
--> crate::matchers::__internal_unstable_do_not_depend_on_these::JsonAnyValueMatcher {
-    crate::matchers::__internal_unstable_do_not_depend_on_these::JsonAnyValueMatcher
-}
-
 #[doc(hidden)]
 pub mod internal {
+    use crate::matchers::json_matcher::internal::{IntoJsonMatcher, JsonMatcher};
     use googletest::description::Description;
     use googletest::matcher::{Matcher, MatcherBase, MatcherResult};
     use serde_json::Value;
 
     #[doc(hidden)]
     #[derive(MatcherBase)]
-    pub struct JsonValueMatcher<M, T> {
+    pub struct JsonPrimitiveMatcher<M, T> {
         inner: M,
         phantom: std::marker::PhantomData<T>,
     }
 
-    impl<M, T> JsonValueMatcher<M, T> {
+    impl<M, T> JsonPrimitiveMatcher<M, T> {
         pub fn new(inner: M) -> Self {
             Self {
                 inner,
@@ -90,7 +82,7 @@ pub mod internal {
         }
     }
 
-    impl<M> Matcher<&Value> for JsonValueMatcher<M, String>
+    impl<M> Matcher<&Value> for JsonPrimitiveMatcher<M, String>
     where
         M: for<'a> Matcher<&'a str>,
     {
@@ -111,7 +103,7 @@ pub mod internal {
         }
     }
 
-    impl<M> Matcher<&Value> for JsonValueMatcher<M, i64>
+    impl<M> Matcher<&Value> for JsonPrimitiveMatcher<M, i64>
     where
         M: Matcher<i64>,
     {
@@ -137,7 +129,7 @@ pub mod internal {
         }
     }
 
-    impl<M> Matcher<&Value> for JsonValueMatcher<M, f64>
+    impl<M> Matcher<&Value> for JsonPrimitiveMatcher<M, f64>
     where
         M: Matcher<f64>,
     {
@@ -163,7 +155,7 @@ pub mod internal {
         }
     }
 
-    impl<M> Matcher<&Value> for JsonValueMatcher<M, bool>
+    impl<M> Matcher<&Value> for JsonPrimitiveMatcher<M, bool>
     where
         M: Matcher<bool>,
     {
@@ -184,85 +176,22 @@ pub mod internal {
         }
     }
 
-    #[derive(MatcherBase)]
-    pub struct IsJsonNull;
-    impl Matcher<&Value> for IsJsonNull {
-        fn matches(&self, actual: &Value) -> MatcherResult {
-            match actual {
-                Value::Null => MatcherResult::Match,
-                _ => MatcherResult::NoMatch,
-            }
-        }
-
-        fn describe(&self, _: MatcherResult) -> Description {
-            Description::new().text("JSON null")
-        }
-
-        fn explain_match(&self, actual: &Value) -> Description {
-            match actual {
-                Value::Null => Description::new().text("which is null"),
-                _ => Description::new().text("which is not JSON null"),
-            }
-        }
-    }
-
-    #[derive(MatcherBase)]
-    pub struct JsonAnyValueMatcher;
-    impl JsonMatcher for JsonAnyValueMatcher {}
-    impl Matcher<&Value> for JsonAnyValueMatcher {
-        fn matches(&self, actual: &Value) -> MatcherResult {
-            match actual {
-                Value::Null => MatcherResult::NoMatch,
-                _ => MatcherResult::Match,
-            }
-        }
-
-        fn describe(&self, matcher_result: MatcherResult) -> Description {
-            match matcher_result {
-                MatcherResult::Match => Description::new().text("is any JSON value"),
-                MatcherResult::NoMatch => Description::new().text("never matches"),
-            }
-        }
-
-        fn explain_match(&self, actual: &Value) -> Description {
-            Description::new().text(format!("which is {actual}"))
-        }
-    }
-
-    /// Marker trait for JSON-aware matchers.
-    pub trait JsonMatcher: for<'a> Matcher<&'a Value> {}
-
-    impl<M, T> JsonMatcher for JsonValueMatcher<M, T> where
-        JsonValueMatcher<M, T>: for<'a> Matcher<&'a Value>
+    impl<M, T> JsonMatcher for JsonPrimitiveMatcher<M, T> where
+        JsonPrimitiveMatcher<M, T>: for<'a> Matcher<&'a Value>
     {
     }
-
-    impl JsonMatcher for IsJsonNull {}
 
     /// Trait for converting into a boxed JSON matcher.
-    pub trait IntoJsonMatcher<T> {
-        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>>;
-    }
-
-    impl<J> IntoJsonMatcher<()> for J
-    where
-        J: JsonMatcher + 'static,
-    {
-        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
-            Box::new(self)
-        }
-    }
-
     impl<M> IntoJsonMatcher<i64> for M
     where
         M: Matcher<i64> + 'static,
     {
         fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
-            Box::new(JsonValueMatcher::<M, i64>::new(self))
+            Box::new(JsonPrimitiveMatcher::<M, i64>::new(self))
         }
     }
 
-    impl<M> Matcher<&Value> for JsonValueMatcher<M, u64>
+    impl<M> Matcher<&Value> for JsonPrimitiveMatcher<M, u64>
     where
         M: Matcher<u64>,
     {
@@ -293,7 +222,7 @@ pub mod internal {
         M: Matcher<u64> + 'static,
     {
         fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
-            Box::new(JsonValueMatcher::<M, u64>::new(self))
+            Box::new(JsonPrimitiveMatcher::<M, u64>::new(self))
         }
     }
 
@@ -302,7 +231,7 @@ pub mod internal {
         M: Matcher<f64> + 'static,
     {
         fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
-            Box::new(JsonValueMatcher::<M, f64>::new(self))
+            Box::new(JsonPrimitiveMatcher::<M, f64>::new(self))
         }
     }
 
@@ -311,7 +240,7 @@ pub mod internal {
         M: for<'a> Matcher<&'a str> + 'static,
     {
         fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
-            Box::new(JsonValueMatcher::<M, String>::new(self))
+            Box::new(JsonPrimitiveMatcher::<M, String>::new(self))
         }
     }
 
@@ -320,11 +249,11 @@ pub mod internal {
         M: Matcher<bool> + 'static,
     {
         fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
-            Box::new(JsonValueMatcher::<M, bool>::new(self))
+            Box::new(JsonPrimitiveMatcher::<M, bool>::new(self))
         }
     }
 
-    impl<M> Matcher<&Value> for JsonValueMatcher<M, i32>
+    impl<M> Matcher<&Value> for JsonPrimitiveMatcher<M, i32>
     where
         M: Matcher<i32>,
     {
@@ -362,7 +291,7 @@ pub mod internal {
         M: Matcher<i32> + 'static,
     {
         fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
-            Box::new(JsonValueMatcher::<M, i32>::new(self))
+            Box::new(JsonPrimitiveMatcher::<M, i32>::new(self))
         }
     }
 }
