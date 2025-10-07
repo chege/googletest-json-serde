@@ -33,7 +33,6 @@ These tiny, focused matchers make it effortless to assert on <code>serde_json::V
   <a href="https://github.com/chege/googletest-json-serde/blob/main/LICENSE-MIT"><img src="https://img.shields.io/crates/l/googletest-json-serde" alt="License"></a>
 </p>
 
-
 ## Getting Started
 
 ### Installation
@@ -64,7 +63,7 @@ use serde_json::json as j;
 
 ## Features
 
-- **Match** JSON primitive values (`string`, `number` (i64/f64), `bool`) using the `json::primitive!` macro, and match
+- **Match** JSON primitive values (`string`, `number`, `bool`) using the `json::primitive!` macro, and match
   `null` values with `json::is_null()`.
 - **Pattern-match** JSON objects by fields using the `json::matches_pattern!{...}` macro; support both **strict** mode (
   all fields must match and no extra fields) and **non-strict** mode (extra fields allowed via `..`).
@@ -77,6 +76,8 @@ use serde_json::json as j;
   `json::is_contained_in![...]` macro.
 - **Provide** clear, structured diagnostic failure messages showing which part of the JSON structure did not match and
   why.
+- **Helper matchers** for validating JSON kinds and structure: `json::is_null()`, `json::any_value()`,
+  `json::is_string()`, `json::is_number()`, `json::is_boolean()`, `json::is_array()`, `json::is_object()`.
 
 ## Examples
 
@@ -287,8 +288,8 @@ assert_that!(
 
                 // array of arrays — demonstrate nesting twice
                 "matrix": json::elements_are![
-                    json::is_contained_in![starts_with("al"), json::any_value()],
-                    json::is_contained_in![starts_with("be"), json::any_value(), json::any_value()]
+                    json::is_contained_in![starts_with("al"), json::is_number()],
+                    json::is_contained_in![starts_with("be"), json::any_value(), json::is_string()]
                 ],
 
                 // object with mixed matchers
