@@ -5,15 +5,6 @@
 </picture>
 
 
-
-<div style="text-align: center;">
-
-[![Crates.io](https://img.shields.io/crates/v/googletest-json-serde.svg)](https://crates.io/crates/googletest-json-serde)
-[![CI](https://github.com/chege/googletest-json-serde/actions/workflows/ci.yaml/badge.svg)](https://github.com/chege/googletest-json-serde/actions/workflows/ci.yaml)
-[![Docs.rs](https://img.shields.io/docsrs/googletest-json-serde)](https://docs.rs/googletest-json-serde)
-[![License](https://img.shields.io/crates/l/googletest-json-serde)](https://github.com/chege/googletest-json-serde/blob/main/LICENSE-MIT)
-
-</div>
 <div align="center">
   <h3>
     <a href="#getting-started">Getting Started</a>
@@ -29,12 +20,19 @@
     <a href="#combined-example">Combined example</a>
   </h3>
 </div>
-<div style="text-align: center;">
 
-A set of matcher macros for ergonomic JSON testing with [googletest-rust](https://docs.rs/googletest/).
+<p align="center"><em>
+A set of matcher macros for ergonomic JSON testing with <a href="https://docs.rs/googletest/">googletest-rust</a>.<br><br>
+These tiny, focused matchers make it effortless to assert on <code>serde_json::Value</code> in Rust tests.
+</em></p>
 
-These tiny, focused matchers make it effortless to assert on `serde_json::Value` in Rust tests.
-</div>
+<p align="center">
+  <a href="https://crates.io/crates/googletest-json-serde"><img src="https://img.shields.io/crates/v/googletest-json-serde.svg" alt="Crates.io"></a>
+  <a href="https://github.com/chege/googletest-json-serde/actions/workflows/ci.yaml"><img src="https://github.com/chege/googletest-json-serde/actions/workflows/ci.yaml/badge.svg" alt="CI"></a>
+  <a href="https://docs.rs/googletest-json-serde"><img src="https://img.shields.io/docsrs/googletest-json-serde" alt="Docs.rs"></a>
+  <a href="https://github.com/chege/googletest-json-serde/blob/main/LICENSE-MIT"><img src="https://img.shields.io/crates/l/googletest-json-serde" alt="License"></a>
+</p>
+
 
 ## Getting Started
 
