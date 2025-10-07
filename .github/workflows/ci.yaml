@@ -14,6 +14,8 @@ concurrency:
 
 env:
   CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0  # Disable incremental compilation for CI
+  CARGO_PROFILE_DEV_DEBUG: 0  # Reduce debug info in dev builds
 
 jobs:
   format:
@@ -24,6 +26,9 @@ jobs:
       - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "fmt"
+          save-if: false  # Format job doesn't need to save cache
       - run: cargo fmt --all -- --check
 
   clippy:
@@ -34,6 +39,8 @@ jobs:
       - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "stable"
 
       - name: clippy (stable, deny warnings)
         env:
@@ -48,6 +55,8 @@ jobs:
       - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@1.89.0
       - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "msrv"
       - name: Build on MSRV (locked)
         run: cargo build --all-features --locked
 
@@ -60,6 +69,8 @@ jobs:
       - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "stable"
       - name: Build docs (deny warnings)
         env:
           RUSTDOCFLAGS: -D warnings
@@ -74,6 +85,8 @@ jobs:
       - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@nightly
       - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "nightly"
       - name: Generate minimal lockfile
         run: cargo +nightly generate-lockfile -Z minimal-versions
       - name: Build with minimal versions
@@ -92,6 +105,8 @@ jobs:
       - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "stable-${{ matrix.os }}"
       - name: Build (locked)
         env:
           RUSTFLAGS: -D warnings
