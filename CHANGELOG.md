@@ -6,6 +6,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.2.1](https://github.com/chege/googletest-json-serde/compare/v0.2.0...v0.2.1) - 2025-10-07
+
+[View diff on diff.rs](https://diff.rs/googletest-json-serde/0.2.0/googletest-json-serde/0.2.1/Cargo.toml)
+
+### <!-- 0 -->⛰️ Features
+
+- *(matchers)* add JsonPredicateMatcher and type-specific JSON matchers
+
+### <!-- 1 -->🐛 Bug Fixes
+
+- *(assets)* correct malformed SVG by removing stray closing tag in mask section
+
+### <!-- 2 -->🚜 Refactor
+
+- *(matchers)* split value_matcher into json_matcher and primitive_matcher
+
+### <!-- 3 -->📚 Documentation
+
+- *(readme)* simplify badge layout and center project description
+- improve README.md
+
+### <!-- 7 -->⚙️ Miscellaneous Tasks
+
+- *(ci)* optimize caching and build settings for faster pipeline execution
+- simplify bug report
+- add weekly sanity check workflow and crate validation script
+
 ## [0.2.0](https://github.com/chege/googletest-json-serde/compare/v0.1.0...v0.2.0) - 2025-10-06
 
 [View diff on diff.rs](https://diff.rs/googletest-json-serde/0.1.0/googletest-json-serde/0.2.0/Cargo.toml)
