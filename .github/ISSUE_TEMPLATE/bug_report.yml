@@ -73,22 +73,6 @@ body:
       placeholder: e.g. googletest-json-serde v0.1.0
     validations:
       required: true
-  - type: input
-    id: serde_json_version
-    attributes:
-      label: serde_json version
-      description: Output of `cargo tree | grep serde_json` (first line)
-      placeholder: e.g. serde_json v1.0.108
-    validations:
-      required: false
-  - type: input
-    id: rust_version
-    attributes:
-      label: Rust version
-      description: Output of `rustc --version`
-      placeholder: e.g. rustc 1.75.0 (82e1608df 2023-12-21)
-    validations:
-      required: false
   - type: textarea
     id: notes
     attributes:
