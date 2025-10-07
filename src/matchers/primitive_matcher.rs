@@ -12,6 +12,7 @@
 ///
 /// # Example
 /// ```
+/// #![allow(deprecated)]
 /// # use googletest::prelude::*;
 /// # use googletest_json_serde::json;
 /// # use serde_json::json as j;
