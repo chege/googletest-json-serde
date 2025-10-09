@@ -1,7 +1,7 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.svg" >
   <source media="(prefers-color-scheme: light)" srcset="assets/logo-light.svg" >
-  <img alt="GoogleTest JSON Serde logo" src="assets/logo-dark.svg">
+  <img alt="GoogleTest JSON Serde logo" src="https://raw.githubusercontent.com/chege/googletest-json-serde/HEAD/assets/logo-dark.svg">
 </picture>
 
 
