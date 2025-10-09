@@ -1,0 +1,28 @@
+version: '3'
+
+tasks:
+  verify:
+    desc: Run all checks equivalent to CI
+    cmds:
+      - echo "🧹 Checking formatting..."
+      - cargo fmt --all -- --check
+
+      - echo "🔍 Running Clippy (stable)..."
+      - cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+      - echo "🧪 Running tests (stable)..."
+      - cargo test --all-features -- --nocapture
+    silent: false
+
+  fix:
+    desc: Auto-fix formatting and run checks
+    cmds:
+      - echo "🧹 Fixing formatting..."
+      - cargo fmt --all
+
+      - echo "🔍 Running Clippy (stable)..."
+      - cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+      - echo "🧪 Running tests (stable)..."
+      - cargo test --all-features -- --nocapture
+    silent: false
