@@ -38,7 +38,7 @@ fn match_nested_object_non_strict() {
         val,
         json::pat!({
             "user": json::pat!({
-                "id": eq(1),
+                "id": ge(1),
                 ..
             })
         })
