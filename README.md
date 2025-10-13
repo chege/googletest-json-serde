@@ -1,7 +1,6 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.svg" >
   <source media="(prefers-color-scheme: light)" srcset="assets/logo-light.svg" >
-  <img alt="GoogleTest JSON Serde logo" src="https://raw.githubusercontent.com/chege/googletest-json-serde/HEAD/assets/logo-dark.svg">
 </picture>
 
 
@@ -78,6 +77,7 @@ use serde_json::json as j;
   why.
 - **Helper matchers** for validating JSON kinds and structure: `json::is_null()`, `json::is_not_null()`,
   `json::is_string()`, `json::is_number()`, `json::is_boolean()`, `json::is_array()`, `json::is_object()`.
+- **Custom predicates** for ad‑hoc checks on `serde_json::Value` fields using `json::predicate(|v| ...)`.
 
 ## Examples
 
@@ -95,6 +95,22 @@ assert_that!(j!(3.14),      json::primitive!(near(3.1f64, 0.1f64)));
 assert_that!(j!("hello"),   json::primitive!(starts_with("he")));
 assert_that!(j!(true),      json::primitive!(is_true()));
 assert_that!(j!(null),     json::is_null());
+```
+
+### Predicates
+
+#### Create custom matchers with `json::predicate`
+
+```rust
+use googletest::prelude::*;
+use googletest_json_serde::json;
+use serde_json::json as j;
+
+// Match a number greater than zero
+assert_that!(j!(42), json::predicate(|v| v.as_i64().map_or(false, |n| n > 0)));
+
+// Match a string containing "foo"
+assert_that!(j!("foobar"), json::predicate(|v| v.as_str().map_or(false, |s| s.contains("foo"))));
 ```
 
 ### Objects

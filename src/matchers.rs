@@ -7,6 +7,7 @@ mod unordered_elements_are_matcher;
 #[allow(deprecated)]
 pub use json_matcher::{
     any_value, is_array, is_boolean, is_not_null, is_null, is_number, is_object, is_string,
+    predicate,
 };
 
 #[allow(deprecated)]
@@ -23,6 +24,9 @@ pub mod __internal_unstable_do_not_depend_on_these {
     pub use super::elements_are_matcher::internal::JsonElementsAre;
     pub use super::json_matcher::internal::IntoJsonMatcher;
     pub use super::json_matcher::internal::JsonPredicateMatcher;
+    pub use super::json_matcher::internal::NoDescription;
+    pub use super::json_matcher::internal::PredicateDescription;
+    pub use super::json_matcher::internal::describe_json_type;
     pub use super::matches_pattern_matcher::internal::JsonObjectMatcher;
     pub use super::primitive_matcher::internal::JsonPrimitiveMatcher;
     pub use super::unordered_elements_are_matcher::internal::JsonUnorderedElementsAreMatcher;
