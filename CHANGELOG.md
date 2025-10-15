@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.2.2](https://github.com/chege/googletest-json-serde/compare/v0.2.1...v0.2.2) - 2025-10-15
+
+[View diff on diff.rs](https://diff.rs/googletest-json-serde/0.2.1/googletest-json-serde/0.2.2/Cargo.toml)
+
+### <!-- 0 -->⛰️ Features
+
+- *(json)* add `is_not_null` matcher; deprecate `any_value`
+
+### <!-- 3 -->📚 Documentation
+
+- fix img url
+
+### <!-- 7 -->⚙️ Miscellaneous Tasks
+
+- taskfile
+
 ## [0.2.1](https://github.com/chege/googletest-json-serde/compare/v0.2.0...v0.2.1) - 2025-10-07
 
 [View diff on diff.rs](https://diff.rs/googletest-json-serde/0.2.0/googletest-json-serde/0.2.1/Cargo.toml)
