@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use googletest::prelude::*;
 use googletest_json_serde::json;
 use indoc::indoc;
@@ -20,6 +22,30 @@ fn any_value_fails_and_includes_full_message() -> Result<()> {
             r#"
             Value of: json!(null)
             Expected: any JSON value
+            Actual: Null,
+              which is a JSON null
+            "#
+        ))))
+    )
+}
+
+#[test]
+fn is_not_null_match() {
+    assert_that!(json!("2112"), json::is_not_null());
+}
+#[test]
+fn is_not_null_unmatch() {
+    assert_that!(json!(null), not(json::is_not_null()));
+}
+#[test]
+fn is_not_null_fails_and_includes_full_message() -> Result<()> {
+    let result = verify_that!(json!(null), json::is_not_null());
+    verify_that!(
+        result,
+        err(displays_as(contains_substring(indoc!(
+            r#"
+            Value of: json!(null)
+            Expected: not JSON null
             Actual: Null,
               which is a JSON null
             "#

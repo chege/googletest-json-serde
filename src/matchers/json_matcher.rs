@@ -8,6 +8,12 @@ pub fn is_null() -> JsonPredicateMatcher {
 }
 
 /// Matches any JSON value except null.
+pub fn is_not_null() -> JsonPredicateMatcher {
+    JsonPredicateMatcher::new(|v| !v.is_null(), "not JSON null", "which is JSON null")
+}
+
+/// Matches any JSON value except null.
+#[deprecated(since = "0.2.2", note = "Use `is_not_null` instead")]
 pub fn any_value() -> JsonPredicateMatcher {
     JsonPredicateMatcher::new(
         |v| !v.is_null(),
