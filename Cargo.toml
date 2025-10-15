@@ -11,7 +11,29 @@ readme = "README.md"
 keywords = ["googletest", "gtest", "json", "serde", "matchers"]
 categories = ["development-tools::testing"]
 license = "MIT OR Apache-2.0"
+exclude = [
+    "tests",
 
+    # CI, tooling, and metadata
+    ".github",
+    ".husky",
+    "Taskfile.yml",
+    "commitlint.config.cjs",
+    "deny.toml",
+    "release-plz.toml",
+    "rust-toolchain.toml",
+
+    # Frontend / npm-related
+    "package.json",
+    "package-lock.json",
+
+    # Docs, license, and auxiliary assets (optional)
+    "assets",
+    "scripts",
+    "CODEOWNERS",
+    "CODE_OF_CONDUCT.md",
+    "CONTRIBUTING.md",
+]
 [dependencies]
 googletest = "0.14.2"
 serde = "1.0.228"
