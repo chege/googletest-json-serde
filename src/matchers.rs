@@ -4,7 +4,10 @@ mod matches_pattern_matcher;
 mod primitive_matcher;
 mod unordered_elements_are_matcher;
 
-pub use json_matcher::{any_value, is_array, is_boolean, is_null, is_number, is_object, is_string};
+#[allow(deprecated)]
+pub use json_matcher::{
+    any_value, is_array, is_boolean, is_not_null, is_null, is_number, is_object, is_string,
+};
 
 #[allow(deprecated)]
 #[doc(inline)]

@@ -76,7 +76,7 @@ use serde_json::json as j;
   `json::is_contained_in![...]` macro.
 - **Provide** clear, structured diagnostic failure messages showing which part of the JSON structure did not match and
   why.
-- **Helper matchers** for validating JSON kinds and structure: `json::is_null()`, `json::any_value()`,
+- **Helper matchers** for validating JSON kinds and structure: `json::is_null()`, `json::is_not_null()`,
   `json::is_string()`, `json::is_number()`, `json::is_boolean()`, `json::is_array()`, `json::is_object()`.
 
 ## Examples
@@ -289,7 +289,7 @@ assert_that!(
                 // array of arrays — demonstrate nesting twice
                 "matrix": json::elements_are![
                     json::is_contained_in![starts_with("al"), json::is_number()],
-                    json::is_contained_in![starts_with("be"), json::any_value(), json::is_string()]
+                    json::is_contained_in![starts_with("be"), json::is_not_null(), json::is_string()]
                 ],
 
                 // object with mixed matchers

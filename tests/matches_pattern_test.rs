@@ -106,7 +106,7 @@ fn match_object_with_any_value_field() {
         val,
         json::pat!({
             "field": eq("value"),
-            "unexpected": json::any_value()
+            "unexpected": json::is_not_null()
         })
     );
 }
