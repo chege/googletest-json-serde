@@ -1,8 +1,4 @@
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.svg" >
-  <source media="(prefers-color-scheme: light)" srcset="assets/logo-light.svg" >
-</picture>
-
+![Logo](https://raw.githubusercontent.com/chege/googletest-json-serde/main/assets/logo.svg)
 
 <div align="center">
   <h3>
