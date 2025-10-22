@@ -2,6 +2,7 @@
 
 use crate::json::__internal_unstable_do_not_depend_on_these;
 use crate::matchers::__internal_unstable_do_not_depend_on_these::JsonPredicateMatcher;
+use googletest::description::Description;
 use serde_json::Value;
 
 /// Creates a custom JSON matcher from an arbitrary predicate function.
@@ -98,6 +99,23 @@ pub fn is_array() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str,
         "which is not a JSON array",
     )
     .with_explain_fn(__internal_unstable_do_not_depend_on_these::describe_json_type)
+}
+
+/// Matches an empty JSON array (`[]`).
+pub fn is_empty_array() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str>
+{
+    JsonPredicateMatcher::new(
+        |v| v.as_array().is_some_and(|a| a.is_empty()),
+        "an empty JSON array",
+        "which is not an empty JSON array",
+    )
+    .with_explain_fn(|v| {
+        if v.is_array() {
+            Description::new().text("which is a non-empty JSON array")
+        } else {
+            __internal_unstable_do_not_depend_on_these::describe_json_type(v)
+        }
+    })
 }
 
 /// Matches JSON object values.

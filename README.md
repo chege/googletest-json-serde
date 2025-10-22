@@ -268,7 +268,8 @@ payload: j!({
             },
             "metadata": {
                 "created": "2025-10-05"
-            }
+            },
+            "empty_array": [],
         },
         "extra": { "debug": true }
     }),
@@ -310,7 +311,7 @@ assert_that!(
                     "email": is_true(),
                     "beta": json::is_null(),
                 }),
-
+                "empty_array" : json::is_empty_array(),
                 // remaining fields ignored
                 ..
             }),
