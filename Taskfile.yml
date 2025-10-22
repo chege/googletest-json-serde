@@ -1,5 +1,5 @@
 version: '3'
-
+silent: true
 tasks:
   verify:
     desc: Run all checks equivalent to CI
@@ -10,19 +10,39 @@ tasks:
       - echo "🔍 Running Clippy (stable)..."
       - cargo clippy --workspace --all-targets --all-features -- -D warnings
 
-      - echo "🧪 Running tests (stable)..."
-      - cargo test --all-features -- --nocapture
+      - echo "🧪 Running tests..."
+      - |
+        if command -v cargo-nextest >/dev/null 2>&1; then
+          cargo nextest run --all-features \
+            --hide-progress-bar \
+            --failure-output=immediate \
+            --success-output=never \
+            --status-level=fail
+          cargo test --doc --all-features --quiet
+        else
+          cargo test --all-features --quiet
+        fi
     silent: false
 
   fix:
-    desc: Auto-fix formatting and run checks
+    desc: Auto-fix formatting and Clippy issues, then run tests
     cmds:
       - echo "🧹 Fixing formatting..."
       - cargo fmt --all
 
-      - echo "🔍 Running Clippy (stable)..."
-      - cargo clippy --workspace --all-targets --all-features -- -D warnings
+      - echo "🔧 Running Clippy with autofix..."
+      - cargo clippy --workspace --all-targets --all-features --fix --allow-dirty --allow-staged -- -D warnings
 
-      - echo "🧪 Running tests (stable)..."
-      - cargo test --all-features -- --nocapture
+      - echo "🧪 Running tests..."
+      - |
+        if command -v cargo-nextest >/dev/null 2>&1; then
+          cargo nextest run --all-features \
+            --hide-progress-bar \
+            --failure-output=immediate \
+            --success-output=never \
+            --status-level=fail
+          cargo test --doc --all-features --quiet
+        else
+          cargo test --all-features --quiet
+        fi
     silent: false
