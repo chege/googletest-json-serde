@@ -6,8 +6,8 @@ mod unordered_elements_are_matcher;
 
 #[allow(deprecated)]
 pub use json_matcher::{
-    any_value, is_array, is_boolean, is_not_null, is_null, is_number, is_object, is_string,
-    predicate,
+    any_value, is_array, is_boolean, is_empty_array, is_not_null, is_null, is_number, is_object,
+    is_string, predicate,
 };
 
 #[allow(deprecated)]
