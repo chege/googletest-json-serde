@@ -136,3 +136,22 @@ fn is_contained_in_explains_nested_mismatch() -> Result<()> {
         displays_as(contains_substring("element #0"))
     )
 }
+
+#[test]
+fn is_contained_in_produces_correct_failure_message() -> Result<()> {
+    let result = verify_that!(j!([1, 2, 3]), json::is_contained_in![ge(2), ge(3), ge(4)]);
+    verify_that!(
+        result,
+        err(displays_as(starts_with(indoc!(
+            r#"
+                Value of: j!([1, 2, 3])
+                Expected: contains JSON array elements matching in any order:
+                  0. is greater than or equal to 2
+                  1. is greater than or equal to 3
+                  2. is greater than or equal to 4
+                Actual: Array [Number(1), Number(2), Number(3)],
+                  whose element #0 does not match any expected elements
+            "#
+        ))))
+    )
+}

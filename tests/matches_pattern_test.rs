@@ -1,5 +1,6 @@
 use googletest::prelude::*;
 use googletest_json_serde::json;
+use indoc::indoc;
 use serde_json::json;
 
 #[test]
@@ -234,4 +235,41 @@ fn explain_option_some_mismatch() {
     } else {
         panic!("expected failure but matcher reported success");
     }
+}
+
+#[test]
+fn matches_pattern_produces_correct_failure_message() -> Result<()> {
+    let result = verify_that!(
+        json!({
+            "user": { "id": 1, "name": "Alice" },
+            "active": true
+        }),
+        json::pat!({
+            "user": json::pat!({
+                "id": eq(2),
+                "name": eq("Bob"),
+            }),
+            "active": eq(false),
+        })
+    );
+    verify_that!(
+        result,
+        err(displays_as(starts_with(indoc!(
+            r#"
+                Value of: json!({ "user": { "id": 1, "name": "Alice" }, "active": true })
+                Expected: has JSON object with expected fields
+                Actual: Object {
+                    "active": Bool(true),
+                    "user": Object {
+                        "id": Number(1),
+                        "name": String("Alice"),
+                    },
+                },
+                  had 2 field mismatches:
+                    field 'user': had 2 field mismatches:
+                    field 'id': which isn't equal to 2
+                    field 'name': which isn't equal to "Bob"
+                    field 'active': which isn't equal to false"#
+        ))))
+    )
 }

@@ -1,6 +1,7 @@
 use googletest::Result;
 use googletest::prelude::*;
 use googletest_json_serde::json;
+use indoc::indoc;
 use serde_json::json as j;
 
 #[test]
@@ -192,5 +193,26 @@ fn contains_each_empty_input_nested_matchers() -> Result<()> {
     verify_that!(
         j!([]),
         not(json::contains_each![json::contains_each![eq("a")]])
+    )
+}
+
+#[test]
+fn contains_each_produces_correct_failure_message() -> Result<()> {
+    let result = verify_that!(
+        j!(["a", "x", "c"]),
+        json::contains_each![eq("a"), eq("b"), eq("c")]
+    );
+    verify_that!(
+        result,
+        err(displays_as(starts_with(indoc!(
+            r#"
+                Value of: j!(["a", "x", "c"])
+                Expected: contains JSON array elements matching in any order:
+                  0. is equal to "a"
+                  1. is equal to "b"
+                  2. is equal to "c"
+                Actual: Array [String("a"), String("x"), String("c")],
+                  which has no element matching the expected element #1"#
+        ))))
     )
 }

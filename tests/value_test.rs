@@ -74,3 +74,18 @@ fn bool_type() -> Result<()> {
     let val = json!(false);
     verify_that!(val, json::primitive!(is_false()))
 }
+
+#[test]
+fn primitive_produces_correct_failure_message() -> Result<()> {
+    let result = verify_that!(json!(5), json::primitive!(gt(10)));
+    verify_that!(
+        result,
+        err(displays_as(starts_with(indoc!(
+            r#"
+                Value of: json!(5)
+                Expected: is greater than 10
+                Actual: Number(5),
+                  which is less than or equal to 10"#
+        ))))
+    )
+}
