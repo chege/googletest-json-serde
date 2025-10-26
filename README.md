@@ -74,6 +74,8 @@ use serde_json::json as j;
 - **Helper matchers** for validating JSON kinds and structure: `json::is_null()`, `json::is_not_null()`,
   `json::is_string()`, `json::is_number()`, `json::is_boolean()`, `json::is_array()`, `json::is_object()`.
 - **Custom predicates** for ad‑hoc checks on `serde_json::Value` fields using `json::predicate(|v| ...)`.
+- **Direct `serde_json::Value` support**: JSON matcher macros now accept direct `serde_json::Value` values for
+  structural equality checks, equivalent to using `eq(json!(...))`.
 
 ## Examples
 
@@ -113,7 +115,7 @@ assert_that!(j!("foobar"), json::predicate(|v| v.as_str().map_or(false, |s| s.co
 
 #### Match JSON objects with `json::matches_pattern!`
 
-Strict match:
+Strict and non-strict match examples with mixed usage of direct serde values and traditional matchers:
 
 ```rust
 use googletest::prelude::*;
@@ -124,7 +126,7 @@ let v = j!({"name": "Alice", "age": 30.0});
 assert_that!(
     v,
     json::matches_pattern!({
-        "name": eq("Alice"),
+        "name": j!("Alice"),
         "age":  ge(30.0),
     })
 );
@@ -142,6 +144,7 @@ assert_that!(
     v,
     json::matches_pattern!({
         "name": eq("Alice"),
+        "age": j!(30.0),
         ..
     })
 );
@@ -158,11 +161,11 @@ use serde_json::json as j;
 
 assert_that!(
     j!(["hello", 42, true]),
-    json::elements_are![eq("hello"), eq(42), is_true()]
+    json::elements_are![eq("hello"), j!(42), is_true()]
 );
 assert_that!(
     j!(["hello", 42, true]),
-    not(json::elements_are![eq("hello"), eq(42), is_false()])
+    not(json::elements_are![eq("hello"), gt(42), is_false()])
 );
 ```
 
@@ -175,11 +178,11 @@ use serde_json::json as j;
 
 assert_that!(
     j!([42, "hello", true]),
-    json::unordered_elements_are![eq(42), eq(true), eq("hello")]
+    json::unordered_elements_are![eq(42), j!(true), eq("hello")]
 );
 assert_that!(
     j!([42, "hello", true]),
-    not(json::unordered_elements_are![eq(42), eq(false), eq("hello")])
+    not(json::unordered_elements_are![eq(42), j!(false), eq("hello")])
 );
 ```
 
@@ -192,7 +195,7 @@ use serde_json::json as j;
 
 assert_that!(
     j!(["a", "b", "c"]),
-    json::is_contained_in![eq("a"), starts_with("b"), eq("c"), eq("d")]
+    json::is_contained_in![eq("a"), starts_with("b"), eq("c"), j!("d")]
 );
 assert_that!(
     j!(["a", "b", "c"]),
@@ -214,7 +217,7 @@ assert_that!(
 );
 assert_that!(
     j!(["admin", "user", "tester", "viewer"]),
-    not(json::contains_each![eq("admin"), eq("missing")])
+    not(json::contains_each![eq("admin"), j!("missing")])
 );
 ```
 
@@ -229,8 +232,8 @@ Here’s a quick reference matrix comparing the array matchers:
 | `contains_each!`          | No            | Yes               | No                  | Require each matcher to match a unique element, extra allowed |
 | `is_contained_in!`        | No            | No                | Yes                 | Actual elements are subset of expected                        |
 
-> 💡 **Note:** All JSON matcher macros support both direct matchers (e.g. `starts_with("x")`) and explicit
-> `json::primitive!(...)` wrappers. Use whichever makes intent clearer.
+> ⚡️ **Note:** All JSON matcher macros now accept direct `serde_json::Value` arguments, which perform deep structural
+> equality automatically, equivalent to wrapping the value in `eq(json!(...))`.
 
 ### Combined example
 
@@ -259,7 +262,8 @@ payload: j!({
             "scores": [99, 87, 75],
             "matrix": [
                 ["alpha", 1],
-                ["beta", 2, "extra"]
+                ["beta", 2, "extra"],
+                ["charlie", 3,]
             ],
             "settings": {
                 "theme": "dark",
@@ -288,7 +292,7 @@ assert_that!(
                 // ordered array of native matchers
                 "roles": json::elements_are![
                     starts_with("adm"),
-                    eq("user"),
+                    j!("user"),
                     ends_with("er")
                 ],
 
@@ -302,7 +306,8 @@ assert_that!(
                 // array of arrays — demonstrate nesting twice
                 "matrix": json::elements_are![
                     json::is_contained_in![starts_with("al"), json::is_number()],
-                    json::is_contained_in![starts_with("be"), json::is_not_null(), json::is_string()]
+                    json::contains_each![starts_with("be"), json::is_not_null()],
+                    j!(["charlie", 3]),
                 ],
 
                 // object with mixed matchers

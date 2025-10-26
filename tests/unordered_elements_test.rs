@@ -197,3 +197,99 @@ fn unordered_elements_are_produces_correct_failure_message_nested() -> Result<()
         )))
     )
 }
+
+#[test]
+fn unordered_elements_are_mixed_types_match_with_owned_values() -> Result<()> {
+    let value = json!([true, 1, "a"]);
+    let a = json!("a");
+    let one = json!(1);
+    let t = json!(true);
+    verify_that!(value, json::unordered_elements_are![a, one, t])
+}
+
+#[test]
+fn unordered_elements_are_mixed_types_match_with_borrowed_values() -> Result<()> {
+    let value = json!([1, true, "a"]);
+    let a = json!("a");
+    let one = json!(1);
+    let t = json!(true);
+    verify_that!(value, json::unordered_elements_are![&a, &one, &t])
+}
+
+#[test]
+fn unordered_elements_are_mixed_types_match_with_inline_borrowed_literals() -> Result<()> {
+    verify_that!(
+        json!(["a", true, 1]),
+        json::unordered_elements_are![&json!("a"), &json!(1), &json!(true)]
+    )
+}
+
+#[test]
+fn unordered_elements_are_mixed_types_match_with_inline_owned_literals() -> Result<()> {
+    verify_that!(
+        json!([true, "a", 1]),
+        json::unordered_elements_are![json!("a"), json!(1), json!(true)]
+    )
+}
+
+#[test]
+fn unordered_elements_are_mixed_types_match_with_mixed_owned_and_borrowed() -> Result<()> {
+    let value = json!([1, true, "a"]);
+    let a = json!("a");
+    verify_that!(
+        value,
+        json::unordered_elements_are![a, json!(1), &json!(true)]
+    )
+}
+
+#[test]
+fn unordered_elements_are_mixed_types_match_with_owned_values_unmatch() -> Result<()> {
+    let value = json!([true, 2, "b"]);
+    let a = json!("a");
+    let one = json!(1);
+    let t = json!(true);
+    verify_that!(value, not(json::unordered_elements_are![a, one, t]))
+}
+
+#[test]
+fn unordered_elements_are_mixed_types_match_with_borrowed_values_unmatch() -> Result<()> {
+    let value = json!([false, "a", 2]);
+    let a = json!("a");
+    let one = json!(1);
+    let t = json!(true);
+    verify_that!(value, not(json::unordered_elements_are![&a, &one, &t]))
+}
+
+#[test]
+fn unordered_elements_are_mixed_types_match_with_inline_borrowed_literals_unmatch() -> Result<()> {
+    verify_that!(
+        json!(["b", 2, false]),
+        not(json::unordered_elements_are![
+            &json!("a"),
+            &json!(1),
+            &json!(true)
+        ])
+    )
+}
+
+#[test]
+fn unordered_elements_are_mixed_types_match_with_inline_owned_literals_unmatch() -> Result<()> {
+    verify_that!(
+        json!([false, "x", 9]),
+        not(json::unordered_elements_are![
+            json!("a"),
+            json!(1),
+            json!(true)
+        ])
+    )
+}
+
+#[test]
+fn unordered_elements_are_mixed_types_match_with_mixed_owned_and_borrowed_unmatch() -> Result<()> {
+    let value = json!([false, "z", 3]);
+    let a = json!("a");
+    verify_that!(
+        value,
+        not(json::unordered_elements_are![a, json!(1), &json!(true)])
+    )
+}

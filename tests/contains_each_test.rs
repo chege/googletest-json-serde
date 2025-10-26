@@ -216,3 +216,87 @@ fn contains_each_produces_correct_failure_message() -> Result<()> {
         ))))
     )
 }
+
+#[test]
+fn contains_each_mixed_types_match_with_owned_values() -> Result<()> {
+    let arr = vec![j!("alpha"), j!(1), j!(true)];
+    verify_that!(j!(arr), json::contains_each![eq("alpha"), eq(1), eq(true)])
+}
+
+#[test]
+fn contains_each_mixed_types_match_with_borrowed_values() -> Result<()> {
+    let arr = [&j!("alpha"), &j!(1), &j!(true)];
+    verify_that!(
+        j!([arr[0], arr[1], arr[2]]),
+        json::contains_each![eq("alpha"), eq(1), eq(true)]
+    )
+}
+
+#[test]
+fn contains_each_mixed_types_match_with_inline_borrowed_literals() -> Result<()> {
+    let a = j!("alpha");
+    let b = j!(1);
+    let c = j!(true);
+    verify_that!(
+        j!([&a, &b, &c]),
+        json::contains_each![eq("alpha"), eq(1), eq(true)]
+    )
+}
+
+#[test]
+fn contains_each_mixed_types_match_with_inline_owned_literals() -> Result<()> {
+    verify_that!(
+        j!([j!("alpha"), j!(1), j!(true)]),
+        json::contains_each![eq("alpha"), eq(1), eq(true)]
+    )
+}
+
+#[test]
+fn contains_each_mixed_types_match_with_mixed_owned_and_borrowed() -> Result<()> {
+    let a = j!("alpha");
+    verify_that!(
+        j!([&a, j!(1), j!(true)]),
+        json::contains_each![eq("alpha"), eq(1), eq(true)]
+    )
+}
+
+#[test]
+fn contains_each_mixed_types_match_with_owned_values_unmatch() -> Result<()> {
+    let value = j!(["a", 1, false]);
+    let a = j!("a");
+    let one = j!(1);
+    let t = j!(true);
+    verify_that!(value, not(json::contains_each![a, one, t]))
+}
+
+#[test]
+fn contains_each_mixed_types_match_with_borrowed_values_unmatch() -> Result<()> {
+    let value = j!(["a", 1, false]);
+    let a = j!("a");
+    let one = j!(1);
+    let t = j!(true);
+    verify_that!(value, not(json::contains_each![&a, &one, &t]))
+}
+
+#[test]
+fn contains_each_mixed_types_match_with_inline_borrowed_literals_unmatch() -> Result<()> {
+    verify_that!(
+        j!(["a", 1, false]),
+        not(json::contains_each![&j!("a"), &j!(1), &j!(true)])
+    )
+}
+
+#[test]
+fn contains_each_mixed_types_match_with_inline_owned_literals_unmatch() -> Result<()> {
+    verify_that!(
+        j!(["a", 1, false]),
+        not(json::contains_each![j!("a"), j!(1), j!(true)])
+    )
+}
+
+#[test]
+fn contains_each_mixed_types_match_with_mixed_owned_and_borrowed_unmatch() -> Result<()> {
+    let value = j!(["a", 1, false]);
+    let a = j!("a");
+    verify_that!(value, not(json::contains_each![a, j!(1), &j!(true)]))
+}

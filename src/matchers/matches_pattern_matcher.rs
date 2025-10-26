@@ -45,6 +45,12 @@
 /// );
 /// ```
 ///
+/// # Notes
+///
+///  - Both JSON-aware and native GoogleTest matchers (such as `starts_with`, `contains_substring`) can be used directly.
+///  - Wrapping with `json::primitive!` is no longer needed.
+///  - Direct `serde_json::Value` inputs (e.g. `json!(...)`) are supported and compared by structural equality.
+///
 /// # Alias
 ///
 /// This macro is reexported as [`json::pat!`](crate::json::pat).

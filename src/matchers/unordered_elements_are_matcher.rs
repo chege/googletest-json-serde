@@ -11,18 +11,18 @@
 /// and vice versa. Matching fails if the input is not an array, if the number of
 /// elements and matchers differ, or if no perfect one-to-one mapping can be found.
 ///
-/// # Examples
+/// # Example
 ///
 /// This passes:
 /// ```
 /// # use googletest::prelude::*;
-/// # use serde_json::json;
+/// # use serde_json::json as j;
 /// # use crate::googletest_json_serde::json;
-/// let value = json!(["a", "b", "c"]);
+/// let value = j!(["a", "b", "c"]);
 /// assert_that!(
 ///     value,
 ///     json::unordered_elements_are![
-///         eq("c"),
+///         j!("c"),
 ///         eq("a"),
 ///         starts_with("b"),
 ///     ]
@@ -32,9 +32,9 @@
 /// This fails because the element `"x"` does not match any expected element:
 /// ```should_panic
 /// # use googletest::prelude::*;
-/// # use serde_json::json;
+/// # use serde_json::json as j;
 /// # use crate::googletest_json_serde::json;
-/// let value = json!(["a", "x", "c"]);
+/// let value = j!(["a", "x", "c"]);
 /// assert_that!(
 ///     value,
 ///     json::unordered_elements_are![
@@ -60,9 +60,12 @@
 /// );
 /// ```
 ///
-/// # Alias
 ///
-/// This macro is re-exported as [`json::unordered_elements_are!`](crate::json::unordered_elements_are).
+/// # Notes
+///
+///  - Both JSON-aware and native GoogleTest matchers (such as `starts_with`, `contains_substring`) can be used directly.
+///  - Wrapping with `json::primitive!` is no longer needed.
+///  - Direct `serde_json::Value` inputs (e.g. `json!(...)`) are supported and compared by structural equality.
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_unordered_elements_are {
@@ -160,7 +163,13 @@ macro_rules! __json_contains_each {
 ///
 /// Accepts both bracketed (`json::is_contained_in!([ ... ])`) and unbracketed (`json::is_contained_in!(...)`) forms.
 ///
-/// Example:
+/// # Notes
+///
+///  - Both JSON-aware and native GoogleTest matchers (such as `starts_with`, `contains_substring`) can be used directly.
+///  - Wrapping with `json::primitive!` is no longer needed.
+///  - Direct `serde_json::Value` inputs (e.g. `json!(...)`) are supported and compared by structural equality.
+///
+/// # Example
 /// ```
 /// # use googletest::prelude::*;
 /// # use serde_json::json as j;

@@ -1,11 +1,11 @@
 use googletest::prelude::*;
 use googletest_json_serde::json;
 use indoc::indoc;
-use serde_json::json;
+use serde_json::json as j;
 
 #[test]
 fn match_nested_object_strict() {
-    let val = json!({
+    let val = j!({
         "user": {
             "id": 1,
             "name": "Alice"
@@ -20,14 +20,14 @@ fn match_nested_object_strict() {
                 "id": eq(1),
                 "name": starts_with("Alic"),
             }),
-            "active": eq(true),
+            "active": j!(true),
         })
     );
 }
 
 #[test]
 fn match_nested_object_non_strict() {
-    let val = json!({
+    let val = j!({
         "user": {
             "id": 1,
             "name": "Alice",
@@ -48,7 +48,7 @@ fn match_nested_object_non_strict() {
 
 #[test]
 fn match_enum_like_object_strict_mismatch() {
-    let val = json!({
+    let val = j!({
         "type": "Dog",
         "bark": true
     });
@@ -64,7 +64,7 @@ fn match_enum_like_object_strict_mismatch() {
 
 #[test]
 fn match_option_nested_mixed_matchers() {
-    let val = Some(json!({
+    let val = Some(j!({
         "type": "Dog",
         "props": {
             "bark": true,
@@ -86,7 +86,7 @@ fn match_option_nested_mixed_matchers() {
 
 #[test]
 fn fail_on_unexpected_fields_strict() {
-    let val = json!({
+    let val = j!({
         "a": 1,
         "b": 2,
         "unexpected": 3
@@ -102,7 +102,7 @@ fn fail_on_unexpected_fields_strict() {
 }
 #[test]
 fn match_object_with_any_value_field() {
-    let val = json!({"field": "value", "unexpected": 123});
+    let val = j!({"field": "value", "unexpected": 123});
     assert_that!(
         val,
         json::pat!({
@@ -125,7 +125,7 @@ fn match_option_none() {
 
 #[test]
 fn match_object_with_wrong_field() {
-    let val = json!({"field": "other"});
+    let val = j!({"field": "other"});
     assert_that!(
         val,
         not(json::pat!({
@@ -136,7 +136,7 @@ fn match_object_with_wrong_field() {
 
 #[test]
 fn explain_mismatch_nested_object() {
-    let val = json!({
+    let val = j!({
         "field": {
             "subfield": 123,
             "flag": false
@@ -170,7 +170,7 @@ fn explain_mismatch_nested_object() {
 
 #[test]
 fn explain_single_field_mismatch() {
-    let val = json!({"foo": 1});
+    let val = j!({"foo": 1});
     if let Err(err) = verify_that!(
         val,
         json::pat!({
@@ -188,7 +188,7 @@ fn explain_single_field_mismatch() {
 
 #[test]
 fn explain_wrong_type() {
-    let val = json!(123);
+    let val = j!(123);
     if let Err(err) = verify_that!(
         val,
         json::pat!({
@@ -221,7 +221,7 @@ fn explain_option_none() {
 
 #[test]
 fn explain_option_some_mismatch() {
-    let val = Some(json!({"foo": 1}));
+    let val = Some(j!({"foo": 1}));
     if let Err(err) = verify_that!(
         val,
         json::pat!({
@@ -240,7 +240,7 @@ fn explain_option_some_mismatch() {
 #[test]
 fn matches_pattern_produces_correct_failure_message() -> Result<()> {
     let result = verify_that!(
-        json!({
+        j!({
             "user": { "id": 1, "name": "Alice" },
             "active": true
         }),
@@ -256,7 +256,7 @@ fn matches_pattern_produces_correct_failure_message() -> Result<()> {
         result,
         err(displays_as(starts_with(indoc!(
             r#"
-                Value of: json!({ "user": { "id": 1, "name": "Alice" }, "active": true })
+                Value of: j!({ "user": { "id": 1, "name": "Alice" }, "active": true })
                 Expected: has JSON object with expected fields
                 Actual: Object {
                     "active": Bool(true),
@@ -272,4 +272,85 @@ fn matches_pattern_produces_correct_failure_message() -> Result<()> {
                     field 'active': which isn't equal to false"#
         ))))
     )
+}
+#[test]
+fn pat_matches_mixed_types_with_owned_values() -> Result<()> {
+    let value = j!({"a": "x", "b": 1, "c": true});
+    let a = j!("x");
+    let b = j!(1);
+    let c = j!(true);
+    verify_that!(value, json::pat!({"a": a, "b": b, "c": c}))
+}
+
+#[test]
+fn pat_matches_mixed_types_with_borrowed_values() -> Result<()> {
+    let value = j!({"a": "x", "b": 1, "c": true});
+    let a = j!("x");
+    let b = j!(1);
+    let c = j!(true);
+    verify_that!(value, json::pat!({"a": &a, "b": &b, "c": &c}))
+}
+
+#[test]
+fn pat_matches_mixed_types_with_inline_borrowed_literals() -> Result<()> {
+    verify_that!(
+        j!({"a": "x", "b": 1, "c": true}),
+        json::pat!({"a": &j!("x"), "b": &j!(1), "c": &j!(true)})
+    )
+}
+
+#[test]
+fn pat_matches_mixed_types_with_inline_owned_literals() -> Result<()> {
+    verify_that!(
+        j!({"a": "x", "b": 1, "c": true}),
+        json::pat!({"a": j!("x"), "b": j!(1), "c": j!(true)})
+    )
+}
+
+#[test]
+fn pat_matches_mixed_types_with_mixed_owned_and_borrowed() -> Result<()> {
+    let value = j!({"a": "x", "b": 1, "c": true});
+    let a = j!("x");
+    verify_that!(value, json::pat!({"a": a, "b": j!(1), "c": &j!(true)}))
+}
+
+#[test]
+fn pat_unmatch_with_owned_values() -> Result<()> {
+    let value = j!({"a": "x", "b": 1, "c": false});
+    let a = j!("x");
+    let b = j!(1);
+    let c = j!(true);
+    verify_that!(value, not(json::pat!({"a": a, "b": b, "c": c})))
+}
+
+#[test]
+fn pat_unmatch_with_borrowed_values() -> Result<()> {
+    let value = j!({"a": "x", "b": 1, "c": false});
+    let a = j!("x");
+    let b = j!(1);
+    let c = j!(true);
+    verify_that!(value, not(json::pat!({"a": &a, "b": &b, "c": &c})))
+}
+
+#[test]
+fn pat_unmatch_with_inline_borrowed_literals() -> Result<()> {
+    verify_that!(
+        j!({"a": "x", "b": 1, "c": false}),
+        not(json::pat!({"a": &j!("x"), "b": &j!(1), "c": &j!(true)}))
+    )
+}
+
+#[test]
+fn pat_unmatch_with_inline_owned_literals() -> Result<()> {
+    verify_that!(
+        j!({"a": "x", "b": 1, "c": false}),
+        not(json::pat!({"a": j!("x"), "b": j!(1), "c": j!(true)}))
+    )
+}
+
+#[test]
+fn pat_unmatch_with_mixed_owned_and_borrowed() -> Result<()> {
+    let value = j!({"a": "x", "b": 1, "c": false});
+    let a = j!("x");
+    verify_that!(value, not(json::pat!({"a": a, "b": j!(1), "c": &j!(true)})))
 }
