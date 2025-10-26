@@ -276,6 +276,51 @@ pub mod internal {
         }
     }
 
+    // A concrete matcher that checks equality with an owned serde_json::Value.
+    // This avoids lifetime issues of using googletest::eq on &Value and gives
+    // us control over descriptions.
+    #[derive(googletest::matcher::MatcherBase)]
+    struct JsonEqMatcher {
+        expected: Value,
+    }
+
+    impl Matcher<&Value> for JsonEqMatcher {
+        fn matches(&self, actual: &Value) -> MatcherResult {
+            if *actual == self.expected {
+                Match
+            } else {
+                NoMatch
+            }
+        }
+
+        fn describe(&self, result: MatcherResult) -> Description {
+            match result {
+                Match => format!("is equal to {:?}", self.expected).into(),
+                NoMatch => format!("isn't equal to {:?}", self.expected).into(),
+            }
+        }
+
+        fn explain_match(&self, _actual: &Value) -> Description {
+            // Framework prints the actual value already. Provide the expected.
+            format!("which isn't equal to {:?}", self.expected).into()
+        }
+    }
+
+    // Allow &serde_json::Value to be used seamlessly with JSON macros
+    impl IntoJsonMatcher<Value> for &Value {
+        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+            Box::new(JsonEqMatcher {
+                expected: self.clone(),
+            })
+        }
+    }
+
+    impl IntoJsonMatcher<Value> for Value {
+        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+            Box::new(JsonEqMatcher { expected: self })
+        }
+    }
+
     impl<P, D1, D2> IntoJsonMatcher<()> for JsonPredicateMatcher<P, D1, D2>
     where
         P: Fn(&Value) -> bool + 'static,

@@ -225,3 +225,77 @@ fn elements_are_dupes_unmatch() -> Result<()> {
     let value = j!(["x", "y"]);
     verify_that!(value, not(json::elements_are![eq("x"), eq("x")]))
 }
+
+#[test]
+fn elements_are_mixed_types_match_with_owned_values() -> Result<()> {
+    let value = j!(["a", 1, true]);
+    let a = j!("a");
+    let one = j!(1);
+    let t = j!(true);
+    verify_that!(value, json::elements_are![a, one, t])
+}
+#[test]
+fn elements_are_mixed_types_match_with_borrowed_values() -> Result<()> {
+    let value = j!(["a", 1, true]);
+    let a = j!("a");
+    let one = j!(1);
+    let t = j!(true);
+    verify_that!(value, json::elements_are![&a, &one, &t])
+}
+#[test]
+fn elements_are_mixed_types_match_with_inline_borrowed_literals() -> Result<()> {
+    verify_that!(
+        j!(["a", 1, true]),
+        json::elements_are![&j!("a"), &j!(1), &j!(true)]
+    )
+}
+#[test]
+fn elements_are_mixed_types_match_with_inline_owned_literals() -> Result<()> {
+    verify_that!(
+        j!(["a", 1, true]),
+        json::elements_are![j!("a"), j!(1), j!(true)]
+    )
+}
+#[test]
+fn elements_are_mixed_types_match_with_mixed_owned_and_borrowed() -> Result<()> {
+    let value = j!(["a", 1, true]);
+    let a = j!("a");
+    verify_that!(value, json::elements_are![a, j!(1), &j!(true)])
+}
+
+#[test]
+fn elements_are_mixed_types_match_with_owned_values_unmatch() -> Result<()> {
+    let value = j!(["a", 1, false]);
+    let a = j!("a");
+    let one = j!(1);
+    let t = j!(true);
+    verify_that!(value, not(json::elements_are![a, one, t]))
+}
+#[test]
+fn elements_are_mixed_types_match_with_borrowed_values_unmatch() -> Result<()> {
+    let value = j!(["a", 1, false]);
+    let a = j!("a");
+    let one = j!(1);
+    let t = j!(true);
+    verify_that!(value, not(json::elements_are![&a, &one, &t]))
+}
+#[test]
+fn elements_are_mixed_types_match_with_inline_borrowed_literals_unmatch() -> Result<()> {
+    verify_that!(
+        j!(["a", 1, false]),
+        not(json::elements_are![&j!("a"), &j!(1), &j!(true)])
+    )
+}
+#[test]
+fn elements_are_mixed_types_match_with_inline_owned_literals_unmatch() -> Result<()> {
+    verify_that!(
+        j!(["a", 1, false]),
+        not(json::elements_are![j!("a"), j!(1), j!(true)])
+    )
+}
+#[test]
+fn elements_are_mixed_types_match_with_mixed_owned_and_borrowed_unmatch() -> Result<()> {
+    let value = j!(["a", 1, false]);
+    let a = j!("a");
+    verify_that!(value, not(json::elements_are![a, j!(1), &j!(true)]))
+}

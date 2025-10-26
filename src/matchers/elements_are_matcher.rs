@@ -10,13 +10,9 @@
 ///
 /// Callers should prefer the public-facing [`json::elements_are!`](crate::json::elements_are!) macro.
 ///
-/// # Notes
+/// # Examples
 ///
-/// Both JSON-aware and native GoogleTest matchers (such as `starts_with`, `contains_substring`) can be used directly.
-/// Wrapping with `json::primitive!` is no longer needed.
-///
-/// # Example
-///
+/// Basic usage:
 /// ```
 /// # use googletest::prelude::*;
 /// # use serde_json::json as j;
@@ -24,7 +20,11 @@
 /// let value = j!(["alex", "bart", "cucumberbatch"]);
 /// assert_that!(
 ///     value,
-///     json::elements_are![starts_with("a"), eq("bart"), char_count(eq(13))]
+///     json::elements_are![
+///         j!("alex"),
+///         starts_with("b"),
+///         char_count(eq(13))
+///     ]
 /// );
 /// ```
 ///
@@ -37,15 +37,17 @@
 /// assert_that!(
 ///     value,
 ///     json::elements_are![
-///         json::elements_are![eq("x"), eq("y")],
+///         json::elements_are![j!("x"), eq("y")],
 ///         json::elements_are![eq("z")]
 ///     ]
 /// );
 /// ```
 ///
-/// # See also
+/// # Notes
 ///
-/// [`googletest::matcher::Matcher`], [`crate::json::elements_are!`]
+///  - Both JSON-aware and native GoogleTest matchers (such as `starts_with`, `contains_substring`) can be used directly.
+///  - Wrapping with `json::primitive!` is no longer needed.
+///  - Direct `serde_json::Value` inputs (e.g. `json!(...)`) are supported and compared by structural equality.
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_elements_are {

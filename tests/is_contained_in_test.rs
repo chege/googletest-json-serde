@@ -155,3 +155,85 @@ fn is_contained_in_produces_correct_failure_message() -> Result<()> {
         ))))
     )
 }
+
+#[test]
+fn is_contained_in_mixed_types_match_with_owned_values() -> Result<()> {
+    let value = j!(["a", 1]);
+    let a = j!("a");
+    let one = j!(1);
+    let t = j!(true);
+    verify_that!(value, json::is_contained_in![a, one, t])
+}
+
+#[test]
+fn is_contained_in_mixed_types_match_with_borrowed_values() -> Result<()> {
+    let value = j!(["a", 1]);
+    let a = j!("a");
+    let one = j!(1);
+    let t = j!(true);
+    verify_that!(value, json::is_contained_in![&a, &one, &t])
+}
+
+#[test]
+fn is_contained_in_mixed_types_match_with_inline_borrowed_literals() -> Result<()> {
+    verify_that!(
+        j!(["a", 1]),
+        json::is_contained_in![&j!("a"), &j!(1), &j!(true)]
+    )
+}
+
+#[test]
+fn is_contained_in_mixed_types_match_with_inline_owned_literals() -> Result<()> {
+    verify_that!(
+        j!(["a", 1]),
+        json::is_contained_in![j!("a"), j!(1), j!(true)]
+    )
+}
+
+#[test]
+fn is_contained_in_mixed_types_match_with_mixed_owned_and_borrowed() -> Result<()> {
+    let value = j!(["a", 1]);
+    let a = j!("a");
+    verify_that!(value, json::is_contained_in![a, j!(1), &j!(true)])
+}
+
+#[test]
+fn is_contained_in_mixed_types_match_with_owned_values_unmatch() -> Result<()> {
+    let value = j!(["x", 2]);
+    let a = j!("a");
+    let one = j!(1);
+    let t = j!(true);
+    verify_that!(value, not(json::is_contained_in![a, one, t]))
+}
+
+#[test]
+fn is_contained_in_mixed_types_match_with_borrowed_values_unmatch() -> Result<()> {
+    let value = j!(["x", 2]);
+    let a = j!("a");
+    let one = j!(1);
+    let t = j!(true);
+    verify_that!(value, not(json::is_contained_in![&a, &one, &t]))
+}
+
+#[test]
+fn is_contained_in_mixed_types_match_with_inline_borrowed_literals_unmatch() -> Result<()> {
+    verify_that!(
+        j!(["x", 2]),
+        not(json::is_contained_in![&j!("a"), &j!(1), &j!(true)])
+    )
+}
+
+#[test]
+fn is_contained_in_mixed_types_match_with_inline_owned_literals_unmatch() -> Result<()> {
+    verify_that!(
+        j!(["x", 2]),
+        not(json::is_contained_in![j!("a"), j!(1), j!(true)])
+    )
+}
+
+#[test]
+fn is_contained_in_mixed_types_match_with_mixed_owned_and_borrowed_unmatch() -> Result<()> {
+    let value = j!(["x", 2]);
+    let a = j!("a");
+    verify_that!(value, not(json::is_contained_in![a, j!(1), &j!(true)]))
+}
