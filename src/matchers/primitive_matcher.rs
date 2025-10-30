@@ -294,4 +294,214 @@ pub mod internal {
             Box::new(JsonPrimitiveMatcher::<M, i32>::new(self))
         }
     }
+
+    impl<M> Matcher<&Value> for JsonPrimitiveMatcher<M, i8>
+    where
+        M: Matcher<i8>,
+    {
+        fn matches(&self, actual: &Value) -> MatcherResult {
+            match actual {
+                Value::Number(n) => match n.as_i64() {
+                    Some(i) => match i8::try_from(i) {
+                        Ok(i8_val) => self.inner.matches(i8_val),
+                        Err(_) => MatcherResult::NoMatch,
+                    },
+                    None => MatcherResult::NoMatch,
+                },
+                _ => MatcherResult::NoMatch,
+            }
+        }
+        fn describe(&self, r: MatcherResult) -> Description {
+            self.inner.describe(r)
+        }
+        fn explain_match(&self, actual: &Value) -> Description {
+            match actual {
+                Value::Number(n) => match n.as_i64() {
+                    Some(i) => match i8::try_from(i) {
+                        Ok(i8_val) => self.inner.explain_match(i8_val),
+                        Err(_) => Description::new().text(format!("number out of i8 range: {n}")),
+                    },
+                    None => Description::new().text(format!("number out of i64 range: {n}")),
+                },
+                _ => Description::new().text("which is not a JSON number"),
+            }
+        }
+    }
+
+    impl<M> IntoJsonMatcher<i8> for M
+    where
+        M: Matcher<i8> + 'static,
+    {
+        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+            Box::new(JsonPrimitiveMatcher::<M, i8>::new(self))
+        }
+    }
+
+    impl<M> Matcher<&Value> for JsonPrimitiveMatcher<M, i16>
+    where
+        M: Matcher<i16>,
+    {
+        fn matches(&self, actual: &Value) -> MatcherResult {
+            match actual {
+                Value::Number(n) => match n.as_i64() {
+                    Some(i) => match i16::try_from(i) {
+                        Ok(i16_val) => self.inner.matches(i16_val),
+                        Err(_) => MatcherResult::NoMatch,
+                    },
+                    None => MatcherResult::NoMatch,
+                },
+                _ => MatcherResult::NoMatch,
+            }
+        }
+        fn describe(&self, r: MatcherResult) -> Description {
+            self.inner.describe(r)
+        }
+        fn explain_match(&self, actual: &Value) -> Description {
+            match actual {
+                Value::Number(n) => match n.as_i64() {
+                    Some(i) => match i16::try_from(i) {
+                        Ok(i16_val) => self.inner.explain_match(i16_val),
+                        Err(_) => Description::new().text(format!("number out of i16 range: {n}")),
+                    },
+                    None => Description::new().text(format!("number out of i64 range: {n}")),
+                },
+                _ => Description::new().text("which is not a JSON number"),
+            }
+        }
+    }
+
+    impl<M> IntoJsonMatcher<i16> for M
+    where
+        M: Matcher<i16> + 'static,
+    {
+        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+            Box::new(JsonPrimitiveMatcher::<M, i16>::new(self))
+        }
+    }
+
+    impl<M> Matcher<&Value> for JsonPrimitiveMatcher<M, u8>
+    where
+        M: Matcher<u8>,
+    {
+        fn matches(&self, actual: &Value) -> MatcherResult {
+            match actual {
+                Value::Number(n) => match n.as_u64() {
+                    Some(u) => match u8::try_from(u) {
+                        Ok(u8_val) => self.inner.matches(u8_val),
+                        Err(_) => MatcherResult::NoMatch,
+                    },
+                    None => MatcherResult::NoMatch,
+                },
+                _ => MatcherResult::NoMatch,
+            }
+        }
+        fn describe(&self, r: MatcherResult) -> Description {
+            self.inner.describe(r)
+        }
+        fn explain_match(&self, actual: &Value) -> Description {
+            match actual {
+                Value::Number(n) => match n.as_u64() {
+                    Some(u) => match u8::try_from(u) {
+                        Ok(u8_val) => self.inner.explain_match(u8_val),
+                        Err(_) => Description::new().text(format!("number out of u8 range: {n}")),
+                    },
+                    None => Description::new().text(format!("number out of u64 range: {n}")),
+                },
+                _ => Description::new().text("which is not a JSON number"),
+            }
+        }
+    }
+
+    impl<M> IntoJsonMatcher<u8> for M
+    where
+        M: Matcher<u8> + 'static,
+    {
+        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+            Box::new(JsonPrimitiveMatcher::<M, u8>::new(self))
+        }
+    }
+
+    impl<M> Matcher<&Value> for JsonPrimitiveMatcher<M, u16>
+    where
+        M: Matcher<u16>,
+    {
+        fn matches(&self, actual: &Value) -> MatcherResult {
+            match actual {
+                Value::Number(n) => match n.as_u64() {
+                    Some(u) => match u16::try_from(u) {
+                        Ok(u16_val) => self.inner.matches(u16_val),
+                        Err(_) => MatcherResult::NoMatch,
+                    },
+                    None => MatcherResult::NoMatch,
+                },
+                _ => MatcherResult::NoMatch,
+            }
+        }
+        fn describe(&self, r: MatcherResult) -> Description {
+            self.inner.describe(r)
+        }
+        fn explain_match(&self, actual: &Value) -> Description {
+            match actual {
+                Value::Number(n) => match n.as_u64() {
+                    Some(u) => match u16::try_from(u) {
+                        Ok(u16_val) => self.inner.explain_match(u16_val),
+                        Err(_) => Description::new().text(format!("number out of u16 range: {n}")),
+                    },
+                    None => Description::new().text(format!("number out of u64 range: {n}")),
+                },
+                _ => Description::new().text("which is not a JSON number"),
+            }
+        }
+    }
+
+    impl<M> IntoJsonMatcher<u16> for M
+    where
+        M: Matcher<u16> + 'static,
+    {
+        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+            Box::new(JsonPrimitiveMatcher::<M, u16>::new(self))
+        }
+    }
+
+    impl<M> Matcher<&Value> for JsonPrimitiveMatcher<M, u32>
+    where
+        M: Matcher<u32>,
+    {
+        fn matches(&self, actual: &Value) -> MatcherResult {
+            match actual {
+                Value::Number(n) => match n.as_u64() {
+                    Some(u) => match u32::try_from(u) {
+                        Ok(u32_val) => self.inner.matches(u32_val),
+                        Err(_) => MatcherResult::NoMatch,
+                    },
+                    None => MatcherResult::NoMatch,
+                },
+                _ => MatcherResult::NoMatch,
+            }
+        }
+        fn describe(&self, r: MatcherResult) -> Description {
+            self.inner.describe(r)
+        }
+        fn explain_match(&self, actual: &Value) -> Description {
+            match actual {
+                Value::Number(n) => match n.as_u64() {
+                    Some(u) => match u32::try_from(u) {
+                        Ok(u32_val) => self.inner.explain_match(u32_val),
+                        Err(_) => Description::new().text(format!("number out of u32 range: {n}")),
+                    },
+                    None => Description::new().text(format!("number out of u64 range: {n}")),
+                },
+                _ => Description::new().text("which is not a JSON number"),
+            }
+        }
+    }
+
+    impl<M> IntoJsonMatcher<u32> for M
+    where
+        M: Matcher<u32> + 'static,
+    {
+        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+            Box::new(JsonPrimitiveMatcher::<M, u32>::new(self))
+        }
+    }
 }
