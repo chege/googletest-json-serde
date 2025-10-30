@@ -57,12 +57,20 @@
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_matches_pattern {
+    (@wrap_matcher $lit:literal) => {
+        $crate::matchers::__internal_unstable_do_not_depend_on_these::IntoJsonMatcher::<
+            $crate::matchers::__internal_unstable_do_not_depend_on_these::Literal
+        >::into_json_matcher($lit)
+    };
+    (@wrap_matcher $expr:expr) => {
+        $crate::matchers::__internal_unstable_do_not_depend_on_these::IntoJsonMatcher::into_json_matcher($expr)
+    };
     // Strict version: no `..`
     ({ $($key:literal : $val:expr),* $(,)? }) => {{
         let fields = vec![
             $(
                 ($key,
-                 $crate::matchers::__internal_unstable_do_not_depend_on_these::IntoJsonMatcher::into_json_matcher($val)
+                 $crate::__json_matches_pattern!(@wrap_matcher $val)
                 )
             ),*
         ];
@@ -73,7 +81,7 @@ macro_rules! __json_matches_pattern {
         let fields = vec![
             $(
                 ($key,
-                 $crate::matchers::__internal_unstable_do_not_depend_on_these::IntoJsonMatcher::into_json_matcher($val)
+                 $crate::__json_matches_pattern!(@wrap_matcher $val)
                 )
             ),*
         ];

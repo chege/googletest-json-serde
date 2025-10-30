@@ -299,3 +299,24 @@ fn elements_are_mixed_types_match_with_mixed_owned_and_borrowed_unmatch() -> Res
     let a = j!("a");
     verify_that!(value, not(json::elements_are![a, j!(1), &j!(true)]))
 }
+
+#[test]
+fn elements_are_matches_with_primitive_literals() -> Result<()> {
+    let value = j!(["a", 1, true]);
+    verify_that!(value, json::elements_are!["a", 1i64, true])
+}
+
+#[test]
+fn elements_are_unmatch_with_primitive_literals() -> Result<()> {
+    let value = j!(["a", 1, false]);
+    verify_that!(value, not(json::elements_are!["a", 2i64, true]))
+}
+
+#[test]
+fn elements_are_matches_with_mixed_literals_and_matchers() -> Result<()> {
+    let a = 1i64;
+    verify_that!(
+        j!(["alex", 1, true]),
+        json::elements_are![starts_with("a"), a, is_true()]
+    )
+}

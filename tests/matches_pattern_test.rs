@@ -386,3 +386,29 @@ fn pat_matches_all_numeric_types_flat_object() -> Result<()> {
         })
     )
 }
+
+#[test]
+fn pat_matches_with_primitive_literals() -> Result<()> {
+    let value = j!({"a": "x", "b": 1, "c": true});
+    verify_that!(
+        value,
+        json::pat!({
+            "a": "x",   // literal string
+            "b": 1i64,     // literal number
+            ..
+        })
+    )
+}
+
+#[test]
+fn pat_unmatch_with_primitive_literals() -> Result<()> {
+    let value = j!({"a": "x", "b": 1, "c": false});
+    verify_that!(
+        value,
+        not(json::pat!({
+            "a": "x",
+            "b": 2i64,
+            "c": true
+        }))
+    )
+}

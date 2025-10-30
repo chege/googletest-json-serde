@@ -321,6 +321,64 @@ pub mod internal {
         }
     }
 
+    // Literal support marker type
+    pub struct Literal;
+
+    impl IntoJsonMatcher<Literal> for &str {
+        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+            Box::new(JsonEqMatcher {
+                expected: Value::from(self),
+            })
+        }
+    }
+
+    impl IntoJsonMatcher<Literal> for String {
+        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+            Box::new(JsonEqMatcher {
+                expected: Value::from(self),
+            })
+        }
+    }
+
+    impl IntoJsonMatcher<Literal> for bool {
+        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+            Box::new(JsonEqMatcher {
+                expected: Value::from(self),
+            })
+        }
+    }
+
+    impl IntoJsonMatcher<Literal> for i64 {
+        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+            Box::new(JsonEqMatcher {
+                expected: Value::from(self),
+            })
+        }
+    }
+    impl IntoJsonMatcher<Literal> for i32 {
+        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+            Box::new(JsonEqMatcher {
+                expected: Value::from(self),
+            })
+        }
+    }
+
+    impl IntoJsonMatcher<Literal> for u64 {
+        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+            Box::new(JsonEqMatcher {
+                expected: Value::from(self),
+            })
+        }
+    }
+
+    impl IntoJsonMatcher<Literal> for f64 {
+        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+            Box::new(JsonEqMatcher {
+                expected: Value::from(self),
+            })
+        }
+    }
+
     impl<P, D1, D2> IntoJsonMatcher<()> for JsonPredicateMatcher<P, D1, D2>
     where
         P: Fn(&Value) -> bool + 'static,
