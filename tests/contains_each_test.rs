@@ -300,3 +300,24 @@ fn contains_each_mixed_types_match_with_mixed_owned_and_borrowed_unmatch() -> Re
     let a = j!("a");
     verify_that!(value, not(json::contains_each![a, j!(1), &j!(true)]))
 }
+
+#[test]
+fn contains_each_matches_with_primitive_literals() -> Result<()> {
+    let value = j!(["x", "y", "z", 1, true]);
+    verify_that!(value, json::contains_each!["x", 1i64, true])
+}
+
+#[test]
+fn contains_each_unmatch_with_primitive_literals() -> Result<()> {
+    let value = j!(["a", "b", "c", false]);
+    verify_that!(value, not(json::contains_each!["x", 1i64, true]))
+}
+
+#[test]
+fn contains_each_matches_with_mixed_literals_and_matchers() -> Result<()> {
+    let a = 1i64;
+    verify_that!(
+        j!(["alex", "bravo", 1, true]),
+        json::contains_each![starts_with("a"), a, is_true()]
+    )
+}

@@ -293,3 +293,24 @@ fn unordered_elements_are_mixed_types_match_with_mixed_owned_and_borrowed_unmatc
         not(json::unordered_elements_are![a, json!(1), &json!(true)])
     )
 }
+
+#[test]
+fn unordered_elements_are_matches_with_primitive_literals() -> Result<()> {
+    let value = json!(["a", 1, true]);
+    verify_that!(value, json::unordered_elements_are!["a", 1i64, true])
+}
+
+#[test]
+fn unordered_elements_are_unmatch_with_primitive_literals() -> Result<()> {
+    let value = json!(["a", 1, false]);
+    verify_that!(value, not(json::unordered_elements_are!["a", 2i64, true]))
+}
+
+#[test]
+fn unordered_elements_are_matches_with_mixed_literals_and_matchers() -> Result<()> {
+    let a = 1i64;
+    verify_that!(
+        json!(["alex", 1, true]),
+        json::unordered_elements_are![starts_with("a"), a, is_true()]
+    )
+}

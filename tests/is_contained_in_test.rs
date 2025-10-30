@@ -237,3 +237,24 @@ fn is_contained_in_mixed_types_match_with_mixed_owned_and_borrowed_unmatch() -> 
     let a = j!("a");
     verify_that!(value, not(json::is_contained_in![a, j!(1), &j!(true)]))
 }
+
+#[test]
+fn is_contained_in_matches_with_primitive_literals() -> Result<()> {
+    let value = j!(["a", 1, true]);
+    verify_that!(value, json::is_contained_in!["a", 1i64, true, 22])
+}
+
+#[test]
+fn is_contained_in_unmatch_with_primitive_literals() -> Result<()> {
+    let value = j!(["a", 1, false]);
+    verify_that!(value, not(json::is_contained_in!["a", 2i64, true, 2]))
+}
+
+#[test]
+fn is_contained_in_matches_with_mixed_literals_and_matchers() -> Result<()> {
+    let a = 1i64;
+    verify_that!(
+        j!(["alex", 1, true]),
+        json::is_contained_in![starts_with("a"), a, is_true(), 23]
+    )
+}

@@ -126,12 +126,13 @@ use googletest::prelude::*;
 use googletest_json_serde::json;
 use serde_json::json as j;
 
-let v = j!({"name": "Alice", "age": 30.0});
+let v = j!({"name": "Max", "age": 28.0, "toes": 10});
 assert_that!(
     v,
     json::matches_pattern!({
-        "name": j!("Alice"),
-        "age":  ge(30.0),
+        "name": j!("Max"),
+        "age":  ge(28.0),
+        "toes": 10,
     })
 );
 ```
@@ -182,11 +183,11 @@ use serde_json::json as j;
 
 assert_that!(
     j!([42, "hello", true]),
-    json::unordered_elements_are![eq(42), j!(true), eq("hello")]
+    json::unordered_elements_are![eq(42), j!(true), "hello"]
 );
 assert_that!(
     j!([42, "hello", true]),
-    not(json::unordered_elements_are![eq(42), j!(false), eq("hello")])
+    not(json::unordered_elements_are![eq(42), j!(false), "hello"])
 );
 ```
 
@@ -199,11 +200,11 @@ use serde_json::json as j;
 
 assert_that!(
     j!(["a", "b", "c"]),
-    json::is_contained_in![eq("a"), starts_with("b"), eq("c"), j!("d")]
+    json::is_contained_in![eq("a"), starts_with("b"), "c", j!("d")]
 );
 assert_that!(
     j!(["a", "b", "c"]),
-    not(json::is_contained_in![eq("a"), eq("c")])
+    not(json::is_contained_in![eq("a"), "c"])
 );
 ```
 
@@ -217,11 +218,11 @@ use serde_json::json as j;
 // Array can have extra elements, but must contain all required ones
 assert_that!(
     j!(["admin", "user", "tester", "viewer"]),
-    json::contains_each![eq("admin"), starts_with("test")]
+    json::contains_each!["admin", starts_with("test")]
 );
 assert_that!(
     j!(["admin", "user", "tester", "viewer"]),
-    not(json::contains_each![eq("admin"), j!("missing")])
+    not(json::contains_each!["admin", j!("missing")])
 );
 ```
 
@@ -235,9 +236,6 @@ Here’s a quick reference matrix comparing the array matchers:
 | `unordered_elements_are!` | No            | No                | No                  | Exact unordered match of all elements                         |
 | `contains_each!`          | No            | Yes               | No                  | Require each matcher to match a unique element, extra allowed |
 | `is_contained_in!`        | No            | No                | Yes                 | Actual elements are subset of expected                        |
-
-> ⚡️ **Note:** All JSON matcher macros now accept direct `serde_json::Value` arguments, which perform deep structural
-> equality automatically, equivalent to wrapping the value in `eq(json!(...))`.
 
 ### Combined example
 
@@ -303,7 +301,7 @@ assert_that!(
                 // unordered array, native matchers directly
                 "tags": json::unordered_elements_are![
                     starts_with("se"),
-                    eq("dev"),
+                    "dev",
                     ends_with("st")
                 ],
 

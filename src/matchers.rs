@@ -24,6 +24,7 @@ pub mod __internal_unstable_do_not_depend_on_these {
     pub use super::elements_are_matcher::internal::JsonElementsAre;
     pub use super::json_matcher::internal::IntoJsonMatcher;
     pub use super::json_matcher::internal::JsonPredicateMatcher;
+    pub use super::json_matcher::internal::Literal;
     pub use super::json_matcher::internal::NoDescription;
     pub use super::json_matcher::internal::PredicateDescription;
     pub use super::json_matcher::internal::describe_json_type;
