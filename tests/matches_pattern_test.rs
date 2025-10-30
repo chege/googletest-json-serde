@@ -354,3 +354,35 @@ fn pat_unmatch_with_mixed_owned_and_borrowed() -> Result<()> {
     let a = j!("x");
     verify_that!(value, not(json::pat!({"a": a, "b": j!(1), "c": &j!(true)})))
 }
+
+#[test]
+fn pat_matches_all_numeric_types_flat_object() -> Result<()> {
+    let value = j!({
+        "i8_val": 12i8,
+        "i16_val": 32000i16,
+        "i32_val": 123456i32,
+        "i64_val": 9999999999i64,
+        "u8_val": 200u8,
+        "u16_val": 65000u16,
+        "u32_val": 4000000000u32,
+        "u64_val": 9000000000u64,
+        "f64_val": 9.14159f64,
+        "bool_val": true
+    });
+
+    verify_that!(
+        value,
+        json::pat!({
+            "i8_val": eq(12i8),
+            "i16_val": eq(32000i16),
+            "i32_val": eq(123456i32),
+            "i64_val": eq(9999999999i64),
+            "u8_val": eq(200u8),
+            "u16_val": eq(65000u16),
+            "u32_val": eq(4000000000u32),
+            "u64_val": eq(9000000000u64),
+            "f64_val": eq(9.14159f64),
+            "bool_val": eq(true),
+        })
+    )
+}
