@@ -13,8 +13,9 @@ body:
       options:
         - label: I have searched existing issues and discussions for similar requests
           required: true
-        - label: This feature would be generally useful (not just for my specific project)
-          required: true
+  - type: markdown
+    attributes:
+      value: "### 🧩 Problem or Use Case"
   - type: textarea
     id: problem
     attributes:
@@ -26,11 +27,14 @@ body:
         This makes it difficult to test APIs that return paginated results where I only care about certain items in sequence.
     validations:
       required: true
+  - type: markdown
+    attributes:
+      value: "### 💡 Proposed Solution"
   - type: textarea
     id: proposed_solution
     attributes:
       label: Proposed solution
-      description: Describe your ideal solution. What would the API look like? How would you use it in tests?
+      description: Describe your ideal solution, possible alternatives, or any relevant context. What would the API look like? How would you use it in tests?
       placeholder: |
         I'd like a new matcher like `json::contains_sequence!` that works like this:
         
@@ -45,25 +49,8 @@ body:
         ```
         
         This would pass if the elements appear in the given order, but allow other elements in between.
-      render: markdown
     validations:
-      required: true
-  - type: dropdown
-    id: matcher_category
-    attributes:
-      label: Matcher category
-      description: Which type of JSON matching does this relate to?
-      options:
-        - Value matching (primitives, null)
-        - Object pattern matching
-        - Array matching (ordered/unordered)
-        - Nested structure matching
-        - Utility/helper matchers
-        - Error message improvements
-        - Performance improvements
-        - Other
-    validations:
-      required: true
+      required: false
   - type: textarea
     id: example_json
     attributes:
@@ -84,16 +71,5 @@ body:
         }
         ```
       render: markdown
-    validations:
-      required: false
-  - type: textarea
-    id: other_notes
-    attributes:
-      label: Other notes (alternatives, priority, context)
-      description: Include workarounds, impact level, or any other helpful context.
-      placeholder: |
-        - Current workaround: manually matching array indices with poor error messages.
-        - Priority: Nice to have for improving test clarity.
-        - Similar feature: jest-extended has `toContainInOrder`.
     validations:
       required: false
