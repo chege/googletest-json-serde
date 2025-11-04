@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.4.0](https://github.com/chege/googletest-json-serde/compare/v0.3.1...v0.4.0) - 2025-11-04
+
+[View diff on diff.rs](https://diff.rs/googletest-json-serde/0.3.1/googletest-json-serde/0.4.0/Cargo.toml)
+
+### <!-- 0 -->⛰️ Features
+
+- [**breaking**] add support for primitive literal matching in json::pat!
+
 ## [0.3.1](https://github.com/chege/googletest-json-serde/compare/v0.3.0...v0.3.1) - 2025-11-02
 
 [View diff on diff.rs](https://diff.rs/googletest-json-serde/0.3.0/googletest-json-serde/0.3.1/Cargo.toml)
