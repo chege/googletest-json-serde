@@ -126,7 +126,9 @@ pub mod internal {
                         }
                     }
                     None => {
-                        mismatches.push(format!("  field '{key}': was missing"));
+                        if !matcher.allows_missing() {
+                            mismatches.push(format!("  field '{key}': was missing"));
+                        }
                     }
                 }
             }
@@ -150,20 +152,41 @@ pub mod internal {
 
     impl Matcher<&Value> for JsonObjectMatcher {
         fn matches(&self, actual: &Value) -> MatcherResult {
-            if let Value::Object(obj) = actual {
-                for (k, m) in &self.fields {
-                    match obj.get(*k) {
-                        Some(v) if m.matches(v).is_match() => (),
-                        _ => return MatcherResult::NoMatch,
+            let Value::Object(obj) = actual else {
+                return MatcherResult::NoMatch;
+            };
+
+            // 1. Check all expected fields
+            for (key, matcher) in &self.fields {
+                match obj.get(*key) {
+                    Some(v) => {
+                        if matcher.matches(v).is_no_match() {
+                            return MatcherResult::NoMatch;
+                        }
+                    }
+                    None => {
+                        // Missing field is fine only if the matcher declares it is optional.
+                        if !matcher.allows_missing() {
+                            return MatcherResult::NoMatch;
+                        }
                     }
                 }
-                if self.strict && obj.len() != self.fields.len() {
-                    return MatcherResult::NoMatch;
-                }
-                MatcherResult::Match
-            } else {
-                MatcherResult::NoMatch
             }
+
+            // 2. In strict mode, reject unknown fields
+            if self.strict {
+                for actual_key in obj.keys() {
+                    if !self
+                        .fields
+                        .iter()
+                        .any(|(expected_key, _)| expected_key == actual_key)
+                    {
+                        return MatcherResult::NoMatch;
+                    }
+                }
+            }
+
+            MatcherResult::Match
         }
 
         fn describe(&self, result: MatcherResult) -> Description {
@@ -182,30 +205,34 @@ pub mod internal {
         fn explain_match(&self, actual: &Value) -> Description {
             match actual {
                 Value::Object(obj) => {
-                    let mut mismatches = self.collect_field_mismatches(obj);
-
-                    if self.strict {
-                        let unknown_fields = self.collect_unknown_fields(obj);
-                        mismatches.extend(unknown_fields);
-                    }
-
-                    if mismatches.is_empty() {
-                        Description::new().text("all fields matched as expected")
-                    } else if mismatches.len() == 1 {
-                        Description::new().text(
-                            mismatches
-                                .into_iter()
-                                .next()
-                                .unwrap()
-                                .trim_start()
-                                .to_string(),
-                        )
+                    if obj.is_empty() && self.fields.iter().all(|(_, m)| m.allows_missing()) {
+                        Description::new()
                     } else {
-                        Description::new().text(format!(
-                            "had {} field mismatches:\n{}",
-                            mismatches.len(),
-                            mismatches.join("\n")
-                        ))
+                        let mut mismatches = self.collect_field_mismatches(obj);
+
+                        if self.strict {
+                            let unknown_fields = self.collect_unknown_fields(obj);
+                            mismatches.extend(unknown_fields);
+                        }
+
+                        if mismatches.is_empty() {
+                            Description::new().text("all fields matched as expected")
+                        } else if mismatches.len() == 1 {
+                            Description::new().text(
+                                mismatches
+                                    .into_iter()
+                                    .next()
+                                    .unwrap()
+                                    .trim_start()
+                                    .to_string(),
+                            )
+                        } else {
+                            Description::new().text(format!(
+                                "had {} field mismatches:\n{}",
+                                mismatches.len(),
+                                mismatches.join("\n")
+                            ))
+                        }
                     }
                 }
                 _ => Description::new().text(format!("was {actual} (expected object)")),
