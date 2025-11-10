@@ -260,7 +260,12 @@ pub mod internal {
         }
     }
     /// Marker trait for JSON-aware matchers.
-    pub trait JsonMatcher: for<'a> Matcher<&'a Value> {}
+    pub trait JsonMatcher: for<'a> Matcher<&'a Value> {
+        /// Returns true if this matcher allows the field to be missing in an object.
+        fn allows_missing(&self) -> bool {
+            false
+        }
+    }
 
     /// Trait for converting into a boxed JSON matcher.
     pub trait IntoJsonMatcher<T> {
