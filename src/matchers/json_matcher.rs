@@ -264,14 +264,14 @@ pub mod internal {
 
     /// Trait for converting into a boxed JSON matcher.
     pub trait IntoJsonMatcher<T> {
-        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>>;
+        fn into_json_matcher(self) -> Box<dyn JsonMatcher>;
     }
 
     impl<J> IntoJsonMatcher<()> for J
     where
         J: JsonMatcher + 'static,
     {
-        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+        fn into_json_matcher(self) -> Box<dyn JsonMatcher> {
             Box::new(self)
         }
     }
@@ -306,9 +306,11 @@ pub mod internal {
         }
     }
 
+    impl JsonMatcher for JsonEqMatcher {}
+
     // Allow &serde_json::Value to be used seamlessly with JSON macros
     impl IntoJsonMatcher<Value> for &Value {
-        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+        fn into_json_matcher(self) -> Box<dyn JsonMatcher> {
             Box::new(JsonEqMatcher {
                 expected: self.clone(),
             })
@@ -316,7 +318,7 @@ pub mod internal {
     }
 
     impl IntoJsonMatcher<Value> for Value {
-        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+        fn into_json_matcher(self) -> Box<dyn JsonMatcher> {
             Box::new(JsonEqMatcher { expected: self })
         }
     }
@@ -325,7 +327,7 @@ pub mod internal {
     pub struct Literal;
 
     impl IntoJsonMatcher<Literal> for &str {
-        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+        fn into_json_matcher(self) -> Box<dyn JsonMatcher> {
             Box::new(JsonEqMatcher {
                 expected: Value::from(self),
             })
@@ -333,7 +335,7 @@ pub mod internal {
     }
 
     impl IntoJsonMatcher<Literal> for String {
-        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+        fn into_json_matcher(self) -> Box<dyn JsonMatcher> {
             Box::new(JsonEqMatcher {
                 expected: Value::from(self),
             })
@@ -341,7 +343,7 @@ pub mod internal {
     }
 
     impl IntoJsonMatcher<Literal> for bool {
-        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+        fn into_json_matcher(self) -> Box<dyn JsonMatcher> {
             Box::new(JsonEqMatcher {
                 expected: Value::from(self),
             })
@@ -349,14 +351,14 @@ pub mod internal {
     }
 
     impl IntoJsonMatcher<Literal> for i64 {
-        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+        fn into_json_matcher(self) -> Box<dyn JsonMatcher> {
             Box::new(JsonEqMatcher {
                 expected: Value::from(self),
             })
         }
     }
     impl IntoJsonMatcher<Literal> for i32 {
-        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+        fn into_json_matcher(self) -> Box<dyn JsonMatcher> {
             Box::new(JsonEqMatcher {
                 expected: Value::from(self),
             })
@@ -364,7 +366,7 @@ pub mod internal {
     }
 
     impl IntoJsonMatcher<Literal> for u64 {
-        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+        fn into_json_matcher(self) -> Box<dyn JsonMatcher> {
             Box::new(JsonEqMatcher {
                 expected: Value::from(self),
             })
@@ -372,22 +374,19 @@ pub mod internal {
     }
 
     impl IntoJsonMatcher<Literal> for f64 {
-        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+        fn into_json_matcher(self) -> Box<dyn JsonMatcher> {
             Box::new(JsonEqMatcher {
                 expected: Value::from(self),
             })
         }
     }
 
-    impl<P, D1, D2> IntoJsonMatcher<()> for JsonPredicateMatcher<P, D1, D2>
+    impl<P, D1, D2> JsonMatcher for JsonPredicateMatcher<P, D1, D2>
     where
         P: Fn(&Value) -> bool + 'static,
         D1: PredicateDescription + Clone + 'static,
         D2: PredicateDescription + Clone + 'static,
     {
-        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
-            Box::new(self)
-        }
     }
 
     pub fn describe_json_type(v: &Value) -> Description {

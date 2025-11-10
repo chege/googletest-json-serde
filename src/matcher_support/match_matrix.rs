@@ -17,10 +17,11 @@
 #[doc(hidden)]
 pub mod internal {
     use crate::matcher_support::count_elements::count_elements;
+    use crate::matchers::__internal_unstable_do_not_depend_on_these::JsonMatcher;
     use googletest::description::Description;
-    use googletest::matcher::{Matcher, MatcherResult};
+    use googletest::matcher::MatcherResult;
     use std::collections::HashSet;
-    use std::fmt::{Debug, Display};
+    use std::fmt::Display;
 
     /// The requirements of the mapping between matchers and actual values by
     /// which [`UnorderedElementsAre`] is deemed to match its input.
@@ -86,23 +87,25 @@ pub mod internal {
     }
 
     /// The bipartite matching graph between actual and expected elements.
+    ///
+    /// This matrix is specialized for matching JSON values using `JsonMatcher`.
     pub(crate) struct MatchMatrix {
         graph: Vec<Vec<MatcherResult>>, // graph[actual_idx][expected_idx]
         expected_len: usize,
     }
 
     impl MatchMatrix {
-        pub(crate) fn generate<'a, T: Debug + Copy + 'a>(
-            actual: impl IntoIterator<Item = T>,
-            expected: &[Box<dyn Matcher<T> + 'a>],
+        pub(crate) fn generate<'a>(
+            actual: impl IntoIterator<Item = &'a serde_json::Value>,
+            expected: &[Box<dyn JsonMatcher>],
         ) -> Self {
             let expected_len = expected.len();
             let graph = actual
                 .into_iter()
-                .map(|actual| {
+                .map(|value| {
                     expected
                         .iter()
-                        .map(|expected_matcher| expected_matcher.matches(actual))
+                        .map(|matcher| matcher.matches(value))
                         .collect()
                 })
                 .collect();
@@ -480,10 +483,10 @@ pub mod internal {
                 .collect()
         }
 
-        pub(crate) fn get_explanation<'a, T: Debug + Copy>(
+        pub(crate) fn get_explanation<'a>(
             &self,
-            actual: impl IntoIterator<Item = T>,
-            expected: &[Box<dyn Matcher<T> + 'a>],
+            actual: impl IntoIterator<Item = &'a serde_json::Value>,
+            expected: &[Box<dyn JsonMatcher>],
             requirements: Requirements,
         ) -> Option<Description> {
             let actual: Vec<_> = actual.into_iter().collect();
@@ -522,30 +525,6 @@ pub mod internal {
             Some(format!(
                 "which does not have a {requirements} match with the expected elements. The best match found was:\n{best_match}"
             ).into())
-        }
-    }
-
-    #[cfg(test)]
-    mod tests {
-        use super::*;
-        use googletest::prelude::*;
-
-        #[test]
-        fn match_matrix_generate() {
-            let actual = vec![1, 2, 3, 4];
-            let expected: Vec<Box<dyn Matcher<i32>>> =
-                vec![Box::new(eq(1)), Box::new(eq(2)), Box::new(eq(3))];
-            let matrix = MatchMatrix::generate(actual, &expected);
-
-            assert_eq!(
-                matrix.graph,
-                vec![
-                    vec![true.into(), false.into(), false.into()],
-                    vec![false.into(), true.into(), false.into()],
-                    vec![false.into(), false.into(), true.into()],
-                    vec![false.into(), false.into(), false.into()],
-                ]
-            );
         }
     }
 }
