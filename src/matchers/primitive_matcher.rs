@@ -198,7 +198,7 @@ pub mod internal {
     where
         M: Matcher<i64> + 'static,
     {
-        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+        fn into_json_matcher(self) -> Box<dyn JsonMatcher> {
             Box::new(JsonPrimitiveMatcher::<M, i64>::new(self))
         }
     }
@@ -233,7 +233,7 @@ pub mod internal {
     where
         M: Matcher<u64> + 'static,
     {
-        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+        fn into_json_matcher(self) -> Box<dyn JsonMatcher> {
             Box::new(JsonPrimitiveMatcher::<M, u64>::new(self))
         }
     }
@@ -242,7 +242,7 @@ pub mod internal {
     where
         M: Matcher<f64> + 'static,
     {
-        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+        fn into_json_matcher(self) -> Box<dyn JsonMatcher> {
             Box::new(JsonPrimitiveMatcher::<M, f64>::new(self))
         }
     }
@@ -251,7 +251,7 @@ pub mod internal {
     where
         M: for<'a> Matcher<&'a str> + 'static,
     {
-        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+        fn into_json_matcher(self) -> Box<dyn JsonMatcher> {
             Box::new(JsonPrimitiveMatcher::<M, String>::new(self))
         }
     }
@@ -260,7 +260,7 @@ pub mod internal {
     where
         M: Matcher<bool> + 'static,
     {
-        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+        fn into_json_matcher(self) -> Box<dyn JsonMatcher> {
             Box::new(JsonPrimitiveMatcher::<M, bool>::new(self))
         }
     }
@@ -302,7 +302,7 @@ pub mod internal {
     where
         M: Matcher<i32> + 'static,
     {
-        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+        fn into_json_matcher(self) -> Box<dyn JsonMatcher> {
             Box::new(JsonPrimitiveMatcher::<M, i32>::new(self))
         }
     }
@@ -344,7 +344,7 @@ pub mod internal {
     where
         M: Matcher<i8> + 'static,
     {
-        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+        fn into_json_matcher(self) -> Box<dyn JsonMatcher> {
             Box::new(JsonPrimitiveMatcher::<M, i8>::new(self))
         }
     }
@@ -386,7 +386,7 @@ pub mod internal {
     where
         M: Matcher<i16> + 'static,
     {
-        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+        fn into_json_matcher(self) -> Box<dyn JsonMatcher> {
             Box::new(JsonPrimitiveMatcher::<M, i16>::new(self))
         }
     }
@@ -428,7 +428,7 @@ pub mod internal {
     where
         M: Matcher<u8> + 'static,
     {
-        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+        fn into_json_matcher(self) -> Box<dyn JsonMatcher> {
             Box::new(JsonPrimitiveMatcher::<M, u8>::new(self))
         }
     }
@@ -470,7 +470,7 @@ pub mod internal {
     where
         M: Matcher<u16> + 'static,
     {
-        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+        fn into_json_matcher(self) -> Box<dyn JsonMatcher> {
             Box::new(JsonPrimitiveMatcher::<M, u16>::new(self))
         }
     }
@@ -512,7 +512,7 @@ pub mod internal {
     where
         M: Matcher<u32> + 'static,
     {
-        fn into_json_matcher(self) -> Box<dyn for<'a> Matcher<&'a Value>> {
+        fn into_json_matcher(self) -> Box<dyn JsonMatcher> {
             Box::new(JsonPrimitiveMatcher::<M, u32>::new(self))
         }
     }

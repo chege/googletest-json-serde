@@ -219,16 +219,13 @@ pub mod internal {
     #[doc(hidden)]
     #[derive(MatcherBase)]
     pub struct JsonUnorderedElementsAreMatcher {
-        elements: Vec<Box<dyn for<'a> Matcher<&'a Value>>>,
+        elements: Vec<Box<dyn JsonMatcher>>,
         requirements: Requirements,
     }
     impl JsonMatcher for JsonUnorderedElementsAreMatcher {}
 
     impl JsonUnorderedElementsAreMatcher {
-        pub fn new(
-            elements: Vec<Box<dyn for<'a> Matcher<&'a Value>>>,
-            requirements: Requirements,
-        ) -> Self {
+        pub fn new(elements: Vec<Box<dyn JsonMatcher>>, requirements: Requirements) -> Self {
             Self {
                 elements,
                 requirements,

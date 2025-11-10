@@ -98,7 +98,7 @@ pub mod internal {
     };
     use serde_json::{Map, Value};
 
-    type FieldMatcherPair = (&'static str, Box<dyn for<'a> Matcher<&'a Value>>);
+    type FieldMatcherPair = (&'static str, Box<dyn JsonMatcher>);
     #[derive(MatcherBase)]
     pub struct JsonObjectMatcher {
         fields: Vec<FieldMatcherPair>,

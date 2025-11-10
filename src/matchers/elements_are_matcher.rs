@@ -75,13 +75,13 @@ pub mod internal {
     #[doc(hidden)]
     #[derive(MatcherBase)]
     pub struct JsonElementsAre {
-        elements: Vec<Box<dyn for<'a> Matcher<&'a Value>>>,
+        elements: Vec<Box<dyn JsonMatcher>>,
     }
 
     impl JsonMatcher for JsonElementsAre {}
 
     impl JsonElementsAre {
-        pub fn new(elements: Vec<Box<dyn for<'a> Matcher<&'a Value>>>) -> Self {
+        pub fn new(elements: Vec<Box<dyn JsonMatcher>>) -> Self {
             Self { elements }
         }
     }
