@@ -1,0 +1,9 @@
+[package]
+name = "sanity"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+googletest = "0.14.2"
+googletest-json-serde = "0.4.0"
+serde_json = "1.0.145"

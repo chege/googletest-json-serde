@@ -6,33 +6,17 @@ on:
   workflow_dispatch:
 
 jobs:
-  sanity-check:
-    name: Download Crate and Run Sanity Test
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Run sanity script
-        run: |
-          curl -sL https://raw.githubusercontent.com/chege/googletest-json-serde/main/scripts/test-downloaded-crate.sh \
-          | bash
-
-  test:
-    name: Windows Tests (stable)
-    runs-on: windows-latest
-    timeout-minutes: 30
+  sanity-check-matrix:
+    name: Download Crate and Run Sanity Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v5
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-        with:
-          shared-key: stable-windows
-      - name: Build (locked)
-        env:
-          RUSTFLAGS: -D warnings
-        run: cargo build --all-features --locked
-      - name: Run unit + integration tests
-        env:
-          RUSTFLAGS: -D warnings
-        run: cargo test --all-features -- --nocapture
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Run sanity tests
+        run: |
+          cd sanity
+          cargo test --all-features --quiet
