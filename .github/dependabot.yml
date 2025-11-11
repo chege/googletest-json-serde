@@ -32,6 +32,31 @@ updates:
           - "minor"
           - "patch"
 
+  # Keep Cargo (Rust) dependencies updated in /sanity
+  - package-ecosystem: "cargo"
+    directory: "/sanity"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    target-branch: "main"
+    commit-message:
+      prefix: "chore"
+      include: scope
+    reviewers:
+      - "chege"
+    labels:
+      - "dependencies"
+      - "rust"
+    allow:
+      - dependency-type: "direct"
+    groups:
+      sanity-cargo:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
   # Keep GitHub Actions workflows updated
   - package-ecosystem: "github-actions"
     directory: "/"
