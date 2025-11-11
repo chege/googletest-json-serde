@@ -13,6 +13,7 @@ categories = ["development-tools::testing"]
 license = "MIT OR Apache-2.0"
 exclude = [
     "tests",
+    "sanity",
 
     # CI, tooling, and metadata
     ".github",
