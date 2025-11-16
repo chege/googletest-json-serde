@@ -88,15 +88,14 @@ use googletest::prelude::*;
 use googletest_json_serde::json;
 use serde_json::json as j;
 
-assert_that!(j!(42),        json::primitive!(gt(40i64)));
-assert_that!(j!(12i8),       json::primitive!(eq(12i8)));
-assert_that!(j!(32000i16),   json::primitive!(le(3210016)));
-assert_that!(j!(65000u16),   json::primitive!(eq(65000u16)));
-assert_that!(j!(4000000000u32), json::primitive!(eq(4000000000u32)));
-assert_that!(j!(3.14),      json::primitive!(near(3.1f64, 0.1f64)));
-assert_that!(j!("hello"),   json::primitive!(starts_with("he")));
-assert_that!(j!(true),      json::primitive!(is_true()));
-assert_that!(j!(null),     json::is_null());
+assert_that!(j!(42),         json::primitive!(gt(40_i64)));
+assert_that!(j!(12_i8),      json::primitive!(eq(12_i8)));
+assert_that!(j!(32000_i16),  json::primitive!(le(32100_i16)));
+assert_that!(j!(65000_u16),  json::primitive!(eq(65000_u16)));
+assert_that!(j!(3.14),       json::primitive!(near(3.1_f64, 0.1_f64)));
+assert_that!(j!("hello"),    json::primitive!(starts_with("he")));
+assert_that!(j!(true),       json::primitive!(is_true()));
+assert_that!(j!(null),       json::is_null());
 ```
 
 ### Predicates
