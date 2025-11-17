@@ -14,6 +14,8 @@ fn comprehensive_matchers_demo() {
             "is_array": [1, 2, 3],
             "is_object": { "a": 1 },
             "is_empty_array": [],
+            "optional_present": "val",
+            "optional_missing": null,
         },
         "array_matchers": {
             "elements_are_ordered": [
@@ -89,6 +91,8 @@ fn comprehensive_matchers_demo() {
                 "is_array": json::is_array(),
                 "is_object": json::is_object(),
                 "is_empty_array": json::is_empty_array(),
+                "optional_present": json::optional!(json::is_string()),
+                "optional_missing": json::optional!(json::is_not_null()),
             }),
             "array_matchers": json::pat!({
                 "elements_are_ordered": json::elements_are![
