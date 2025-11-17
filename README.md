@@ -225,6 +225,18 @@ assert_that!(
 );
 ```
 
+#### Assert array length with `json::len!`
+
+```rust
+use googletest::prelude::*;
+use googletest_json_serde::json;
+use serde_json::json as j;
+
+assert_that!(j!(["a","b","c"]), json::len!(3));
+assert_that!(j!(["x","y","z"]), json::len!(gt(2)));
+assert_that!(j!([]), not(json::len!(1)));
+```
+
 #### Array Matcher Quick Reference
 
 Here’s a quick reference matrix comparing the array matchers:
@@ -318,6 +330,7 @@ assert_that!(
                     "beta": json::is_null(),
                 }),
                 "empty_array" : json::is_empty_array(),
+                "scores": json::len!(eq(3)),
                 // remaining fields ignored
                 ..
             }),

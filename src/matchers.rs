@@ -1,5 +1,6 @@
 mod elements_are_matcher;
 mod json_matcher;
+mod len_matcher;
 mod matches_pattern_matcher;
 mod optional_matcher;
 mod primitive_matcher;
@@ -15,7 +16,7 @@ pub use json_matcher::{
 #[doc(inline)]
 pub use crate::{
     __json_contains_each as contains_each, __json_elements_are as elements_are,
-    __json_is_contained_in as is_contained_in, __json_matches_pattern as pat,
+    __json_is_contained_in as is_contained_in, __json_len as len, __json_matches_pattern as pat,
     __json_matches_pattern as matches_pattern, __json_optional as optional,
     __json_primitive as primitive, __json_unordered_elements_are as unordered_elements_are,
     __json_value as value,
@@ -31,6 +32,7 @@ pub mod __internal_unstable_do_not_depend_on_these {
     pub use super::json_matcher::internal::NoDescription;
     pub use super::json_matcher::internal::PredicateDescription;
     pub use super::json_matcher::internal::describe_json_type;
+    pub use super::len_matcher::internal::JsonLenMatcher;
     pub use super::matches_pattern_matcher::internal::JsonObjectMatcher;
     pub use super::optional_matcher::internal::JsonOptionalMatcher;
     pub use super::primitive_matcher::internal::JsonPrimitiveMatcher;
