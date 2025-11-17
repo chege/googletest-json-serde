@@ -516,4 +516,51 @@ pub mod internal {
             Box::new(JsonPrimitiveMatcher::<M, u32>::new(self))
         }
     }
+
+    // usize support
+    impl<M> Matcher<&Value> for JsonPrimitiveMatcher<M, usize>
+    where
+        M: Matcher<usize>,
+    {
+        fn matches(&self, actual: &Value) -> MatcherResult {
+            match actual {
+                Value::Number(n) => match n.as_u64() {
+                    Some(u) => match usize::try_from(u) {
+                        Ok(usize_val) => self.inner.matches(usize_val),
+                        Err(_) => MatcherResult::NoMatch,
+                    },
+                    None => MatcherResult::NoMatch,
+                },
+                _ => MatcherResult::NoMatch,
+            }
+        }
+
+        fn describe(&self, r: MatcherResult) -> Description {
+            self.inner.describe(r)
+        }
+
+        fn explain_match(&self, actual: &Value) -> Description {
+            match actual {
+                Value::Number(n) => match n.as_u64() {
+                    Some(u) => match usize::try_from(u) {
+                        Ok(usize_val) => self.inner.explain_match(usize_val),
+                        Err(_) => {
+                            Description::new().text(format!("number out of usize range: {n}"))
+                        }
+                    },
+                    None => Description::new().text(format!("number not convertible to u64: {n}")),
+                },
+                _ => Description::new().text("which is not a JSON number"),
+            }
+        }
+    }
+
+    impl<M> IntoJsonMatcher<usize> for M
+    where
+        M: Matcher<usize> + 'static,
+    {
+        fn into_json_matcher(self) -> Box<dyn JsonMatcher> {
+            Box::new(JsonPrimitiveMatcher::<M, usize>::new(self))
+        }
+    }
 }
