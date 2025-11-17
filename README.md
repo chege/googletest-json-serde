@@ -225,6 +225,23 @@ assert_that!(
 );
 ```
 
+#### Assert each element satisfies a matcher with `json::each!`
+
+```rust
+use googletest::prelude::*;
+use googletest_json_serde::json;
+use serde_json::json as j;
+
+assert_that!(
+    j!([1, 2, 3, 4]),
+    json::each!(gt(0))
+);
+assert_that!(
+    j!(["apple", "avocado"]),
+    not(json::each!(starts_with("b")))
+);
+```
+
 #### Assert array length with `json::len!`
 
 ```rust
@@ -247,6 +264,7 @@ Here’s a quick reference matrix comparing the array matchers:
 | `unordered_elements_are!` | No            | No                | No                  | Exact unordered match of all elements                         |
 | `contains_each!`          | No            | Yes               | No                  | Require each matcher to match a unique element, extra allowed |
 | `is_contained_in!`        | No            | No                | Yes                 | Actual elements are subset of expected                        |
+| `each!`                   | Yes           | Yes               | Yes                 | Assert each element satisfies the given matcher              |
 
 ### Combined example
 
@@ -272,6 +290,7 @@ payload: j!({
             "name": "Jeff",
             "roles": ["admin", "user", "tester"],
             "tags": ["rust", "serde", "dev"],
+            "labels": ["dev", "rust", "json"],
             "scores": [99, 87, 75],
             "matrix": [
                 ["alpha", 1],
@@ -315,6 +334,9 @@ assert_that!(
                     "dev",
                     ends_with("st")
                 ],
+
+                // Assert each element satisfies a matcher
+                "labels": json::each!(json::is_string()),
 
                 // array of arrays — demonstrate nesting twice
                 "matrix": json::elements_are![

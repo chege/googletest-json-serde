@@ -1,3 +1,4 @@
+mod each_matcher;
 mod elements_are_matcher;
 mod json_matcher;
 mod len_matcher;
@@ -15,15 +16,16 @@ pub use json_matcher::{
 #[allow(deprecated)]
 #[doc(inline)]
 pub use crate::{
-    __json_contains_each as contains_each, __json_elements_are as elements_are,
-    __json_is_contained_in as is_contained_in, __json_len as len, __json_matches_pattern as pat,
-    __json_matches_pattern as matches_pattern, __json_optional as optional,
-    __json_primitive as primitive, __json_unordered_elements_are as unordered_elements_are,
-    __json_value as value,
+    __json_contains_each as contains_each, __json_each as each,
+    __json_elements_are as elements_are, __json_is_contained_in as is_contained_in,
+    __json_len as len, __json_matches_pattern as pat, __json_matches_pattern as matches_pattern,
+    __json_optional as optional, __json_primitive as primitive,
+    __json_unordered_elements_are as unordered_elements_are, __json_value as value,
 };
 
 #[doc(hidden)]
 pub mod __internal_unstable_do_not_depend_on_these {
+    pub use super::each_matcher::internal::JsonEachMatcher;
     pub use super::elements_are_matcher::internal::JsonElementsAre;
     pub use super::json_matcher::internal::IntoJsonMatcher;
     pub use super::json_matcher::internal::JsonMatcher;
