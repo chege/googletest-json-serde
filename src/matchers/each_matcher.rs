@@ -1,10 +1,6 @@
-/// Matches every element of a JSON array against the given matcher.
+/// Matches every element of a JSON array against a single matcher.
 ///
-/// This expands the inner expression using `IntoJsonMatcher`,
-/// allowing use of native googletest matchers (e.g. `gt(0)`, `starts_with("a")`)
-/// as well as all `json::*` matchers.
-///
-/// # Examples
+/// This allows writing expressive assertions such as:
 ///
 /// ```rust
 /// use googletest::prelude::*;
@@ -13,12 +9,13 @@
 ///
 /// assert_that!(j!([1, 2, 3]), json::each!(gt(0)));
 /// assert_that!(j!(["ab", "ax"]), json::each!(starts_with("a")));
-///
 /// ```
 ///
 /// Fails if:
-/// - The value is not an array
-/// - Any element fails the inner matcher
+/// - the value is not a JSON array
+/// - any element fails the provided matcher
+///
+/// This behaves similarly to `each()` in googletest‑rust, but specialized for `serde_json::Value`.
 #[macro_export]
 macro_rules! __json_each {
     ($inner:expr) => {
