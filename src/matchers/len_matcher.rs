@@ -1,6 +1,6 @@
 /// JSON length matcher.
 ///
-/// This macro creates a `JsonLenMatcher` for asserting the length of a JSON array.
+/// This macro creates a matcher that asserts the length of a JSON array.
 ///
 /// Two forms are supported:
 ///
