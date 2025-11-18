@@ -38,6 +38,10 @@ fn comprehensive_matchers_demo() {
                 2,
                 3
             ],
+            "each_all_positive": [1, 2, 3, 4],
+            "len_three": ["a", "b", "c"],
+            "each_literal": ["x", "x", "x"],
+            "len_literal": [10, 20, 30],
         },
         "composite_patterns": {
             "simple_pat": {
@@ -114,6 +118,10 @@ fn comprehensive_matchers_demo() {
                     eq(2),
                     eq(3)
                 ],
+                "each_all_positive": json::each!(gt(0)),
+                "each_literal": json::each!("x"),
+                "len_three": json::len!(ge(3)),
+                "len_literal": json::len!(3),
             }),
             "composite_patterns": json::pat!({
                 "simple_pat": json::pat!({
