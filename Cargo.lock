@@ -35,7 +35,6 @@ version = "0.4.2"
 dependencies = [
  "googletest",
  "indoc",
- "serde",
  "serde_json",
 ]
 

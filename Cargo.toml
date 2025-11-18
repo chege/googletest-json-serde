@@ -37,7 +37,6 @@ exclude = [
 ]
 [dependencies]
 googletest = "0.14.2"
-serde = "1.0.228"
 serde_json = "1.0.145"
 
 [dev-dependencies]
