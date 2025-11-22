@@ -55,6 +55,8 @@ use serde_json::json as j;
 > - `json::unordered_elements_are![...]` – match arrays element-by-element (unordered)
 > - `json::contains_each![...]` – require each matcher to match a unique element, extra allowed
 > - `json::is_contained_in![...]` – assert containment of JSON elements
+> - `json::is_empty_object()` – match `{}` specifically
+> - `json::has_paths(&[...])` / `json::has_only_paths(&[...])` – assert required or exact object paths (supports `.` separators and array indices)
 
 ## Features
 
@@ -69,6 +71,8 @@ use serde_json::json as j;
   `json::contains_each![...]` macro.
 - **Assert** that an array is a subset of the expected matchers (every actual element is accounted for) using the
   `json::is_contained_in![...]` macro.
+- **Check object shape** quickly with `json::is_empty_object()`, `json::has_paths(&[...])`, and
+  `json::has_only_paths(&[...])`, supporting dot-paths (e.g., `user.id`, `items.0.id`).
 - **Provide** clear, structured diagnostic failure messages showing which part of the JSON structure did not match and
   why.
 - **Helper matchers** for validating JSON kinds and structure: `json::is_null()`, `json::is_not_null()`,
@@ -222,6 +226,27 @@ assert_that!(
 assert_that!(
     j!(["admin", "user", "tester", "viewer"]),
     not(json::contains_each!["admin", j!("missing")])
+);
+```
+
+#### Assert object shape with key helpers
+
+```rust
+use googletest::prelude::*;
+use googletest_json_serde::json;
+use serde_json::json as j;
+
+assert_that!(j!({}), json::is_empty_object());
+assert_that!(
+    j!({"id": 1, "name": "Ada", "extra": true}),
+    all![json::has_paths(&["id", "name"]), not(json::has_only_paths(&["id", "name"]))]
+);
+assert_that!(
+    j!({"user": {"id": 1, "role": "admin"}}),
+    all![
+        json::has_paths(&["user.id", "user.role"]),
+        json::has_only_paths(&["user", "user.id", "user.role"])
+    ]
 );
 ```
 

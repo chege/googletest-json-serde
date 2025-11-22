@@ -227,6 +227,21 @@ fn is_object_matches_object() -> Result<()> {
 fn is_object_rejects_boolean() -> Result<()> {
     verify_that!(json!(false), not(json::is_object()))
 }
+
+#[test]
+fn is_empty_object_matches_empty() -> Result<()> {
+    verify_that!(json!({}), json::is_empty_object())
+}
+
+#[test]
+fn is_empty_object_rejects_non_empty() -> Result<()> {
+    verify_that!(json!({"a": 1}), not(json::is_empty_object()))
+}
+
+#[test]
+fn is_empty_object_rejects_non_object() -> Result<()> {
+    verify_that!(json!(["a"]), not(json::is_empty_object()))
+}
 #[test]
 fn is_object_fails_and_includes_full_message() -> Result<()> {
     let result = verify_that!(json!(false), json::is_object());
