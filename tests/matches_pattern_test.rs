@@ -1,10 +1,11 @@
+use googletest::Result;
 use googletest::prelude::*;
 use googletest_json_serde::json;
 use indoc::indoc;
 use serde_json::json as j;
 
 #[test]
-fn match_nested_object_strict() {
+fn pat_matches_nested_object_strict() -> Result<()> {
     let val = j!({
         "user": {
             "id": 1,
@@ -13,7 +14,7 @@ fn match_nested_object_strict() {
         "active": true
     });
 
-    assert_that!(
+    verify_that!(
         val,
         json::pat!({
             "user": json::pat!({
@@ -22,11 +23,11 @@ fn match_nested_object_strict() {
             }),
             "active": j!(true),
         })
-    );
+    )
 }
 
 #[test]
-fn match_nested_object_non_strict() {
+fn pat_matches_nested_object_non_strict() -> Result<()> {
     let val = j!({
         "user": {
             "id": 1,
@@ -35,7 +36,7 @@ fn match_nested_object_non_strict() {
         }
     });
 
-    assert_that!(
+    verify_that!(
         val,
         json::pat!({
             "user": json::pat!({
@@ -43,27 +44,27 @@ fn match_nested_object_non_strict() {
                 ..
             })
         })
-    );
+    )
 }
 
 #[test]
-fn match_enum_like_object_strict_mismatch() {
+fn pat_rejects_enum_like_object_strict() -> Result<()> {
     let val = j!({
         "type": "Dog",
         "bark": true
     });
 
-    assert_that!(
+    verify_that!(
         val,
         not(json::pat!({
             "type": eq("Cat"),
             "meow": is_true()
         }))
-    );
+    )
 }
 
 #[test]
-fn match_option_nested_mixed_matchers() {
+fn pat_matches_option_nested_mixed_matchers() -> Result<()> {
     let val = Some(j!({
         "type": "Dog",
         "props": {
@@ -72,7 +73,7 @@ fn match_option_nested_mixed_matchers() {
         }
     }));
 
-    assert_that!(
+    verify_that!(
         val,
         json::pat!({
             "type": eq("Dog"),
@@ -81,61 +82,56 @@ fn match_option_nested_mixed_matchers() {
                 "age": gt(2),
             }),
         })
-    );
+    )
 }
 
 #[test]
-fn fail_on_unexpected_fields_strict() {
+fn pat_fails_on_unexpected_fields_strict() -> Result<()> {
     let val = j!({
         "a": 1,
         "b": 2,
         "unexpected": 3
     });
 
-    assert_that!(
+    verify_that!(
         val,
         not(json::pat!({
             "a": eq(1),
             "b": eq(2),
         }))
-    );
+    )
 }
 #[test]
-fn match_object_with_any_value_field() {
+fn pat_matches_object_with_any_value_field() -> Result<()> {
     let val = j!({"field": "value", "unexpected": 123});
-    assert_that!(
+    verify_that!(
         val,
         json::pat!({
             "field": eq("value"),
             "unexpected": json::is_not_null()
         })
-    );
+    )
 }
 
 #[test]
-fn match_option_none() {
+fn pat_rejects_option_none() -> Result<()> {
     let val: Option<serde_json::Value> = None;
-    assert_that!(
-        val,
-        not(json::pat!({
-            "field": eq("value")
-        }))
-    );
+    verify_that!(val, not(json::pat!({ "field": eq("value") })))
 }
 
 #[test]
-fn match_object_with_wrong_field() {
+fn pat_rejects_object_with_wrong_field() -> Result<()> {
     let val = j!({"field": "other"});
-    assert_that!(
+    verify_that!(
         val,
         not(json::pat!({
             "field": eq("value")
         }))
-    );
+    )
 }
 
 #[test]
-fn explain_mismatch_nested_object() {
+fn pat_explains_mismatch_nested_object() -> Result<()> {
     let val = j!({
         "field": {
             "subfield": 123,
@@ -144,7 +140,7 @@ fn explain_mismatch_nested_object() {
         "extra": "hello"
     });
 
-    if let Err(err) = verify_that!(
+    let result = verify_that!(
         val,
         json::pat!({
             "field": json::pat!({
@@ -153,88 +149,73 @@ fn explain_mismatch_nested_object() {
             }),
             "extra": eq("world")
         })
-    ) {
-        assert_that!(
-            err.description,
-            all![
-                contains_substring("field 'field': had 2 field mismatches"),
-                contains_substring("field 'subfield': which isn't equal to 999"),
-                contains_substring("field 'flag': which isn't equal to true"),
-                contains_substring("field 'extra': which isn't equal to \"world\""),
-            ]
-        );
-    } else {
-        panic!("expected failure but matcher reported success");
-    }
+    );
+    verify_that!(
+        result,
+        err(displays_as(all![
+            contains_substring("field 'field': had 2 field mismatches"),
+            contains_substring("field 'subfield': which isn't equal to 999"),
+            contains_substring("field 'flag': which isn't equal to true"),
+            contains_substring("field 'extra': which isn't equal to \"world\""),
+        ]))
+    )
 }
 
 #[test]
-fn explain_single_field_mismatch() {
-    let val = j!({"foo": 1});
-    if let Err(err) = verify_that!(
-        val,
+fn pat_explains_single_field_mismatch() -> Result<()> {
+    let result = verify_that!(
+        j!({"foo": 1}),
         json::pat!({
             "foo": eq(2)
         })
-    ) {
-        assert_that!(
-            err.description,
-            contains_substring("field 'foo': which isn't equal to 2")
-        );
-    } else {
-        panic!("expected failure but matcher reported success");
-    }
+    );
+    verify_that!(
+        result,
+        err(displays_as(contains_substring(
+            "field 'foo': which isn't equal to 2"
+        )))
+    )
 }
 
 #[test]
-fn explain_wrong_type() {
-    let val = j!(123);
-    if let Err(err) = verify_that!(
-        val,
+fn pat_explains_wrong_type() -> Result<()> {
+    let result = verify_that!(
+        j!(123),
         json::pat!({
             "foo": eq(1)
         })
-    ) {
-        assert_that!(
-            err.description,
-            contains_substring("was 123 (expected object)")
-        );
-    } else {
-        panic!("expected failure but matcher reported success");
-    }
+    );
+    verify_that!(
+        result,
+        err(displays_as(contains_substring("was 123 (expected object)")))
+    )
 }
 
 #[test]
-fn explain_option_none() {
-    let val: Option<serde_json::Value> = None;
-    if let Err(err) = verify_that!(
-        val,
+fn pat_explains_option_none() -> Result<()> {
+    let result = verify_that!(
+        None::<serde_json::Value>,
         json::pat!({
             "foo": eq(1)
         })
-    ) {
-        assert_that!(err.description, contains_substring("was None"));
-    } else {
-        panic!("expected failure but matcher reported success");
-    }
+    );
+    verify_that!(result, err(displays_as(contains_substring("was None"))))
 }
 
 #[test]
-fn explain_option_some_mismatch() {
-    let val = Some(j!({"foo": 1}));
-    if let Err(err) = verify_that!(
-        val,
+fn pat_explains_option_some_mismatch() -> Result<()> {
+    let result = verify_that!(
+        Some(j!({"foo": 1})),
         json::pat!({
             "foo": eq(2)
         })
-    ) {
-        assert_that!(
-            err.description,
-            contains_substring("field 'foo': which isn't equal to 2")
-        );
-    } else {
-        panic!("expected failure but matcher reported success");
-    }
+    );
+    verify_that!(
+        result,
+        err(displays_as(contains_substring(
+            "field 'foo': which isn't equal to 2"
+        )))
+    )
 }
 
 #[test]
