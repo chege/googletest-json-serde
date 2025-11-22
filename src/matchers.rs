@@ -4,14 +4,16 @@ mod json_matcher;
 mod len_matcher;
 mod matches_pattern_matcher;
 mod optional_matcher;
+mod path_matcher;
 mod primitive_matcher;
 mod unordered_elements_are_matcher;
 
 #[allow(deprecated)]
 pub use json_matcher::{
-    any_value, is_array, is_boolean, is_empty_array, is_not_null, is_null, is_number, is_object,
-    is_string, predicate,
+    any_value, is_array, is_boolean, is_empty_array, is_empty_object, is_not_null, is_null,
+    is_number, is_object, is_string, predicate,
 };
+pub use path_matcher::{has_only_paths, has_paths};
 
 #[allow(deprecated)]
 #[doc(inline)]

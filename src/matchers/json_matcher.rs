@@ -128,6 +128,25 @@ pub fn is_object() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str
     .with_explain_fn(__internal_unstable_do_not_depend_on_these::describe_json_type)
 }
 
+/// Matches an empty JSON object (`{}`).
+pub fn is_empty_object() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str>
+{
+    JsonPredicateMatcher::new(
+        |v| v.as_object().is_some_and(|o| o.is_empty()),
+        "an empty JSON object",
+        "which is not an empty JSON object",
+    )
+    .with_explain_fn(|v| {
+        if v.is_object() {
+            Description::new().text("which is a non-empty JSON object")
+        } else {
+            __internal_unstable_do_not_depend_on_these::describe_json_type(v)
+        }
+    })
+}
+
+// Path-based matchers live in `path_matcher.rs`.
+
 #[doc(hidden)]
 pub mod internal {
     use googletest::description::Description;
