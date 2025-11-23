@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.4.3](https://github.com/chege/googletest-json-serde/compare/v0.4.2...v0.4.3) - 2025-11-23
+
+[View diff on diff.rs](https://diff.rs/googletest-json-serde/0.4.2/googletest-json-serde/0.4.3/Cargo.toml)
+
+### <!-- 0 -->⛰️ Features
+
+- add is_empty_object, has_paths, and has_only_paths matchers
+
+### <!-- 7 -->⚙️ Miscellaneous Tasks
+
+- remove unused dependency `serde`
+
 ## [0.4.2](https://github.com/chege/googletest-json-serde/compare/v0.4.1...v0.4.2) - 2025-11-18
 
 [View diff on diff.rs](https://diff.rs/googletest-json-serde/0.4.1/googletest-json-serde/0.4.2/Cargo.toml)
