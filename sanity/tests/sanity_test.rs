@@ -80,6 +80,27 @@ fn comprehensive_matchers_demo() {
                     true
                 ]
             }
+        },
+        "path_matchers": {
+            "paths_allowing_extras": {
+                "user": {
+                    "id": 1,
+                    "address": { "city": "Oslo" },
+                    "role": "admin"
+                },
+                "items": [
+                    { "name": "item-0" },
+                    { "name": "item-1" }
+                ],
+                "extra": true
+            },
+            "paths_exact": {
+                "only": { "a": 1 },
+                "list": [
+                    { "k": "v" }
+                ]
+            },
+            "empty_object": {}
         }
     });
 
@@ -160,6 +181,22 @@ fn comprehensive_matchers_demo() {
                         is_true()
                     ],
                 }),
+            }),
+            "path_matchers": json::pat!({
+                "paths_allowing_extras": json::has_paths(&[
+                    "user.id",
+                    "user.address.city",
+                    "items.0.name",
+                    "items.1.name"
+                ]),
+                "paths_exact": json::has_only_paths(&[
+                    "only",
+                    "only.a",
+                    "list",
+                    "list.0",
+                    "list.0.k"
+                ]),
+                "empty_object": json::is_empty_object(),
             }),
         })
     );
