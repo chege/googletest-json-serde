@@ -17,6 +17,7 @@
 ///
 /// This behaves similarly to `each()` in googletest‑rust, but specialized for `serde_json::Value`.
 #[macro_export]
+#[doc(hidden)]
 macro_rules! __json_each {
     ($inner:expr) => {
         $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonEachMatcher::new(

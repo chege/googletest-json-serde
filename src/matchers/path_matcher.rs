@@ -1,5 +1,5 @@
-use crate::json::__internal_unstable_do_not_depend_on_these;
 use crate::matcher_support::path::{ParsedPaths, collect_paths, format_path, parse_expected_paths};
+use crate::matchers::__internal_unstable_do_not_depend_on_these;
 use crate::matchers::__internal_unstable_do_not_depend_on_these::JsonPredicateMatcher;
 use googletest::description::Description;
 use serde_json::Value;

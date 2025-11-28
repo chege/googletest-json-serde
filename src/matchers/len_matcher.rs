@@ -22,6 +22,7 @@
 /// This matcher only applies to JSON arrays. For non-array values, it produces a
 /// descriptive “which is not a JSON array” failure message.
 #[macro_export]
+#[doc(hidden)]
 macro_rules! __json_len {
     ($lit:literal) => {{
         $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonLenMatcher::new(
