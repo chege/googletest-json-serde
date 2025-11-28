@@ -1,6 +1,6 @@
 //! Utility matchers and macros for concise JSON assertions using googletest.
 //!
-//! Examples:
+//! Example:
 //! ```
 //! # use googletest::prelude::*;
 //! # use googletest_json_serde::json;
@@ -61,6 +61,10 @@ macro_rules! __json_value {
 /// verify_that!(data["small"], json::primitive!(eq(12i8)));
 /// verify_that!(data["limit"], json::primitive!(eq(65000u16)));
 /// ```
+///
+/// # Notes
+/// - Accepts literals, googletest matchers, or direct `serde_json::Value`.
+/// - Fails if the JSON value is not a string/number/bool.
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_primitive {

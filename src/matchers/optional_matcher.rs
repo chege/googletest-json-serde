@@ -14,6 +14,10 @@
 ///     })
 /// );
 /// ```
+///
+/// Notes:
+/// - Succeeds if the field is missing (when used inside `pat!`), or is `null`, or matches the inner matcher.
+/// - Fails otherwise.
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_optional {

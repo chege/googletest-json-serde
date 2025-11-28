@@ -16,6 +16,7 @@
 /// - any element fails the provided matcher
 ///
 /// This behaves similarly to `each()` in googletest‑rust, but specialized for `serde_json::Value`.
+/// Failures report the first mismatching element with its index.
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_each {

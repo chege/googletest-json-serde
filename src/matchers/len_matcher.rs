@@ -1,6 +1,4 @@
-/// JSON length matcher.
-///
-/// This macro creates a matcher that asserts the length of a JSON array.
+/// JSON length matcher for arrays.
 ///
 /// Two forms are supported:
 ///
@@ -19,8 +17,8 @@
 /// verify_that!(j!(["a"]), not(json::len!(2)));
 /// ```
 ///
-/// This matcher only applies to JSON arrays. For non-array values, it produces a
-/// descriptive “which is not a JSON array” failure message.
+/// This matcher only applies to JSON arrays; other JSON types fail with a descriptive
+/// “which is not a JSON array” message.
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_len {

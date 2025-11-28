@@ -48,6 +48,7 @@
 ///  - Both JSON-aware and native GoogleTest matchers (such as `starts_with`, `contains_substring`) can be used directly.
 ///  - Wrapping with `json::primitive!` is no longer needed.
 ///  - Direct `serde_json::Value` inputs (e.g. `json!(...)`) are supported and compared by structural equality.
+///  - On failure, the first mismatching index is reported.
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_elements_are {
