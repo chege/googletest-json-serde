@@ -1,71 +1,46 @@
-//! JSON matcher for arrays where element order does **not** matter.
+//! JSON matchers that ignore element order in arrays.
 //!
-//! This mirrors the semantics of `googletest::matchers::unordered_elements_are`,
-//! but works for `&serde_json::Value` arrays and delegates each element to
-//! inner matchers you provide.
+//! # Examples
+//! ```rust
+//! # use googletest::prelude::*;
+//! # use googletest_json_serde::json;
+//! # use serde_json::json as j;
+//! assert_that!(
+//!     j!(["b", "a", j!("c")]),
+//!     json::unordered_elements_are!["a", j!("c"), starts_with("b")]
+//! );
+//! ```
 
-/// Matches a JSON array whose elements, in any order, have a 1:1 correspondence
-/// with the provided matchers.
+/// Matches a JSON array whose elements pair one-to-one with the provided matchers, ignoring order.
 ///
-/// Each element in the input array must match exactly one of the given matchers,
-/// and vice versa. Matching fails if the input is not an array, if the number of
-/// elements and matchers differ, or if no perfect one-to-one mapping can be found.
+/// The array length must equal the matcher count.
 ///
-/// # Example
+/// # Examples
 ///
-/// This passes:
-/// ```
+/// ```rust
 /// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
 /// # use serde_json::json as j;
-/// # use crate::googletest_json_serde::json;
-/// let value = j!(["a", "b", "c"]);
 /// assert_that!(
-///     value,
-///     json::unordered_elements_are![
-///         j!("c"),
-///         eq("a"),
-///         starts_with("b"),
-///     ]
+///     j!(["a", "b", j!("c")]),
+///     json::unordered_elements_are!["a", j!("c"), starts_with("b")]
 /// );
 /// ```
 ///
-/// This fails because the element `"x"` does not match any expected element:
-/// ```should_panic
+/// ```rust,should_panic
 /// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
 /// # use serde_json::json as j;
-/// # use crate::googletest_json_serde::json;
-/// let value = j!(["a", "x", "c"]);
 /// assert_that!(
-///     value,
-///     json::unordered_elements_are![
-///         eq("c"),
-///         eq("a"),
-///         eq("b"),
-///     ]
+///     j!(["a", "x", "c"]),
+///     json::unordered_elements_are![eq("c"), eq("a"), eq("b")]
 /// );
 /// ```
 ///
-/// This fails because the input is not an array:
-/// ```should_panic
-/// # use googletest::prelude::*;
-/// # use serde_json::json;
-/// # use crate::googletest_json_serde::json;
-/// let value = json!("not an array");
-/// assert_that!(
-///     value,
-///     json::unordered_elements_are![
-///         eq("a"),
-///         eq("b"),
-///     ]
-/// );
-/// ```
-///
-///
-/// # Notes
-///
-///  - Both JSON-aware and native GoogleTest matchers (such as `starts_with`, `contains_substring`) can be used directly.
-///  - Wrapping with `json::primitive!` is no longer needed.
-///  - Direct `serde_json::Value` inputs (e.g. `json!(...)`) are supported and compared by structural equality.
+/// # Supported Inputs
+/// - Literal JSON-compatible values
+/// - Direct `serde_json::Value`
+/// - Native googletest matchers
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_unordered_elements_are {
@@ -90,45 +65,34 @@ macro_rules! __json_unordered_elements_are {
     }};
 }
 
-/// Matches a JSON array that contains elements matched by the given matchers, in any order.
+/// Matches a JSON array that contains distinct matches for each provided matcher, ignoring order.
 ///
-/// To match, each provided matcher must have a **distinct** corresponding element in the array.
-/// There may be **additional** elements in the array that do not correspond to any matcher.
-///
-/// Put another way, `json::contains_each![...]` succeeds if there is a subset of the actual JSON
-/// array that `json::unordered_elements_are![...]` would match.
-///
-/// The actual value must be a JSON array (`serde_json::Value::Array`). If the value is not an array,
-/// or if any matcher has no unique matching element, the match fails.
+/// Extra array elements are allowed.
 ///
 /// # Examples
 ///
-/// ```
+/// ```rust
 /// # use googletest::prelude::*;
-/// # use serde_json::json;
-/// # use crate::googletest_json_serde::json;
-/// # fn should_pass() -> Result<()> {
-/// verify_that!(json!(["c", "b", "a"]), json::contains_each![eq("a"), eq("b")])?;   // Passes
-/// verify_that!(json!(["x", "y", "y"]), json::contains_each![eq("y"), eq("x")])?;   // Passes
-/// #     Ok(())
-/// # }
-/// # fn should_fail_1() -> Result<()> {
-/// verify_that!(json!(["a"]), json::contains_each![eq("a"), eq("b")])?;             // Fails: array too small
-/// #     Ok(())
-/// # }
-/// # fn should_fail_2() -> Result<()> {
-/// verify_that!(json!(["a", "b", "c"]), json::contains_each![eq("a"), eq("z")])?;    // Fails: second matcher unmatched
-/// #     Ok(())
-/// # }
-/// # fn should_fail_3() -> Result<()> {
-/// verify_that!(json!(["x", "x"]), json::contains_each![eq("x"), eq("x"), eq("x")])?; // Fails: no 1-1 mapping
-/// #     Ok(())
-/// # }
-/// # should_pass().unwrap();
-/// # should_fail_1().unwrap_err();
-/// # should_fail_2().unwrap_err();
-/// # should_fail_3().unwrap_err();
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// verify_that!(
+///     j!(["alpha", "bingo", "c"]),
+///     json::contains_each!["c", j!("alpha"), starts_with("b")]
+/// )
+/// .unwrap();
 /// ```
+///
+/// ```rust,should_panic
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json;
+/// verify_that!(json!(["a"]), json::contains_each![eq("a"), eq("b")]).unwrap();
+/// ```
+///
+/// # Supported Inputs
+/// - Literal JSON-compatible values
+/// - Direct `serde_json::Value`
+/// - Native googletest matchers
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_contains_each {
@@ -148,48 +112,36 @@ macro_rules! __json_contains_each {
         $crate::__json_contains_each!([$($matcher),*])
     }};
 }
-/// Matches a JSON array where every element matches one of the provided matchers.
+/// Matches a JSON array where every element satisfies one of the provided matchers without reuse.
 ///
-/// This macro succeeds if:
-/// - the input is a JSON array
-/// - every element in the array matches exactly one matcher
-/// - matchers are not reused
-/// - extra matchers may be provided and left unmatched
-/// - order does not matter
+/// Matchers may remain unused; order is irrelevant.
 ///
-/// This macro fails if:
-/// - the input is not a JSON array
-/// - any element in the array fails to match all matchers
+/// # Examples
 ///
-/// Accepts both bracketed (`json::is_contained_in!([ ... ])`) and unbracketed (`json::is_contained_in!(...)`) forms.
-///
-/// # Notes
-///
-///  - Both JSON-aware and native GoogleTest matchers (such as `starts_with`, `contains_substring`) can be used directly.
-///  - Wrapping with `json::primitive!` is no longer needed.
-///  - Direct `serde_json::Value` inputs (e.g. `json!(...)`) are supported and compared by structural equality.
-///
-/// # Example
-/// ```
+/// ```rust
 /// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
 /// # use serde_json::json as j;
-/// # use crate::googletest_json_serde::json;
-/// let value = j!(["a", "b", "c"]);
 /// assert_that!(
-///     value,
-///     json::is_contained_in![eq("a"), eq("b"), eq("c"), eq("d")]
+///     j!(["a", "b", j!("c")]),
+///     json::is_contained_in!["a", j!("c"), starts_with("b"), eq("d")]
 /// );
 /// ```
 ///
-/// # How it works
+/// ```rust,should_panic
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// assert_that!(
+///     j!(["a", "x"]),
+///     json::is_contained_in![eq("a"), eq("b")]
+/// );
+/// ```
 ///
-/// - Each matcher can match at most one element
-/// - Extra matchers may remain unused
-/// - Every element in the array must be matched
-///
-/// # Alias
-///
-/// This macro is re-exported as [`json::is_contained_in!`](crate::json::is_contained_in).
+/// # Supported Inputs
+/// - Literal JSON-compatible values
+/// - Direct `serde_json::Value`
+/// - Native googletest matchers
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_is_contained_in {

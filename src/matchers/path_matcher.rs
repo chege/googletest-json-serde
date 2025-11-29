@@ -5,7 +5,23 @@ use googletest::description::Description;
 use serde_json::Value;
 use std::collections::BTreeSet;
 
-/// Matches a JSON object that contains all the specified paths (order-agnostic, extras allowed).
+/// Matches a JSON object that contains all specified paths (order-agnostic, extras allowed).
+///
+/// Paths use dot notation; escape dots inside field names with `\`.
+///
+/// # Examples
+///
+/// ```rust
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// let value = j!({"user": {"id": 7, "name": "Ada"}});
+/// assert_that!(value, json::has_paths(&["user.id", "user.name"]));
+/// ```
+///
+/// # Errors
+///
+/// Fails when any path is invalid, when the value is not a JSON object, or when required paths are missing.
 pub fn has_paths(paths: &[&str]) -> JsonPredicateMatcher<impl Fn(&Value) -> bool, String, String> {
     let ParsedPaths { parsed, errors } = parse_expected_paths(paths);
     let expected_set: BTreeSet<_> = parsed.iter().map(|p| p.segments.clone()).collect();
@@ -61,6 +77,20 @@ pub fn has_paths(paths: &[&str]) -> JsonPredicateMatcher<impl Fn(&Value) -> bool
 }
 
 /// Matches a JSON object whose paths are exactly the provided set (no extras or missing).
+///
+/// # Examples
+///
+/// ```rust
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// let value = j!({"ids": [1, 2], "ok": true});
+/// assert_that!(value, json::has_only_paths(&["ids", "ids.0", "ids.1", "ok"]));
+/// ```
+///
+/// # Errors
+///
+/// Fails when any path is invalid, when the value is not a JSON object, or when the set of paths differs.
 pub fn has_only_paths(
     paths: &[&str],
 ) -> JsonPredicateMatcher<impl Fn(&Value) -> bool, String, String> {

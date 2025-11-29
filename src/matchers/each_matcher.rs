@@ -1,22 +1,25 @@
-/// Matches every element of a JSON array against a single matcher.
+/// Matches every element of a JSON array against the same matcher.
 ///
-/// This allows writing expressive assertions such as:
+/// # Examples
 ///
 /// ```rust
-/// use googletest::prelude::*;
-/// use googletest_json_serde::json;
-/// use serde_json::json as j;
-///
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
 /// assert_that!(j!([1, 2, 3]), json::each!(gt(0)));
 /// assert_that!(j!(["ab", "ax"]), json::each!(starts_with("a")));
+/// assert_that!(j!([1, 1]), json::each!(1));
+/// assert_that!(j!([j!(2), j!(2)]), json::each!(j!(2)));
 /// ```
 ///
-/// Fails if:
-/// - the value is not a JSON array
-/// - any element fails the provided matcher
+/// # Errors
 ///
-/// This behaves similarly to `each()` in googletest‑rust, but specialized for `serde_json::Value`.
-/// Failures report the first mismatching element with its index.
+/// Fails when the value is not a JSON array or when any element fails the matcher.
+///
+/// # Supported Inputs
+/// - Literal JSON-compatible values
+/// - Direct `serde_json::Value`
+/// - Native googletest matchers
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_each {

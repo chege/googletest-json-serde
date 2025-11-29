@@ -1,32 +1,30 @@
-//! Utility matchers and macros for concise JSON assertions using googletest.
+//! JSON predicate matchers for googletest assertions.
+//!
+//! # Examples
+//! ```rust
+//! # use googletest::prelude::*;
+//! # use googletest_json_serde::json;
+//! # use serde_json::json as j;
+//! assert_that!(j!("hi"), json::is_string());
+//! ```
 
 use crate::matchers::__internal_unstable_do_not_depend_on_these;
 use crate::matchers::__internal_unstable_do_not_depend_on_these::JsonPredicateMatcher;
 use googletest::description::Description;
 use serde_json::Value;
 
-/// Creates a custom JSON matcher from an arbitrary predicate function.
+/// Builds a JSON matcher from an arbitrary predicate function.
 ///
-/// This function allows defining ad-hoc JSON matchers inline by supplying a closure or function
-/// that returns `true` for matching values.
-/// The resulting matcher can optionally be extended with:
-/// - `.with_description("expected", "not expected")` — to provide custom messages, and
-/// - `.with_explain_fn(|v| Description::new().text(...))` — to describe mismatches dynamically.
+/// # Examples
 ///
-/// # Example
-/// ```
+/// ```rust
 /// # use googletest::prelude::*;
 /// # use googletest_json_serde::json;
 /// # use serde_json::json as j;
-///
-/// let matcher = json::predicate(|v| v.as_i64().map_or(false, |n| n > 0))
-///     .with_description("a positive number", "a non-positive number");
-///
-/// verify_that!(j!(42), &matcher);
-/// verify_that!(j!(-1), not(&matcher));
+/// let positive = json::predicate(|v| v.as_i64().is_some_and(|n| n > 0));
+/// verify_that!(j!(42), &positive);
+/// assert_that!(j!(-1), not(&positive));
 /// ```
-///
-/// Use this when no built-in matcher (like `is_string()` or `is_null()`) fits your case.
 pub fn predicate<P>(
     predicate: P,
 ) -> JsonPredicateMatcher<
@@ -43,18 +41,48 @@ where
         __internal_unstable_do_not_depend_on_these::NoDescription,
     )
 }
-/// Matches any JSON value except null.
+/// Matches JSON null values.
+///
+/// # Examples
+///
+/// ```rust
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// assert_that!(j!(null), json::is_null());
+/// assert_that!(j!("value"), not(json::is_null()));
+/// ```
 pub fn is_null() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
     JsonPredicateMatcher::new(|v| v.is_null(), "JSON null", "which is not JSON null")
         .with_explain_fn(__internal_unstable_do_not_depend_on_these::describe_json_type)
 }
-/// Matches any JSON value except null.
+/// Matches JSON values that are not null.
+///
+/// # Examples
+///
+/// ```rust
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// assert_that!(j!("text"), json::is_not_null());
+/// assert_that!(j!(null), not(json::is_not_null()));
+/// ```
 pub fn is_not_null() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
     JsonPredicateMatcher::new(|v| !v.is_null(), "not JSON null", "which is JSON null")
         .with_explain_fn(__internal_unstable_do_not_depend_on_these::describe_json_type)
 }
 
-/// Matches any JSON value except null.
+/// Matches JSON values that are not null.
+///
+/// # Examples
+///
+/// ```rust
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// assert_that!(j!("ok"), json::any_value());
+/// assert_that!(j!(null), not(json::any_value()));
+/// ```
 #[deprecated(since = "0.2.2", note = "Use `is_not_null` instead")]
 pub fn any_value() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
     JsonPredicateMatcher::new(|v| !v.is_null(), "any JSON value", "is not any JSON value")
@@ -62,6 +90,16 @@ pub fn any_value() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str
 }
 
 /// Matches JSON string values.
+///
+/// # Examples
+///
+/// ```rust
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// assert_that!(j!("hi"), json::is_string());
+/// assert_that!(j!(true), not(json::is_string()));
+/// ```
 pub fn is_string() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
     JsonPredicateMatcher::new(
         |v| v.is_string(),
@@ -72,6 +110,16 @@ pub fn is_string() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str
 }
 
 /// Matches JSON number values.
+///
+/// # Examples
+///
+/// ```rust
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// assert_that!(j!(3.14), json::is_number());
+/// assert_that!(j!("three"), not(json::is_number()));
+/// ```
 pub fn is_number() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
     JsonPredicateMatcher::new(
         |v| v.is_number(),
@@ -82,6 +130,16 @@ pub fn is_number() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str
 }
 
 /// Matches JSON boolean values.
+///
+/// # Examples
+///
+/// ```rust
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// assert_that!(j!(true), json::is_boolean());
+/// assert_that!(j!(0), not(json::is_boolean()));
+/// ```
 pub fn is_boolean() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
     JsonPredicateMatcher::new(
         |v| v.is_boolean(),
@@ -92,6 +150,16 @@ pub fn is_boolean() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static st
 }
 
 /// Matches JSON array values.
+///
+/// # Examples
+///
+/// ```rust
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// assert_that!(j!([1, 2]), json::is_array());
+/// assert_that!(j!({"a":1}), not(json::is_array()));
+/// ```
 pub fn is_array() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
     JsonPredicateMatcher::new(
         |v| v.is_array(),
@@ -102,6 +170,16 @@ pub fn is_array() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str,
 }
 
 /// Matches an empty JSON array (`[]`).
+///
+/// # Examples
+///
+/// ```rust
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// assert_that!(j!([]), json::is_empty_array());
+/// assert_that!(j!([1]), not(json::is_empty_array()));
+/// ```
 pub fn is_empty_array() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str>
 {
     JsonPredicateMatcher::new(
@@ -119,6 +197,16 @@ pub fn is_empty_array() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'stati
 }
 
 /// Matches JSON object values.
+///
+/// # Examples
+///
+/// ```rust
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// assert_that!(j!({"a": 1}), json::is_object());
+/// assert_that!(j!(null), not(json::is_object()));
+/// ```
 pub fn is_object() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
     JsonPredicateMatcher::new(
         |v| v.is_object(),
@@ -129,6 +217,16 @@ pub fn is_object() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str
 }
 
 /// Matches an empty JSON object (`{}`).
+///
+/// # Examples
+///
+/// ```rust
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// assert_that!(j!({}), json::is_empty_object());
+/// assert_that!(j!({"a":1}), not(json::is_empty_object()));
+/// ```
 pub fn is_empty_object() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str>
 {
     JsonPredicateMatcher::new(
