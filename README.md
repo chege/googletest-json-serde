@@ -92,7 +92,7 @@ assert_that!(
 - Primitives and kinds:
   - `json::primitive!`, `json::is_string/number/boolean`, `json::is_null`, `json::is_not_null`, `json::is_empty_array/object`
 - Paths and shape:
-  - `json::has_paths`, `json::has_only_paths`
+  - `json::has_paths`, `json::has_only_paths`, `json::has_path_with!`
 - Optional fields:
   - `json::optional!`
 - Clear diagnostics that point to the failing path or element.
@@ -110,6 +110,19 @@ assert_that!(j!(42),         json::primitive!(gt(40_i64)));
 assert_that!(j!("Laszlo"),   json::primitive!(starts_with("Las")));
 assert_that!(j!(true),       json::primitive!(is_true()));
 assert_that!(j!(null),       json::is_null());
+```
+
+### Path value matching
+
+```rust
+use googletest::prelude::*;
+use googletest_json_serde::json;
+use serde_json::json as j;
+
+let value = j!({"user": {"id": 7, "name": "Ada"}});
+assert_that!(value, json::has_path_with!("user.name", "Ada"));
+assert_that!(value, json::has_path_with!("user.id", j!(7)));
+assert_that!(value, json::has_path_with!("user.name", starts_with("A")));
 ```
 
 ### Predicates
