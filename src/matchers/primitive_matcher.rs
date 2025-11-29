@@ -1,7 +1,7 @@
-//! Utility matchers and macros for concise JSON assertions using googletest.
+//! Primitive JSON matchers for integrating googletest expectations.
 //!
-//! Example:
-//! ```
+//! # Examples
+//! ```rust
 //! # use googletest::prelude::*;
 //! # use googletest_json_serde::json;
 //! # use serde_json::json as j;
@@ -10,26 +10,22 @@
 //! verify_that!(data["large"], json::primitive!(ge(65000u16)));
 //! ```
 
-/// Matches a JSON value (string, number, or boolean) against the given matcher.
+/// Matches a JSON string, number, or boolean against the given matcher.
 ///
-/// This macro enables matching specific primitive values inside a JSON structure
-/// by delegating to a matcher for the corresponding Rust type. It supports:
-/// - `String` values (e.g. `json::value!(eq("hello"))`)
-/// - `Number` values as `i64` or `f64` (e.g. `json::value!(ge(0))`)
-/// - `Boolean` values (e.g. `json::value!(eq(true))`)
+/// # Examples
 ///
-/// Fails if the value is not of the expected JSON type.
-///
-/// # Example
-/// ```
+/// ```rust
 /// # use googletest::prelude::*;
 /// # use googletest_json_serde::json;
 /// # use serde_json::json as j;
 /// let data = j!({"active": true, "count": 3});
-///
 /// verify_that!(data["active"], json::value!(eq(true)));
 /// verify_that!(data["count"], json::value!(ge(0)));
 /// ```
+///
+/// # Errors
+///
+/// Fails when the JSON value is not a string, number, or boolean.
 #[deprecated(since = "0.2.0", note = "please use `json::primitive!` instead")]
 #[macro_export]
 #[doc(hidden)]
@@ -39,32 +35,24 @@ macro_rules! __json_value {
     };
 }
 
-/// Matches a JSON value (string, number, or boolean) against the given matcher.
+/// Matches a JSON string, number, or boolean against the given matcher.
 ///
-/// This macro enables matching specific primitive values inside a JSON structure
-/// by delegating to a matcher for the corresponding Rust type. It supports:
-/// - `String` values (e.g. `json::primitive!(eq("hello"))`)
-/// - `Number` values as `i64` or `f64` (e.g. `json::primitive!(ge(0))`)
-/// - `Boolean` values (e.g. `json::primitive!(eq(true))`)
+/// # Examples
 ///
-/// Fails if the value is not of the expected JSON type.
-///
-/// # Example
-/// ```
+/// ```rust
 /// # use googletest::prelude::*;
 /// # use googletest_json_serde::json;
 /// # use serde_json::json as j;
 /// let data = j!({"active": true, "count": 3, "small": 12i8, "limit": 65000u16});
-///
 /// verify_that!(data["active"], json::primitive!(eq(true)));
 /// verify_that!(data["count"], json::primitive!(ge(0)));
 /// verify_that!(data["small"], json::primitive!(eq(12i8)));
 /// verify_that!(data["limit"], json::primitive!(eq(65000u16)));
 /// ```
 ///
-/// # Notes
-/// - Accepts literals, googletest matchers, or direct `serde_json::Value`.
-/// - Fails if the JSON value is not a string/number/bool.
+/// # Errors
+///
+/// Fails when the JSON value is not a string, number, or boolean.
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_primitive {

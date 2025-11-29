@@ -1,23 +1,27 @@
-/// Matches a JSON field that may be missing or null, or matches the given inner matcher.
+/// Matches a JSON field that may be absent, null, or satisfy an inner matcher.
 ///
-/// Example:
-/// ```
+/// # Examples
+///
+/// ```rust
 /// # use googletest::prelude::*;
-/// # use serde_json::json;
 /// # use googletest_json_serde::json;
-/// let value = json!({ "id": 42 });
+/// # use serde_json::json as j;
+/// let value = j!({ "id": 42 });
 /// assert_that!(
 ///     value,
 ///     json::pat!({
 ///         "id": eq(42),
-///         "nickname": json::optional!(eq("Bob"))
+///         "nickname": json::optional!("Bob"),
+///         "alt": json::optional!(j!("Robert")),
+///         "tag": json::optional!(starts_with("B"))
 ///     })
 /// );
 /// ```
 ///
-/// Notes:
-/// - Succeeds if the field is missing (when used inside `pat!`), or is `null`, or matches the inner matcher.
-/// - Fails otherwise.
+/// # Supported Inputs
+/// - Literal JSON-compatible values
+/// - Direct `serde_json::Value`
+/// - Native googletest matchers
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_optional {

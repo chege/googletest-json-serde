@@ -1,19 +1,10 @@
-/// Matches a JSON array with elements that satisfy the given matchers, in order.
+/// Matches a JSON array against a list of matchers in order.
 ///
-/// Each element of the JSON array is matched against a corresponding
-/// [`Matcher`][googletest::matcher::Matcher]. The array must have the same length
-/// as the list of matchers, and all matchers must succeed.
-///
-/// This macro supports two forms:
-/// - Bracketed: `elements_are!([matcher1, matcher2, ...])`
-/// - Unbracketed: `elements_are!(matcher1, matcher2, ...)`
-///
-/// Callers should prefer the public-facing [`json::elements_are!`](crate::json::elements_are!) macro.
+/// The array length must equal the matcher count.
 ///
 /// # Examples
 ///
-/// Basic usage:
-/// ```
+/// ```rust
 /// # use googletest::prelude::*;
 /// # use serde_json::json as j;
 /// # use crate::googletest_json_serde::json;
@@ -21,34 +12,36 @@
 /// assert_that!(
 ///     value,
 ///     json::elements_are![
-///         j!("alex"),
-///         starts_with("b"),
+///         "alex",
+///         j!("bart"),
 ///         char_count(eq(13))
 ///     ]
 /// );
 /// ```
 ///
-/// Nested example:
-/// ```
+/// ```rust,should_panic
 /// # use googletest::prelude::*;
 /// # use serde_json::json as j;
 /// # use crate::googletest_json_serde::json;
-/// let value = j!([["x", "y"], ["z"]]);
+/// let value = j!(["cucumberbatch", "alex", "bart"]);
 /// assert_that!(
 ///     value,
 ///     json::elements_are![
-///         json::elements_are![j!("x"), eq("y")],
-///         json::elements_are![eq("z")]
+///         "alex",
+///         j!("bart"),
+///         char_count(eq(13))
 ///     ]
 /// );
 /// ```
 ///
-/// # Notes
+/// # Errors
 ///
-///  - Both JSON-aware and native GoogleTest matchers (such as `starts_with`, `contains_substring`) can be used directly.
-///  - Wrapping with `json::primitive!` is no longer needed.
-///  - Direct `serde_json::Value` inputs (e.g. `json!(...)`) are supported and compared by structural equality.
-///  - On failure, the first mismatching index is reported.
+/// Fails when the value is not a JSON array or when lengths differ.
+///
+/// # Supported Inputs
+/// - Literal JSON-compatible values
+/// - Direct `serde_json::Value`
+/// - Native googletest matchers
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_elements_are {

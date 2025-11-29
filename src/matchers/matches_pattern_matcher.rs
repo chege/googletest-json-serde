@@ -1,59 +1,41 @@
-/// Matches a JSON object by specifying a pattern of key-value matchers, similar to
-/// GoogleTest’s `matches_pattern!` macro for Rust structs.
+/// Matches a JSON object against a pattern of key-value matchers.
 ///
-/// This macro is used for asserting that a `serde_json::Value` representing a JSON object
-/// contains the specified fields, with each field matching the corresponding matcher. Extra
-/// fields are rejected unless the pattern ends with `..`.
+/// Fields listed in the pattern must match; a trailing `..` allows extra fields.
 ///
 /// # Examples
 ///
-/// Basic usage:
-/// ```
+/// ```rust
 /// # use googletest::prelude::*;
-/// # use serde_json::json;
+/// # use serde_json::json as j;
 /// # use googletest_json_serde::json;
-/// let value = json!({ "name": "Alice", "age": 30 });
+/// let value = j!({
+///     "name": "Alice",
+///     "age": 30,
+///     "active": true,
+///     "role": j!("admin")
+/// });
 /// assert_that!(
 ///     value,
 ///     json::pat!({
-///         "name": eq("Alice"),
+///         "name": starts_with("Al"),
 ///         "age": ge(29),
+///         "active": true,
+///         "role": j!("admin"),
 ///         .. // allows additional fields
 ///     })
 /// );
 /// ```
 ///
-/// Nested matching:
-/// ```
-/// # use googletest::prelude::*;
-/// # use serde_json::json;
-/// # use googletest_json_serde::json;
-/// let value = json!({
-///     "user": {
-///         "id": 1,
-///         "active": true
-///     }
-/// });
-/// assert_that!(
-///     value,
-///     json::pat!({
-///         "user": json::pat!({
-///             "id": eq(1),
-///             "active": is_true(),
-///         })
-///     })
-/// );
-/// ```
+/// # Errors
 ///
-/// # Notes
-///
-///  - Both JSON-aware and native GoogleTest matchers (such as `starts_with`, `contains_substring`) can be used directly.
-///  - Wrapping with `json::primitive!` is no longer needed.
-///  - Direct `serde_json::Value` inputs (e.g. `json!(...)`) are supported and compared by structural equality.
-///
-/// # Alias
+/// Fails when the value is not a JSON object, when a required field is missing, when a field value mismatches, or when extra fields appear without `..`.
 ///
 /// This macro is reexported as [`json::pat!`](crate::json::pat).
+///
+/// # Supported Inputs
+/// - Literal JSON-compatible values
+/// - Direct `serde_json::Value`
+/// - Native googletest matchers
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_matches_pattern {

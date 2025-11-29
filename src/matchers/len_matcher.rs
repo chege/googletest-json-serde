@@ -1,24 +1,25 @@
-/// JSON length matcher for arrays.
+/// Matches the length of a JSON array against a literal or matcher.
 ///
-/// Two forms are supported:
-///
-/// * `json::len!(N)` — literal form, equivalent to `len(eq(N))`
-/// * `json::len!(matcher)` — matcher form, where any `Matcher<usize>` is accepted
-///
-/// Examples:
+/// # Examples
 ///
 /// ```rust
 /// # use googletest::prelude::*;
 /// # use googletest_json_serde::json;
 /// # use serde_json::json as j;
-///
 /// verify_that!(j!(["a", "b", "c"]), json::len!(3));
 /// verify_that!(j!(["a", "b", "c"]), json::len!(ge(2)));
-/// verify_that!(j!(["a"]), not(json::len!(2)));
+/// verify_that!(j!(["a", "b", "c"]), json::len!(j!(3)));
+/// assert_that!(j!(["a"]), not(json::len!(2)));
 /// ```
 ///
-/// This matcher only applies to JSON arrays; other JSON types fail with a descriptive
-/// “which is not a JSON array” message.
+/// # Errors
+///
+/// Fails when the value is not a JSON array.
+///
+/// # Supported Inputs
+/// - Literal JSON-compatible values
+/// - Direct `serde_json::Value`
+/// - Native googletest matchers
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_len {
