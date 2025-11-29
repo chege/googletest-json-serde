@@ -5,6 +5,45 @@ use googletest::description::Description;
 use serde_json::Value;
 use std::collections::BTreeSet;
 
+/// Matches a JSON leaf at the given path against the provided matcher.
+///
+/// The path uses the same dot-and-escape rules as [`has_paths`]. The matcher can be a literal,
+/// a `serde_json::Value`, or any native googletest matcher.
+///
+/// # Examples
+///
+/// ```rust
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// let value = j!({"user": {"id": 7, "name": "Ada"}});
+/// assert_that!(
+///     value,
+///     json::has_path_with!("user.name", "Ada")
+///         .and(json::has_path_with!("user.id", j!(7)))
+///         .and(json::has_path_with!("user.name", starts_with("A")))
+/// );
+/// ```
+///
+/// # Supported Inputs
+/// - Literal JSON-compatible values
+/// - Direct `serde_json::Value`
+/// - Native googletest matchers
+///
+/// # Errors
+/// Fails when the path is invalid, missing, the value is not an object, or the leaf does not
+/// satisfy the matcher.
+#[macro_export]
+#[doc(hidden)]
+macro_rules! __json_has_path_with {
+    ($path:expr, $matcher:expr) => {{
+        $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonPathWithMatcher::new(
+            $path,
+            $crate::matchers::__internal_unstable_do_not_depend_on_these::IntoJsonMatcher::into_json_matcher($matcher),
+        )
+    }};
+}
+
 /// Matches a JSON object that contains all specified paths (order-agnostic, extras allowed).
 ///
 /// Paths use dot notation; escape dots inside field names with `\`.
@@ -158,4 +197,95 @@ pub fn has_only_paths(
             (false, false) => Description::new(),
         }
     })
+}
+
+#[doc(hidden)]
+pub mod internal {
+    use crate::matcher_support::path::{PathSegment, format_path, parse_expected_paths};
+    use crate::matchers::__internal_unstable_do_not_depend_on_these::describe_json_type;
+    use crate::matchers::json_matcher::internal::JsonMatcher;
+    use googletest::description::Description;
+    use googletest::matcher::{Matcher, MatcherBase, MatcherResult};
+    use serde_json::Value;
+
+    #[derive(MatcherBase)]
+    pub struct JsonPathWithMatcher {
+        raw: String,
+        segments: Vec<PathSegment>,
+        matcher: Box<dyn JsonMatcher>,
+        parse_error: Option<String>,
+    }
+
+    fn parse_single_path(path: &str) -> (Vec<PathSegment>, Option<String>) {
+        let parsed_paths = parse_expected_paths(&[path]);
+        match (parsed_paths.parsed.first(), parsed_paths.errors.first()) {
+            (_, Some(err)) => (Vec::new(), Some(err.clone())),
+            (Some(p), None) => (p.segments.clone(), None),
+            _ => (Vec::new(), Some("empty path".to_string())),
+        }
+    }
+
+    impl JsonPathWithMatcher {
+        pub fn new(path: &str, matcher: Box<dyn JsonMatcher>) -> Self {
+            let (segments, parse_error) = parse_single_path(path);
+            Self {
+                raw: path.to_string(),
+                segments,
+                matcher,
+                parse_error,
+            }
+        }
+
+        fn find_leaf<'a>(&self, value: &'a Value) -> Option<&'a Value> {
+            let mut current = value;
+            for seg in &self.segments {
+                match (seg, current) {
+                    (PathSegment::Field(name), Value::Object(map)) => {
+                        current = map.get(name)?;
+                    }
+                    (PathSegment::Index(idx), Value::Array(arr)) => {
+                        current = arr.get(*idx)?;
+                    }
+                    _ => return None,
+                }
+            }
+            Some(current)
+        }
+    }
+
+    impl Matcher<&Value> for JsonPathWithMatcher {
+        fn matches(&self, value: &Value) -> MatcherResult {
+            if self.parse_error.is_some() {
+                return MatcherResult::NoMatch;
+            }
+            let Some(leaf) = self.find_leaf(value) else {
+                return MatcherResult::NoMatch;
+            };
+            self.matcher.matches(leaf)
+        }
+
+        fn describe(&self, result: MatcherResult) -> Description {
+            let path = &self.raw;
+            match result {
+                MatcherResult::Match => format!("has path `{path}` whose value matches").into(),
+                MatcherResult::NoMatch => {
+                    format!("has path `{path}` whose value does not match").into()
+                }
+            }
+        }
+
+        fn explain_match(&self, value: &Value) -> Description {
+            if let Some(err) = &self.parse_error {
+                return Description::new().text(format!("invalid path {err}"));
+            }
+            let Some(leaf) = self.find_leaf(value) else {
+                return match value {
+                    Value::Object(_) => Description::new()
+                        .text(format!("missing path `{}`", format_path(&self.segments))),
+                    _ => describe_json_type(value),
+                };
+            };
+            self.matcher.explain_match(leaf)
+        }
+    }
 }
