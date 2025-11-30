@@ -149,6 +149,52 @@ pub fn is_boolean() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static st
     .with_explain_fn(__internal_unstable_do_not_depend_on_these::describe_json_type)
 }
 
+/// Matches the JSON boolean `true` value.
+///
+/// # Examples
+///
+/// ```rust
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// assert_that!(j!(true), json::is_true());
+/// assert_that!(j!(false), not(json::is_true()));
+/// ```
+pub fn is_true() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
+    JsonPredicateMatcher::new(
+        |v| matches!(v, Value::Bool(true)),
+        "JSON true",
+        "which is not JSON true",
+    )
+    .with_explain_fn(|v| match v {
+        Value::Bool(false) => Description::new().text("which is JSON false"),
+        _ => __internal_unstable_do_not_depend_on_these::describe_json_type(v),
+    })
+}
+
+/// Matches the JSON boolean `false` value.
+///
+/// # Examples
+///
+/// ```rust
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// assert_that!(j!(false), json::is_false());
+/// assert_that!(j!(true), not(json::is_false()));
+/// ```
+pub fn is_false() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
+    JsonPredicateMatcher::new(
+        |v| matches!(v, Value::Bool(false)),
+        "JSON false",
+        "which is not JSON false",
+    )
+    .with_explain_fn(|v| match v {
+        Value::Bool(true) => Description::new().text("which is JSON true"),
+        _ => __internal_unstable_do_not_depend_on_these::describe_json_type(v),
+    })
+}
+
 /// Matches JSON array values.
 ///
 /// # Examples
