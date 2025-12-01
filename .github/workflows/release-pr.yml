@@ -18,7 +18,7 @@ jobs:
     environment: 'release'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@c2d88d3ecc89a9ef08eebf45d9637801dcee7eb5 # v5.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -37,7 +37,7 @@ jobs:
           permission-contents: write
           permission-pull-requests: write
       - name: Run `release-plz release-pr`
-        uses: release-plz/action@d529f731ae3e89610ada96eda34e5c6ba3b12214 # v0.5.118
+        uses: release-plz/action@1efcf74dfcd6e500990dad806e286899ae384064 # v0.5.119
         with:
           command: release-pr
         env:
