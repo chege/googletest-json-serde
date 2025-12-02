@@ -220,6 +220,32 @@ fn is_empty_array_fails_for_boolean_and_includes_full_message() -> Result<()> {
 }
 
 #[test]
+fn each_is_string_matches_uniform_array() -> Result<()> {
+    verify_that!(json!(["a", "b"]), json::each_is_string())
+}
+
+#[test]
+fn each_is_number_rejects_mixed_array_and_reports_index() -> Result<()> {
+    let result = verify_that!(json!([1, "b"]), json::each_is_number());
+    verify_that!(
+        result,
+        err(displays_as(contains_substring(indoc!(
+            r#"
+            Value of: json!([1, "b"])
+            Expected: a JSON array whose elements are JSON number
+            Actual: Array [Number(1), String("b")],
+              which contains a JSON string at index 1
+            "#
+        ))))
+    )
+}
+
+#[test]
+fn each_is_number_rejects_non_array() -> Result<()> {
+    verify_that!(json!(null), not(json::each_is_number()))
+}
+
+#[test]
 fn is_object_matches_object() -> Result<()> {
     verify_that!(json!({"key": "value"}), json::is_object())
 }
