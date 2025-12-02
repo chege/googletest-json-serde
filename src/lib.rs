@@ -9,7 +9,8 @@ pub mod json {
     #[allow(deprecated)]
     #[doc(inline)]
     pub use super::matchers::{
-        JsonType, any_value, contains_each, each, each_is_type, elements_are, has_only_paths,
+        any_value, contains_each, each, each_is_array, each_is_boolean, each_is_null,
+        each_is_number, each_is_object, each_is_string, elements_are, has_only_paths,
         has_path_with, has_paths, is_array, is_boolean, is_contained_in, is_empty_array,
         is_empty_object, is_false, is_not_null, is_null, is_number, is_object, is_string, is_true,
         len, matches_pattern, optional, pat, predicate, primitive, unordered_elements_are, value,
@@ -20,8 +21,9 @@ pub mod json {
 #[cfg(doc)]
 #[doc(inline)]
 pub use json::{
-    JsonType, any_value, contains_each, each, each_is_type, elements_are, has_only_paths,
-    has_path_with, has_paths, is_array, is_boolean, is_contained_in, is_empty_array,
-    is_empty_object, is_false, is_not_null, is_null, is_number, is_object, is_string, is_true, len,
-    matches_pattern, optional, pat, predicate, primitive, unordered_elements_are, value,
+    any_value, contains_each, each, each_is_array, each_is_boolean, each_is_null, each_is_number,
+    each_is_object, each_is_string, elements_are, has_only_paths, has_path_with, has_paths,
+    is_array, is_boolean, is_contained_in, is_empty_array, is_empty_object, is_false, is_not_null,
+    is_null, is_number, is_object, is_string, is_true, len, matches_pattern, optional, pat,
+    predicate, primitive, unordered_elements_are, value,
 };

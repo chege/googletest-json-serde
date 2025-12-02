@@ -10,8 +10,9 @@ mod unordered_elements_are_matcher;
 
 #[allow(deprecated)]
 pub use json_matcher::{
-    JsonType, any_value, each_is_type, is_array, is_boolean, is_empty_array, is_empty_object,
-    is_false, is_not_null, is_null, is_number, is_object, is_string, is_true, predicate,
+    any_value, each_is_array, each_is_boolean, each_is_null, each_is_number, each_is_object,
+    each_is_string, is_array, is_boolean, is_empty_array, is_empty_object, is_false, is_not_null,
+    is_null, is_number, is_object, is_string, is_true, predicate,
 };
 pub use path_matcher::{has_only_paths, has_paths};
 

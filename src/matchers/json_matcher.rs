@@ -13,42 +13,6 @@ use crate::matchers::__internal_unstable_do_not_depend_on_these::JsonPredicateMa
 use googletest::description::Description;
 use serde_json::Value;
 
-/// JSON value kinds for type-only matchers.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum JsonType {
-    Null,
-    Boolean,
-    Number,
-    String,
-    Array,
-    Object,
-}
-
-impl JsonType {
-    fn matches(&self, value: &Value) -> bool {
-        matches!(
-            (self, value),
-            (JsonType::Null, Value::Null)
-                | (JsonType::Boolean, Value::Bool(_))
-                | (JsonType::Number, Value::Number(_))
-                | (JsonType::String, Value::String(_))
-                | (JsonType::Array, Value::Array(_))
-                | (JsonType::Object, Value::Object(_))
-        )
-    }
-
-    fn describe(&self) -> &'static str {
-        match self {
-            JsonType::Null => "JSON null",
-            JsonType::Boolean => "JSON boolean",
-            JsonType::Number => "JSON number",
-            JsonType::String => "JSON string",
-            JsonType::Array => "JSON array",
-            JsonType::Object => "JSON object",
-        }
-    }
-}
-
 fn describe_kind(value: &Value) -> &'static str {
     match value {
         Value::Null => "JSON null",
@@ -58,6 +22,35 @@ fn describe_kind(value: &Value) -> &'static str {
         Value::Array(_) => "JSON array",
         Value::Object(_) => "JSON object",
     }
+}
+
+fn build_each_is_type(
+    kind: &'static str,
+    predicate: impl Fn(&Value) -> bool + Copy + 'static,
+) -> JsonPredicateMatcher<impl Fn(&Value) -> bool, String, &'static str> {
+    JsonPredicateMatcher::new(
+        move |v| match v {
+            Value::Array(a) => a.iter().all(predicate),
+            _ => false,
+        },
+        format!("a JSON array whose elements are {}", kind),
+        "which is not a JSON array",
+    )
+    .with_explain_fn(move |v| match v {
+        Value::Array(a) => a
+            .iter()
+            .enumerate()
+            .find(|(_, el)| !predicate(el))
+            .map(|(idx, el)| {
+                Description::new().text(format!(
+                    "which contains a {} at index {}",
+                    describe_kind(el),
+                    idx
+                ))
+            })
+            .unwrap_or_else(|| Description::new().text("which is an empty JSON array")),
+        _ => __internal_unstable_do_not_depend_on_these::describe_json_type(v),
+    })
 }
 
 /// Builds a JSON matcher from an arbitrary predicate function.
@@ -156,7 +149,7 @@ pub fn is_string() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str
     .with_explain_fn(__internal_unstable_do_not_depend_on_these::describe_json_type)
 }
 
-/// Matches a JSON array whose elements are all of the given JSON type.
+/// Matches JSON arrays whose elements are all JSON strings.
 ///
 /// # Examples
 ///
@@ -164,38 +157,36 @@ pub fn is_string() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str
 /// # use googletest::prelude::*;
 /// # use googletest_json_serde::json;
 /// # use serde_json::json as j;
-/// use googletest_json_serde::json::JsonType;
-///
-/// assert_that!(j!(["a", "b"]), json::each_is_type(JsonType::String));
-/// assert_that!(j!([1, "b"]), not(json::each_is_type(JsonType::Number)));
+/// assert_that!(j!(["a", "b"]), json::each_is_string());
+/// assert_that!(j!([1, "b"]), not(json::each_is_string()));
 /// ```
-pub fn each_is_type(
-    ty: JsonType,
-) -> JsonPredicateMatcher<impl Fn(&Value) -> bool, String, &'static str> {
-    let ty_for_match = ty;
-    JsonPredicateMatcher::new(
-        move |v| match v {
-            Value::Array(a) => a.iter().all(|el| ty_for_match.matches(el)),
-            _ => false,
-        },
-        format!("a JSON array whose elements are {}", ty.describe()),
-        "which is not a JSON array",
-    )
-    .with_explain_fn(move |v| match v {
-        Value::Array(a) => a
-            .iter()
-            .enumerate()
-            .find(|(_, el)| !ty.matches(el))
-            .map(|(idx, el)| {
-                Description::new().text(format!(
-                    "which contains a {} at index {}",
-                    describe_kind(el),
-                    idx
-                ))
-            })
-            .unwrap_or_else(|| Description::new().text("which is an empty JSON array")),
-        _ => __internal_unstable_do_not_depend_on_these::describe_json_type(v),
-    })
+pub fn each_is_string() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, String, &'static str> {
+    build_each_is_type("JSON string", |v| v.is_string())
+}
+
+/// Matches JSON arrays whose elements are all JSON numbers.
+pub fn each_is_number() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, String, &'static str> {
+    build_each_is_type("JSON number", |v| v.is_number())
+}
+
+/// Matches JSON arrays whose elements are all JSON booleans.
+pub fn each_is_boolean() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, String, &'static str> {
+    build_each_is_type("JSON boolean", |v| v.is_boolean())
+}
+
+/// Matches JSON arrays whose elements are all JSON null.
+pub fn each_is_null() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, String, &'static str> {
+    build_each_is_type("JSON null", |v| v.is_null())
+}
+
+/// Matches JSON arrays whose elements are all JSON arrays.
+pub fn each_is_array() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, String, &'static str> {
+    build_each_is_type("JSON array", |v| v.is_array())
+}
+
+/// Matches JSON arrays whose elements are all JSON objects.
+pub fn each_is_object() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, String, &'static str> {
+    build_each_is_type("JSON object", |v| v.is_object())
 }
 
 /// Matches JSON number values.

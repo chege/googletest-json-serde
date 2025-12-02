@@ -3,7 +3,6 @@
 use googletest::Result;
 use googletest::prelude::*;
 use googletest_json_serde::json;
-use googletest_json_serde::json::JsonType;
 use indoc::indoc;
 use serde_json::json;
 
@@ -221,13 +220,13 @@ fn is_empty_array_fails_for_boolean_and_includes_full_message() -> Result<()> {
 }
 
 #[test]
-fn each_is_type_matches_uniform_array() -> Result<()> {
-    verify_that!(json!(["a", "b"]), json::each_is_type(JsonType::String))
+fn each_is_string_matches_uniform_array() -> Result<()> {
+    verify_that!(json!(["a", "b"]), json::each_is_string())
 }
 
 #[test]
-fn each_is_type_rejects_mixed_array_and_reports_index() -> Result<()> {
-    let result = verify_that!(json!([1, "b"]), json::each_is_type(JsonType::Number));
+fn each_is_number_rejects_mixed_array_and_reports_index() -> Result<()> {
+    let result = verify_that!(json!([1, "b"]), json::each_is_number());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -242,8 +241,8 @@ fn each_is_type_rejects_mixed_array_and_reports_index() -> Result<()> {
 }
 
 #[test]
-fn each_is_type_rejects_non_array() -> Result<()> {
-    verify_that!(json!(null), not(json::each_is_type(JsonType::Number)))
+fn each_is_number_rejects_non_array() -> Result<()> {
+    verify_that!(json!(null), not(json::each_is_number()))
 }
 
 #[test]

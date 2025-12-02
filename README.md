@@ -89,7 +89,7 @@ assert_that!(
   - Contained-in: `json::is_contained_in!`
   - Length: `json::len!`
   - Apply to all elements: `json::each!`
-  - Type guard: `json::each_is_type(json::JsonType::String)`
+  - Type guard: `json::each_is_string()/number/boolean/null/array/object`
 - Primitives and kinds:
   - `json::primitive!`, `json::is_string/number/boolean`, `json::is_true/false`, `json::is_null`, `json::is_not_null`, `json::is_empty_array/object`
 - Paths and shape:
@@ -179,7 +179,7 @@ assert_that!(
 
 assert_that!(
     j!(["Nandor", "Nadja"]),
-    json::each_is_type(json::JsonType::String)
+    json::each_is_string()
 );
 ```
 
