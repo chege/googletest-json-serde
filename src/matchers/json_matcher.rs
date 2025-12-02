@@ -129,6 +129,32 @@ pub fn is_number() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str
     .with_explain_fn(__internal_unstable_do_not_depend_on_these::describe_json_type)
 }
 
+/// Matches JSON numbers that are integers.
+///
+/// # Examples
+///
+/// ```rust
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// assert_that!(j!(42), json::is_integer());
+/// assert_that!(j!(3.14), not(json::is_integer()));
+/// ```
+pub fn is_integer() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
+    JsonPredicateMatcher::new(
+        |v| matches!(v, Value::Number(n) if n.is_i64() || n.is_u64()),
+        "an integer JSON number",
+        "which is not an integer JSON number",
+    )
+    .with_explain_fn(|v| {
+        if matches!(v, Value::Number(_)) {
+            Description::new().text("which is a non-integer JSON number")
+        } else {
+            __internal_unstable_do_not_depend_on_these::describe_json_type(v)
+        }
+    })
+}
+
 /// Matches JSON boolean values.
 ///
 /// # Examples

@@ -129,6 +129,63 @@ fn is_number_fails_and_includes_full_message() -> Result<()> {
 }
 
 #[test]
+fn is_integer_matches_integer_number() -> Result<()> {
+    verify_that!(json!(123), json::is_integer())
+}
+
+#[test]
+fn is_integer_rejects_fractional_number() -> Result<()> {
+    verify_that!(json!(3.5), not(json::is_integer()))
+}
+
+#[test]
+fn is_integer_rejects_float_without_fraction_but_encoded_as_float() -> Result<()> {
+    verify_that!(json!(2.0), not(json::is_integer()))
+}
+
+#[test]
+fn is_integer_rejects_large_imprecise_float() -> Result<()> {
+    verify_that!(json!(1e23), not(json::is_integer()))
+}
+
+#[test]
+fn is_integer_rejects_non_number() -> Result<()> {
+    verify_that!(json!("string"), not(json::is_integer()))
+}
+
+#[test]
+fn is_integer_fails_and_includes_full_message_for_fractional_number() -> Result<()> {
+    let result = verify_that!(json!(3.5), json::is_integer());
+    verify_that!(
+        result,
+        err(displays_as(contains_substring(indoc!(
+            r#"
+            Value of: json!(3.5)
+            Expected: an integer JSON number
+            Actual: Number(3.5),
+              which is a non-integer JSON number
+            "#
+        ))))
+    )
+}
+
+#[test]
+fn is_integer_fails_and_includes_full_message_for_non_number() -> Result<()> {
+    let result = verify_that!(json!("vampire"), json::is_integer());
+    verify_that!(
+        result,
+        err(displays_as(contains_substring(indoc!(
+            r#"
+            Value of: json!("vampire")
+            Expected: an integer JSON number
+            Actual: String("vampire"),
+              which is a JSON string
+            "#
+        ))))
+    )
+}
+
+#[test]
 fn is_boolean_matches_bool() -> Result<()> {
     verify_that!(json!(true), json::is_boolean())
 }
