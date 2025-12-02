@@ -3,6 +3,7 @@
 use googletest::Result;
 use googletest::prelude::*;
 use googletest_json_serde::json;
+use googletest_json_serde::json::JsonType;
 use indoc::indoc;
 use serde_json::json;
 
@@ -217,6 +218,32 @@ fn is_empty_array_fails_for_boolean_and_includes_full_message() -> Result<()> {
             "#
         ))))
     )
+}
+
+#[test]
+fn each_is_type_matches_uniform_array() -> Result<()> {
+    verify_that!(json!(["a", "b"]), json::each_is_type(JsonType::String))
+}
+
+#[test]
+fn each_is_type_rejects_mixed_array_and_reports_index() -> Result<()> {
+    let result = verify_that!(json!([1, "b"]), json::each_is_type(JsonType::Number));
+    verify_that!(
+        result,
+        err(displays_as(contains_substring(indoc!(
+            r#"
+            Value of: json!([1, "b"])
+            Expected: a JSON array whose elements are JSON number
+            Actual: Array [Number(1), String("b")],
+              which contains a JSON string at index 1
+            "#
+        ))))
+    )
+}
+
+#[test]
+fn each_is_type_rejects_non_array() -> Result<()> {
+    verify_that!(json!(null), not(json::each_is_type(JsonType::Number)))
 }
 
 #[test]

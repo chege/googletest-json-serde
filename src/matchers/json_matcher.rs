@@ -13,6 +13,53 @@ use crate::matchers::__internal_unstable_do_not_depend_on_these::JsonPredicateMa
 use googletest::description::Description;
 use serde_json::Value;
 
+/// JSON value kinds for type-only matchers.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum JsonType {
+    Null,
+    Boolean,
+    Number,
+    String,
+    Array,
+    Object,
+}
+
+impl JsonType {
+    fn matches(&self, value: &Value) -> bool {
+        matches!(
+            (self, value),
+            (JsonType::Null, Value::Null)
+                | (JsonType::Boolean, Value::Bool(_))
+                | (JsonType::Number, Value::Number(_))
+                | (JsonType::String, Value::String(_))
+                | (JsonType::Array, Value::Array(_))
+                | (JsonType::Object, Value::Object(_))
+        )
+    }
+
+    fn describe(&self) -> &'static str {
+        match self {
+            JsonType::Null => "JSON null",
+            JsonType::Boolean => "JSON boolean",
+            JsonType::Number => "JSON number",
+            JsonType::String => "JSON string",
+            JsonType::Array => "JSON array",
+            JsonType::Object => "JSON object",
+        }
+    }
+}
+
+fn describe_kind(value: &Value) -> &'static str {
+    match value {
+        Value::Null => "JSON null",
+        Value::Bool(_) => "JSON boolean",
+        Value::Number(_) => "JSON number",
+        Value::String(_) => "JSON string",
+        Value::Array(_) => "JSON array",
+        Value::Object(_) => "JSON object",
+    }
+}
+
 /// Builds a JSON matcher from an arbitrary predicate function.
 ///
 /// # Examples
@@ -107,6 +154,48 @@ pub fn is_string() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str
         "which is not a JSON string",
     )
     .with_explain_fn(__internal_unstable_do_not_depend_on_these::describe_json_type)
+}
+
+/// Matches a JSON array whose elements are all of the given JSON type.
+///
+/// # Examples
+///
+/// ```rust
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// use googletest_json_serde::json::JsonType;
+///
+/// assert_that!(j!(["a", "b"]), json::each_is_type(JsonType::String));
+/// assert_that!(j!([1, "b"]), not(json::each_is_type(JsonType::Number)));
+/// ```
+pub fn each_is_type(
+    ty: JsonType,
+) -> JsonPredicateMatcher<impl Fn(&Value) -> bool, String, &'static str> {
+    let ty_for_match = ty;
+    JsonPredicateMatcher::new(
+        move |v| match v {
+            Value::Array(a) => a.iter().all(|el| ty_for_match.matches(el)),
+            _ => false,
+        },
+        format!("a JSON array whose elements are {}", ty.describe()),
+        "which is not a JSON array",
+    )
+    .with_explain_fn(move |v| match v {
+        Value::Array(a) => a
+            .iter()
+            .enumerate()
+            .find(|(_, el)| !ty.matches(el))
+            .map(|(idx, el)| {
+                Description::new().text(format!(
+                    "which contains a {} at index {}",
+                    describe_kind(el),
+                    idx
+                ))
+            })
+            .unwrap_or_else(|| Description::new().text("which is an empty JSON array")),
+        _ => __internal_unstable_do_not_depend_on_these::describe_json_type(v),
+    })
 }
 
 /// Matches JSON number values.
