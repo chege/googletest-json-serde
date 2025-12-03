@@ -192,6 +192,43 @@ pub fn is_whole_number() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'stat
     })
 }
 
+/// Matches JSON numbers that have a non-zero fractional part.
+///
+/// # Examples
+///
+/// ```rust
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// assert_that!(j!(3.5), json::is_fractional_number());
+/// assert_that!(j!(3), not(json::is_fractional_number()));
+/// assert_that!(j!(3.0), not(json::is_fractional_number()));
+/// ```
+pub fn is_fractional_number()
+-> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
+    JsonPredicateMatcher::new(
+        |v| match v {
+            Value::Number(n) => {
+                if n.is_i64() || n.is_u64() {
+                    return false;
+                }
+                n.as_f64()
+                    .is_some_and(|f| f.is_finite() && f.fract() != 0.0)
+            }
+            _ => false,
+        },
+        "a JSON number with a fractional part",
+        "which is not a JSON number with a fractional part",
+    )
+    .with_explain_fn(|v| {
+        if matches!(v, Value::Number(_)) {
+            Description::new().text("which is a JSON number without a fractional part")
+        } else {
+            __internal_unstable_do_not_depend_on_these::describe_json_type(v)
+        }
+    })
+}
+
 /// Matches JSON boolean values.
 ///
 /// # Examples
