@@ -11,7 +11,7 @@ mod unordered_elements_are_matcher;
 #[allow(deprecated)]
 pub use json_matcher::{
     any_value, is_array, is_boolean, is_empty_array, is_empty_object, is_false, is_integer,
-    is_not_null, is_null, is_number, is_object, is_string, is_true, predicate,
+    is_not_null, is_null, is_number, is_object, is_string, is_true, is_whole_number, predicate,
 };
 pub use path_matcher::{has_only_paths, has_paths};
 

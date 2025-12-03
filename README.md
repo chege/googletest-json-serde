@@ -90,7 +90,7 @@ assert_that!(
   - Length: `json::len!`
   - Apply to all elements: `json::each!`
 - Primitives and kinds:
-  - `json::primitive!`, `json::is_number/integer/string/boolean`, `json::is_true/false`, `json::is_null`, `json::is_not_null`, `json::is_empty_array/object`
+  - `json::primitive!`, `json::is_number/integer/whole_number/string/boolean`, `json::is_true/false`, `json::is_null`, `json::is_not_null`, `json::is_empty_array/object`
 - Paths and shape:
   - `json::has_paths`, `json::has_only_paths`, `json::has_path_with!`
 - Optional fields:
@@ -111,6 +111,7 @@ assert_that!(j!("Laszlo"),   json::primitive!(starts_with("Las")));
 assert_that!(j!(true),       json::is_true());
 assert_that!(j!(null),       json::is_null());
 assert_that!(j!(7),          json::is_integer());
+assert_that!(j!(7.0),        json::is_whole_number());
 ```
 
 ### Path value matching
