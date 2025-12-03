@@ -16,6 +16,13 @@ fn comprehensive_matchers_demo() {
             "is_array": [1, 2, 3],
             "is_object": { "a": 1 },
             "is_empty_array": [],
+            "is_empty_object": {},
+            "is_integer": 7,
+            "is_whole_number": 7.0,
+            "is_fractional_number": 7.5,
+            "any_value": "non-null",
+            "primitive_number": 12,
+            "value_literal": "literal",
             "optional_present": "val",
             "optional_missing": null,
         },
@@ -80,7 +87,8 @@ fn comprehensive_matchers_demo() {
                     true,
                     false,
                     true
-                ]
+                ],
+                "predicate_ok": 8
             }
         },
         "path_matchers": {
@@ -120,6 +128,13 @@ fn comprehensive_matchers_demo() {
                 "is_array": json::is_array(),
                 "is_object": json::is_object(),
                 "is_empty_array": json::is_empty_array(),
+                "is_empty_object": json::is_empty_object(),
+                "is_integer": json::is_integer(),
+                "is_whole_number": json::is_whole_number(),
+                "is_fractional_number": json::is_fractional_number(),
+                "any_value": json::any_value(),
+                "primitive_number": json::primitive!(gt(0)),
+                "value_literal": json::value!(eq("literal")),
                 "optional_present": json::optional!(json::is_string()),
                 "optional_missing": json::optional!(json::is_not_null()),
             }),
@@ -184,6 +199,7 @@ fn comprehensive_matchers_demo() {
                         is_false(),
                         is_true()
                     ],
+                    "predicate_ok": json::predicate(|v| v.as_i64().is_some_and(|n| n > 5)),
                 }),
             }),
             "path_matchers": json::pat!({
@@ -203,5 +219,10 @@ fn comprehensive_matchers_demo() {
                 "empty_object": json::is_empty_object(),
             }),
         })
+    );
+
+    assert_that!(
+        response,
+        json::has_path_with!("path_matchers.paths_allowing_extras.user.role", eq("admin"))
     );
 }
