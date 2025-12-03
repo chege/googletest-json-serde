@@ -234,6 +234,54 @@ fn is_whole_number_fails_and_includes_full_message_for_non_number() -> Result<()
 }
 
 #[test]
+fn is_fractional_number_matches_fractional() -> Result<()> {
+    verify_that!(json!(3.5), json::is_fractional_number())
+}
+
+#[test]
+fn is_fractional_number_rejects_integer_and_zero_fraction_float() -> Result<()> {
+    verify_that!(json!(3), not(json::is_fractional_number()))?;
+    verify_that!(json!(3.0), not(json::is_fractional_number()))
+}
+
+#[test]
+fn is_fractional_number_rejects_non_number() -> Result<()> {
+    verify_that!(json!(true), not(json::is_fractional_number()))
+}
+
+#[test]
+fn is_fractional_number_fails_and_includes_full_message_for_integer() -> Result<()> {
+    let result = verify_that!(json!(5), json::is_fractional_number());
+    verify_that!(
+        result,
+        err(displays_as(contains_substring(indoc!(
+            r#"
+            Value of: json!(5)
+            Expected: a JSON number with a fractional part
+            Actual: Number(5),
+              which is a JSON number without a fractional part
+            "#
+        ))))
+    )
+}
+
+#[test]
+fn is_fractional_number_fails_and_includes_full_message_for_non_number() -> Result<()> {
+    let result = verify_that!(json!("vampire"), json::is_fractional_number());
+    verify_that!(
+        result,
+        err(displays_as(contains_substring(indoc!(
+            r#"
+            Value of: json!("vampire")
+            Expected: a JSON number with a fractional part
+            Actual: String("vampire"),
+              which is a JSON string
+            "#
+        ))))
+    )
+}
+
+#[test]
 fn is_boolean_matches_bool() -> Result<()> {
     verify_that!(json!(true), json::is_boolean())
 }
