@@ -90,7 +90,7 @@ assert_that!(
   - Length: `json::len!`
   - Apply to all elements: `json::each!`
 - Primitives and kinds:
-  - `json::primitive!`, `json::is_number/integer/fractional_number/whole_number/string/boolean`, `json::is_true/false`, `json::is_null`, `json::is_not_null`, `json::is_empty_array/object`
+  - `json::primitive!`, `json::is_number/integer/fractional_number/whole_number/string/boolean`, `json::is_true/false`, `json::is_null`, `json::is_not_null`, `json::is_empty_array/object`, `json::is_non_empty_array/object`
 - Paths and shape:
   - `json::has_paths`, `json::has_only_paths`, `json::has_path_with!`
 - Optional fields:

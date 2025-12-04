@@ -373,6 +373,48 @@ fn is_empty_array_fails_for_boolean_and_includes_full_message() -> Result<()> {
 }
 
 #[test]
+fn is_non_empty_array_matches_non_empty() -> Result<()> {
+    verify_that!(json!([1]), json::is_non_empty_array())
+}
+
+#[test]
+fn is_non_empty_array_rejects_empty() -> Result<()> {
+    verify_that!(json!([]), not(json::is_non_empty_array()))
+}
+
+#[test]
+fn is_non_empty_array_fails_for_empty_array_and_includes_full_message() -> Result<()> {
+    let result = verify_that!(json!([]), json::is_non_empty_array());
+    verify_that!(
+        result,
+        err(displays_as(contains_substring(indoc!(
+            r#"
+            Value of: json!([])
+            Expected: a non-empty JSON array
+            Actual: Array [],
+              which is an empty JSON array
+            "#
+        ))))
+    )
+}
+
+#[test]
+fn is_non_empty_array_fails_for_boolean_and_includes_full_message() -> Result<()> {
+    let result = verify_that!(json!(true), json::is_non_empty_array());
+    verify_that!(
+        result,
+        err(displays_as(contains_substring(indoc!(
+            r#"
+            Value of: json!(true)
+            Expected: a non-empty JSON array
+            Actual: Bool(true),
+              which is a JSON boolean
+            "#
+        ))))
+    )
+}
+
+#[test]
 fn is_object_matches_object() -> Result<()> {
     verify_that!(json!({"key": "value"}), json::is_object())
 }
@@ -406,6 +448,48 @@ fn is_object_fails_and_includes_full_message() -> Result<()> {
             Expected: a JSON object
             Actual: Bool(false),
               which is a JSON boolean
+            "#
+        ))))
+    )
+}
+
+#[test]
+fn is_non_empty_object_matches_non_empty() -> Result<()> {
+    verify_that!(json!({"a": 1}), json::is_non_empty_object())
+}
+
+#[test]
+fn is_non_empty_object_rejects_empty() -> Result<()> {
+    verify_that!(json!({}), not(json::is_non_empty_object()))
+}
+
+#[test]
+fn is_non_empty_object_fails_for_empty_object_and_includes_full_message() -> Result<()> {
+    let result = verify_that!(json!({}), json::is_non_empty_object());
+    verify_that!(
+        result,
+        err(displays_as(contains_substring(indoc!(
+            r#"
+            Value of: json!({})
+            Expected: a non-empty JSON object
+            Actual: Object {},
+              which is an empty JSON object
+            "#
+        ))))
+    )
+}
+
+#[test]
+fn is_non_empty_object_fails_for_array_and_includes_full_message() -> Result<()> {
+    let result = verify_that!(json!([]), json::is_non_empty_object());
+    verify_that!(
+        result,
+        err(displays_as(contains_substring(indoc!(
+            r#"
+            Value of: json!([])
+            Expected: a non-empty JSON object
+            Actual: Array [],
+              which is a JSON array
             "#
         ))))
     )

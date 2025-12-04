@@ -342,6 +342,33 @@ pub fn is_empty_array() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'stati
     })
 }
 
+/// Matches a non-empty JSON array.
+///
+/// # Examples
+///
+/// ```rust
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// assert_that!(j!([1]), json::is_non_empty_array());
+/// assert_that!(j!([]), not(json::is_non_empty_array()));
+/// ```
+pub fn is_non_empty_array()
+-> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
+    JsonPredicateMatcher::new(
+        |v| v.as_array().is_some_and(|a| !a.is_empty()),
+        "a non-empty JSON array",
+        "which is not a non-empty JSON array",
+    )
+    .with_explain_fn(|v| {
+        if v.is_array() {
+            Description::new().text("which is an empty JSON array")
+        } else {
+            __internal_unstable_do_not_depend_on_these::describe_json_type(v)
+        }
+    })
+}
+
 /// Matches JSON object values.
 ///
 /// # Examples
@@ -383,6 +410,33 @@ pub fn is_empty_object() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'stat
     .with_explain_fn(|v| {
         if v.is_object() {
             Description::new().text("which is a non-empty JSON object")
+        } else {
+            __internal_unstable_do_not_depend_on_these::describe_json_type(v)
+        }
+    })
+}
+
+/// Matches a non-empty JSON object.
+///
+/// # Examples
+///
+/// ```rust
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// assert_that!(j!({"a": 1}), json::is_non_empty_object());
+/// assert_that!(j!({}), not(json::is_non_empty_object()));
+/// ```
+pub fn is_non_empty_object()
+-> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
+    JsonPredicateMatcher::new(
+        |v| v.as_object().is_some_and(|o| !o.is_empty()),
+        "a non-empty JSON object",
+        "which is not a non-empty JSON object",
+    )
+    .with_explain_fn(|v| {
+        if v.is_object() {
+            Description::new().text("which is an empty JSON object")
         } else {
             __internal_unstable_do_not_depend_on_these::describe_json_type(v)
         }
