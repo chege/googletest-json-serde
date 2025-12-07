@@ -14,6 +14,10 @@ pub use json_matcher::{
     is_fractional_number, is_integer, is_non_empty_array, is_non_empty_object, is_not_null,
     is_null, is_number, is_object, is_string, is_true, is_whole_number, predicate,
 };
+mod each_is_matcher;
+pub use each_is_matcher::{
+    each_is_array, each_is_boolean, each_is_null, each_is_number, each_is_object, each_is_string,
+};
 pub use path_matcher::{has_only_paths, has_paths};
 
 #[allow(deprecated)]
