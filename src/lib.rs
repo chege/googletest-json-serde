@@ -12,10 +12,10 @@ pub mod json {
         any_value, contains_each, each, each_is_array, each_is_boolean, each_is_null,
         each_is_number, each_is_object, each_is_string, elements_are, has_only_paths,
         has_path_with, has_paths, is_array, is_boolean, is_contained_in, is_empty_array,
-        is_empty_object, is_false, is_fractional_number, is_integer, is_non_empty_array,
-        is_non_empty_object, is_not_null, is_null, is_number, is_object, is_string, is_true,
-        is_whole_number, len, matches_pattern, optional, pat, predicate, primitive,
-        unordered_elements_are, value,
+        is_empty_object, is_empty_string, is_false, is_fractional_number, is_integer,
+        is_non_empty_array, is_non_empty_object, is_non_empty_string, is_not_null, is_null,
+        is_number, is_object, is_string, is_true, is_whole_number, len, matches_pattern, optional,
+        pat, predicate, primitive, unordered_elements_are, value,
     };
 }
 
@@ -25,8 +25,9 @@ pub mod json {
 pub use json::{
     any_value, contains_each, each, each_is_array, each_is_boolean, each_is_null, each_is_number,
     each_is_object, each_is_string, elements_are, has_only_paths, has_path_with, has_paths,
-    is_array, is_boolean, is_contained_in, is_empty_array, is_empty_object, is_false,
-    is_fractional_number, is_integer, is_non_empty_array, is_non_empty_object, is_not_null,
-    is_null, is_number, is_object, is_string, is_true, is_whole_number, len, matches_pattern,
-    optional, pat, predicate, primitive, unordered_elements_are, value,
+    is_array, is_boolean, is_contained_in, is_empty_array, is_empty_object, is_empty_string,
+    is_false, is_fractional_number, is_integer, is_non_empty_array, is_non_empty_object,
+    is_non_empty_string, is_not_null, is_null, is_number, is_object, is_string, is_true,
+    is_whole_number, len, matches_pattern, optional, pat, predicate, primitive,
+    unordered_elements_are, value,
 };

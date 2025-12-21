@@ -105,6 +105,90 @@ fn is_string_fails_and_includes_full_message() -> Result<()> {
 }
 
 #[test]
+fn is_empty_string_matches_empty() -> Result<()> {
+    verify_that!(json!(""), json::is_empty_string())
+}
+
+#[test]
+fn is_empty_string_rejects_non_empty() -> Result<()> {
+    verify_that!(json!("hi"), not(json::is_empty_string()))
+}
+
+#[test]
+fn is_empty_string_fails_for_non_empty_string_and_includes_full_message() -> Result<()> {
+    let result = verify_that!(json!("hi"), json::is_empty_string());
+    verify_that!(
+        result,
+        err(displays_as(contains_substring(indoc!(
+            r#"
+            Value of: json!("hi")
+            Expected: an empty JSON string
+            Actual: String("hi"),
+              which is a non-empty JSON string
+            "#
+        ))))
+    )
+}
+
+#[test]
+fn is_empty_string_fails_for_number_and_includes_full_message() -> Result<()> {
+    let result = verify_that!(json!(123), json::is_empty_string());
+    verify_that!(
+        result,
+        err(displays_as(contains_substring(indoc!(
+            r#"
+            Value of: json!(123)
+            Expected: an empty JSON string
+            Actual: Number(123),
+              which is a JSON number
+            "#
+        ))))
+    )
+}
+
+#[test]
+fn is_non_empty_string_matches_non_empty() -> Result<()> {
+    verify_that!(json!("hi"), json::is_non_empty_string())
+}
+
+#[test]
+fn is_non_empty_string_rejects_empty() -> Result<()> {
+    verify_that!(json!(""), not(json::is_non_empty_string()))
+}
+
+#[test]
+fn is_non_empty_string_fails_for_empty_string_and_includes_full_message() -> Result<()> {
+    let result = verify_that!(json!(""), json::is_non_empty_string());
+    verify_that!(
+        result,
+        err(displays_as(contains_substring(indoc!(
+            r#"
+            Value of: json!("")
+            Expected: a non-empty JSON string
+            Actual: String(""),
+              which is an empty JSON string
+            "#
+        ))))
+    )
+}
+
+#[test]
+fn is_non_empty_string_fails_for_boolean_and_includes_full_message() -> Result<()> {
+    let result = verify_that!(json!(true), json::is_non_empty_string());
+    verify_that!(
+        result,
+        err(displays_as(contains_substring(indoc!(
+            r#"
+            Value of: json!(true)
+            Expected: a non-empty JSON string
+            Actual: Bool(true),
+              which is a JSON boolean
+            "#
+        ))))
+    )
+}
+
+#[test]
 fn is_number_matches_number() -> Result<()> {
     verify_that!(json!(123), json::is_number())
 }
