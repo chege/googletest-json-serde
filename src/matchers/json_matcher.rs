@@ -109,6 +109,60 @@ pub fn is_string() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str
     .with_explain_fn(__internal_unstable_do_not_depend_on_these::describe_json_type)
 }
 
+/// Matches an empty JSON string (`""`).
+///
+/// # Examples
+///
+/// ```rust
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// assert_that!(j!(""), json::is_empty_string());
+/// assert_that!(j!("hi"), not(json::is_empty_string()));
+/// ```
+pub fn is_empty_string() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str>
+{
+    JsonPredicateMatcher::new(
+        |v| v.as_str().is_some_and(|s| s.is_empty()),
+        "an empty JSON string",
+        "which is not an empty JSON string",
+    )
+    .with_explain_fn(|v| {
+        if v.is_string() {
+            Description::new().text("which is a non-empty JSON string")
+        } else {
+            __internal_unstable_do_not_depend_on_these::describe_json_type(v)
+        }
+    })
+}
+
+/// Matches a non-empty JSON string.
+///
+/// # Examples
+///
+/// ```rust
+/// # use googletest::prelude::*;
+/// # use googletest_json_serde::json;
+/// # use serde_json::json as j;
+/// assert_that!(j!("hi"), json::is_non_empty_string());
+/// assert_that!(j!(""), not(json::is_non_empty_string()));
+/// ```
+pub fn is_non_empty_string()
+-> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
+    JsonPredicateMatcher::new(
+        |v| v.as_str().is_some_and(|s| !s.is_empty()),
+        "a non-empty JSON string",
+        "which is not a non-empty JSON string",
+    )
+    .with_explain_fn(|v| {
+        if v.is_string() {
+            Description::new().text("which is an empty JSON string")
+        } else {
+            __internal_unstable_do_not_depend_on_these::describe_json_type(v)
+        }
+    })
+}
+
 /// Matches JSON number values.
 ///
 /// # Examples
