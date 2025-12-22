@@ -31,9 +31,9 @@ dependencies = [
 
 [[package]]
 name = "googletest-json-serde"
-version = "0.4.5"
+version = "0.4.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "27eb6e9806bcd41923ee69b33906c214b60735668f4e70fa93effcf995af8dae"
+checksum = "322e5d8ee9d20f3cf36ed60776871cd196e7240beeaeb28f1c072106ffdd967e"
 dependencies = [
  "googletest",
  "serde_json",
