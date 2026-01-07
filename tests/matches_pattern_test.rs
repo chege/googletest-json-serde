@@ -27,6 +27,28 @@ fn pat_matches_nested_object_strict() -> Result<()> {
 }
 
 #[test]
+fn pat_matches_nested_object_strict_implicit() -> Result<()> {
+    let val = j!({
+        "user": {
+            "id": 1,
+            "name": "Alice"
+        },
+        "active": true
+    });
+
+    verify_that!(
+        val,
+        json::pat!({
+            "user": {
+                "id": eq(1),
+                "name": starts_with("Alic"),
+            },
+            "active": j!(true),
+        })
+    )
+}
+
+#[test]
 fn pat_matches_nested_object_non_strict() -> Result<()> {
     let val = j!({
         "user": {
@@ -44,6 +66,194 @@ fn pat_matches_nested_object_non_strict() -> Result<()> {
                 ..
             })
         })
+    )
+}
+
+#[test]
+fn pat_matches_nested_object_non_strict_implicit() -> Result<()> {
+    let val = j!({
+        "user": {
+            "id": 1,
+            "name": "Alice",
+            "extra": "data"
+        }
+    });
+
+    verify_that!(
+        val,
+        json::pat!({
+            "user": {
+                "id": ge(1),
+                ..
+            }
+        })
+    )
+}
+
+#[test]
+fn pat_matches_nested_object_mixed_strictness_outer_relaxed_inner_strict() -> Result<()> {
+    let val = j!({
+        "user": {
+            "id": 1,
+            "name": "Alice"
+        },
+        "active": true,
+        "extra_top": "ok"
+    });
+
+    verify_that!(
+        val,
+        json::pat!({
+            "user": {
+                "id": eq(1),
+                "name": starts_with("Alic"),
+            },
+            "active": eq(true),
+            ..
+        })
+    )
+}
+
+#[test]
+fn pat_matches_nested_object_mixed_strictness_outer_strict_inner_relaxed() -> Result<()> {
+    let val = j!({
+        "user": {
+            "id": 1,
+            "name": "Alice",
+            "extra": "ok"
+        },
+        "active": true
+    });
+
+    verify_that!(
+        val,
+        json::pat!({
+            "user": {
+                "id": ge(1),
+                ..
+            },
+            "active": eq(true),
+        })
+    )
+}
+
+#[test]
+fn pat_matches_nested_object_non_strict_outer_and_inner() -> Result<()> {
+    let val = j!({
+        "user": {
+            "id": 1,
+            "name": "Alice",
+            "extra": "ok"
+        },
+        "active": true,
+        "extra_top": "ok"
+    });
+
+    verify_that!(
+        val,
+        json::pat!({
+            "user": {
+                "id": eq(1),
+                ..
+            },
+            "active": eq(true),
+            ..
+        })
+    )
+}
+
+#[test]
+fn pat_rejects_nested_object_outer_relaxed_inner_strict_with_extra_inner_field() -> Result<()> {
+    let val = j!({
+        "user": {
+            "id": 1,
+            "name": "Alice",
+            "extra": "nope"
+        },
+        "active": true,
+        "extra_top": "ok"
+    });
+
+    verify_that!(
+        val,
+        not(json::pat!({
+            "user": {
+                "id": eq(1),
+                "name": eq("Alice"),
+            },
+            "active": eq(true),
+            ..
+        }))
+    )
+}
+
+#[test]
+fn pat_rejects_nested_object_outer_strict_inner_relaxed_with_extra_outer_field() -> Result<()> {
+    let val = j!({
+        "user": {
+            "id": 1,
+            "name": "Alice",
+            "extra": "ok"
+        },
+        "active": true,
+        "extra_top": "nope"
+    });
+
+    verify_that!(
+        val,
+        not(json::pat!({
+            "user": {
+                "id": eq(1),
+                ..
+            },
+            "active": eq(true),
+        }))
+    )
+}
+
+#[test]
+fn pat_rejects_nested_object_strict_with_extra_inner_field() -> Result<()> {
+    let val = j!({
+        "user": {
+            "id": 1,
+            "name": "Alice",
+            "extra": "nope"
+        },
+        "active": true
+    });
+
+    verify_that!(
+        val,
+        not(json::pat!({
+            "user": {
+                "id": eq(1),
+                "name": eq("Alice"),
+            },
+            "active": eq(true),
+        }))
+    )
+}
+
+#[test]
+fn pat_rejects_nested_object_strict_with_extra_outer_field() -> Result<()> {
+    let val = j!({
+        "user": {
+            "id": 1,
+            "name": "Alice"
+        },
+        "active": true,
+        "extra_top": "nope"
+    });
+
+    verify_that!(
+        val,
+        not(json::pat!({
+            "user": {
+                "id": eq(1),
+                "name": eq("Alice"),
+            },
+            "active": eq(true),
+        }))
     )
 }
 
