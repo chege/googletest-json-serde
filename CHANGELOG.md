@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.5.0](https://github.com/chege/googletest-json-serde/compare/v0.4.6...v0.5.0) - 2026-01-07
+
+[View diff on diff.rs](https://diff.rs/googletest-json-serde/0.4.6/googletest-json-serde/0.5.0/Cargo.toml)
+
+### <!-- 0 -->⛰️ Features
+
+- [**breaking**] add implicit json::pat recursion
+
+### <!-- 2 -->🚜 Refactor
+
+- swap json aliasing
+
+### <!-- 7 -->⚙️ Miscellaneous Tasks
+
+- ignore AGENTS.md
+
 ## [0.4.6](https://github.com/chege/googletest-json-serde/compare/v0.4.5...v0.4.6) - 2025-12-21
 
 [View diff on diff.rs](https://diff.rs/googletest-json-serde/0.4.5/googletest-json-serde/0.4.6/Cargo.toml)
