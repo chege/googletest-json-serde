@@ -39,35 +39,61 @@
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_matches_pattern {
+    // Literal arm: handles string/number/bool literals like `"x"` or `1i64`.
     (@wrap_matcher $lit:literal) => {
         $crate::matchers::__internal_unstable_do_not_depend_on_these::IntoJsonMatcher::<
             $crate::matchers::__internal_unstable_do_not_depend_on_these::Literal
         >::into_json_matcher($lit)
     };
+    // Nested object arm: handles `key: { ... }` by delegating to the pattern macro.
+    (@wrap_matcher { $($inner:tt)* }) => {
+        $crate::matchers::__internal_unstable_do_not_depend_on_these::IntoJsonMatcher::into_json_matcher(
+            $crate::__json_matches_pattern!({ $($inner)* })
+        )
+    };
+    // Expression arm: handles matchers and values like `eq(1)` or `j!(...)`.
     (@wrap_matcher $expr:expr) => {
         $crate::matchers::__internal_unstable_do_not_depend_on_these::IntoJsonMatcher::into_json_matcher($expr)
     };
-    // Strict version: no `..`
-    ({ $($key:literal : $val:expr),* $(,)? }) => {{
-        let fields = vec![
-            $(
-                ($key,
-                 $crate::__json_matches_pattern!(@wrap_matcher $val)
-                )
-            ),*
-        ];
-        $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonObjectMatcher::new ( fields, true )
+    // Parse completion: no more tokens to consume.
+    (@parse $fields:ident $strict:ident; ) => {};
+    // Spread operator arm: `..` makes the object relaxed (must be last).
+    (@parse $fields:ident $strict:ident; ..) => {
+        $strict = false;
+    };
+    // Error case: `..` is only valid at the end of the object pattern.
+    (@parse $fields:ident $strict:ident; .. , $($rest:tt)+) => {
+        compile_error!("`..` must be the last token in a json::pat! object pattern");
+    };
+    // Nested object value: recurse into the inner pattern (e.g., `"user": { "id": eq(1) }`).
+    (@parse $fields:ident $strict:ident;
+        $key:literal : { $($inner:tt)* } $(, $($rest:tt)*)?
+    ) => {{
+        $fields.push((
+            $key,
+            $crate::__json_matches_pattern!(@wrap_matcher { $($inner)* }),
+        ));
+        $crate::__json_matches_pattern!(@parse $fields $strict; $($($rest)*)?);
     }};
-    // Non-strict version: trailing `..`
-    ({ $($key:literal : $val:expr),* , .. }) => {{
-        let fields = vec![
-            $(
-                ($key,
-                 $crate::__json_matches_pattern!(@wrap_matcher $val)
-                )
-            ),*
-        ];
-        $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonObjectMatcher::new ( fields, false )
+    // Leaf value: handles `key: expr` when the value is not an object.
+    (@parse $fields:ident $strict:ident;
+        $key:literal : $val:expr $(, $($rest:tt)*)?
+    ) => {{
+        $fields.push((
+            $key,
+            $crate::__json_matches_pattern!(@wrap_matcher $val),
+        ));
+        $crate::__json_matches_pattern!(@parse $fields $strict; $($($rest)*)?);
+    }};
+    // Entry point: build the field list and parse the pattern tokens.
+    ({ $($tokens:tt)* }) => {{
+        let mut fields = Vec::new();
+        let mut strict = true;
+        $crate::__json_matches_pattern!(@parse fields strict; $($tokens)*);
+        $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonObjectMatcher::new(
+            fields,
+            strict,
+        )
     }};
 }
 

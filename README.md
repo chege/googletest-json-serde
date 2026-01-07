@@ -60,19 +60,19 @@ let actual = j!({
 assert_that!(
     actual,
     json::pat!({
-        "vampire": json::pat!({
+        "vampire": {
             "name": starts_with("Nandor"),
             "age": gt(500),
             "familiar": eq("Guillermo"),
-        }),
-        "house": json::pat!({
+        },
+        "house": {
             "city": eq("Staten Island"),
             "roommates": json::unordered_elements_are![
                 eq("Laszlo"),
                 eq("Nadja"),
                 contains_substring("Robinson"),
             ],
-        }),
+        },
         .. // allow extra fields
     })
 );
@@ -199,14 +199,16 @@ assert_that!(
             {"name": "Baron Afanas", "age": 2000},
             {"name": "The Guide", "age": 500}
         ],
-        "house": { "city": "Staten Island", "roommates": 4 }
+        "house": { "city": "Staten Island", "roommates": 4 },
+        "ignored": true
     }),
     json::pat!({
         "guests": json::unordered_elements_are![
             json::pat!({ "name": starts_with("Baron"), "age": gt(1500) }),
             json::pat!({ "name": eq("The Guide"), "age": ge(400) })
         ],
-        "house": json::pat!({ "city": eq("Staten Island"), "roommates": eq(4) }),
+        "house": { "city": eq("Staten Island"), "roommates": eq(4) },
+        ..
     })
 );
 ```
