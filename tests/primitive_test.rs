@@ -1,12 +1,12 @@
 use googletest::prelude::*;
-use googletest_json_serde::json;
+use googletest_json_serde::json as j;
 use indoc::indoc;
 use serde_json::json;
 
 #[test]
 fn i64_wrong_type() -> Result<()> {
     let val = json!(true);
-    let result = verify_that!(val, json::primitive!(gt(10)));
+    let result = verify_that!(val, j::primitive!(gt(10)));
     verify_that!(
         result,
         err(displays_as(starts_with(indoc!(
@@ -21,7 +21,7 @@ fn i64_wrong_type() -> Result<()> {
 #[test]
 fn f64_wrong_type() -> Result<()> {
     let val = json!("wat");
-    let result = verify_that!(val, json::primitive!(gt(1.0)));
+    let result = verify_that!(val, j::primitive!(gt(1.0)));
     verify_that!(
         result,
         err(displays_as(starts_with(indoc!(
@@ -36,7 +36,7 @@ fn f64_wrong_type() -> Result<()> {
 #[test]
 fn bool_wrong_type() -> Result<()> {
     let val = json!(123);
-    let result = verify_that!(val, json::primitive!(is_true()));
+    let result = verify_that!(val, j::primitive!(is_true()));
     verify_that!(
         result,
         err(displays_as(starts_with(indoc!(
@@ -51,29 +51,29 @@ fn bool_wrong_type() -> Result<()> {
 #[test]
 fn f64_nan_not_match() -> Result<()> {
     let val = json!(f64::NAN);
-    verify_that!(val, not(json::primitive!(eq(5.0))))
+    verify_that!(val, not(j::primitive!(eq(5.0))))
 }
 
 #[test]
 fn string_type() -> Result<()> {
     let val = json!("hello");
-    verify_that!(val, json::primitive!(eq("hello")))
+    verify_that!(val, j::primitive!(eq("hello")))
 }
 #[test]
 fn i64_type() -> Result<()> {
     let val = json!(99i64);
-    verify_that!(val, json::primitive!(eq(99i64)))
+    verify_that!(val, j::primitive!(eq(99i64)))
 }
 #[test]
 fn i8_type() -> Result<()> {
     let val = json!(123i8);
-    verify_that!(val, json::primitive!(eq(123i8)))
+    verify_that!(val, j::primitive!(eq(123i8)))
 }
 
 #[test]
 fn i8_out_of_range_fails() -> Result<()> {
     let val = json!(200);
-    let result = verify_that!(val, json::primitive!(eq(123i8)));
+    let result = verify_that!(val, j::primitive!(eq(123i8)));
     verify_that!(
         result,
         err(displays_as(starts_with(indoc!(
@@ -88,13 +88,13 @@ fn i8_out_of_range_fails() -> Result<()> {
 #[test]
 fn i16_type() -> Result<()> {
     let val = json!(12345i16);
-    verify_that!(val, json::primitive!(eq(12345i16)))
+    verify_that!(val, j::primitive!(eq(12345i16)))
 }
 
 #[test]
 fn i16_out_of_range_fails() -> Result<()> {
     let val = json!(40000);
-    let result = verify_that!(val, json::primitive!(eq(12345i16)));
+    let result = verify_that!(val, j::primitive!(eq(12345i16)));
     verify_that!(
         result,
         err(displays_as(starts_with(indoc!(
@@ -109,13 +109,13 @@ fn i16_out_of_range_fails() -> Result<()> {
 #[test]
 fn u8_type() -> Result<()> {
     let val = json!(200u8);
-    verify_that!(val, json::primitive!(eq(200u8)))
+    verify_that!(val, j::primitive!(eq(200u8)))
 }
 
 #[test]
 fn u8_out_of_range_fails() -> Result<()> {
     let val = json!(300);
-    let result = verify_that!(val, json::primitive!(eq(200u8)));
+    let result = verify_that!(val, j::primitive!(eq(200u8)));
     verify_that!(
         result,
         err(displays_as(starts_with(indoc!(
@@ -130,13 +130,13 @@ fn u8_out_of_range_fails() -> Result<()> {
 #[test]
 fn u16_type() -> Result<()> {
     let val = json!(60000u16);
-    verify_that!(val, json::primitive!(eq(60000u16)))
+    verify_that!(val, j::primitive!(eq(60000u16)))
 }
 
 #[test]
 fn u16_out_of_range_fails() -> Result<()> {
     let val = json!(70000);
-    let result = verify_that!(val, json::primitive!(eq(60000u16)));
+    let result = verify_that!(val, j::primitive!(eq(60000u16)));
     verify_that!(
         result,
         err(displays_as(starts_with(indoc!(
@@ -151,13 +151,13 @@ fn u16_out_of_range_fails() -> Result<()> {
 #[test]
 fn u32_type() -> Result<()> {
     let val = json!(4000000000u32);
-    verify_that!(val, json::primitive!(eq(4000000000u32)))
+    verify_that!(val, j::primitive!(eq(4000000000u32)))
 }
 
 #[test]
 fn u32_out_of_range_fails() -> Result<()> {
     let val = json!(9000000000u64);
-    let result = verify_that!(val, json::primitive!(eq(4000000000u32)));
+    let result = verify_that!(val, j::primitive!(eq(4000000000u32)));
     verify_that!(
         result,
         err(displays_as(starts_with(indoc!(
@@ -172,13 +172,13 @@ fn u32_out_of_range_fails() -> Result<()> {
 #[test]
 fn i32_type() -> Result<()> {
     let val = json!(1234567890i32);
-    verify_that!(val, json::primitive!(eq(1234567890i32)))
+    verify_that!(val, j::primitive!(eq(1234567890i32)))
 }
 
 #[test]
 fn i32_out_of_range_fails() -> Result<()> {
     let val = json!(3000000000u64);
-    let result = verify_that!(val, json::primitive!(eq(1234567890i32)));
+    let result = verify_that!(val, j::primitive!(eq(1234567890i32)));
     verify_that!(
         result,
         err(displays_as(starts_with(indoc!(
@@ -192,17 +192,17 @@ fn i32_out_of_range_fails() -> Result<()> {
 #[test]
 fn f64_type() -> Result<()> {
     let val = json!(99.3f64);
-    verify_that!(val, json::primitive!(eq(99.3f64)))
+    verify_that!(val, j::primitive!(eq(99.3f64)))
 }
 #[test]
 fn bool_type() -> Result<()> {
     let val = json!(false);
-    verify_that!(val, json::primitive!(is_false()))
+    verify_that!(val, j::primitive!(is_false()))
 }
 
 #[test]
 fn primitive_produces_correct_failure_message() -> Result<()> {
-    let result = verify_that!(json!(5), json::primitive!(gt(10)));
+    let result = verify_that!(json!(5), j::primitive!(gt(10)));
     verify_that!(
         result,
         err(displays_as(starts_with(indoc!(

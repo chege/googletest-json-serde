@@ -3,9 +3,9 @@
 //! # Examples
 //! ```rust
 //! # use googletest::prelude::*;
-//! # use googletest_json_serde::json;
-//! # use serde_json::json as j;
-//! assert_that!(j!("hi"), json::is_string());
+//! # use googletest_json_serde::json as j;
+//! # use serde_json::json;
+//! assert_that!(json!("hi"), j::is_string());
 //! ```
 
 use crate::matchers::__internal_unstable_do_not_depend_on_these;
@@ -19,11 +19,11 @@ use serde_json::Value;
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// let positive = json::predicate(|v| v.as_i64().is_some_and(|n| n > 0));
-/// verify_that!(j!(42), &positive);
-/// assert_that!(j!(-1), not(&positive));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// let positive = j::predicate(|v| v.as_i64().is_some_and(|n| n > 0));
+/// verify_that!(json!(42), &positive);
+/// assert_that!(json!(-1), not(&positive));
 /// ```
 pub fn predicate<P>(
     predicate: P,
@@ -47,10 +47,10 @@ where
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!(null), json::is_null());
-/// assert_that!(j!("value"), not(json::is_null()));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!(null), j::is_null());
+/// assert_that!(json!("value"), not(j::is_null()));
 /// ```
 pub fn is_null() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
     JsonPredicateMatcher::new(|v| v.is_null(), "JSON null", "which is not JSON null")
@@ -62,10 +62,10 @@ pub fn is_null() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, 
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!("text"), json::is_not_null());
-/// assert_that!(j!(null), not(json::is_not_null()));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!("text"), j::is_not_null());
+/// assert_that!(json!(null), not(j::is_not_null()));
 /// ```
 pub fn is_not_null() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
     JsonPredicateMatcher::new(|v| !v.is_null(), "not JSON null", "which is JSON null")
@@ -78,10 +78,10 @@ pub fn is_not_null() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static s
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!("ok"), json::any_value());
-/// assert_that!(j!(null), not(json::any_value()));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!("ok"), j::any_value());
+/// assert_that!(json!(null), not(j::any_value()));
 /// ```
 #[deprecated(since = "0.2.2", note = "Use `is_not_null` instead")]
 pub fn any_value() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
@@ -95,10 +95,10 @@ pub fn any_value() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!("hi"), json::is_string());
-/// assert_that!(j!(true), not(json::is_string()));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!("hi"), j::is_string());
+/// assert_that!(json!(true), not(j::is_string()));
 /// ```
 pub fn is_string() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
     JsonPredicateMatcher::new(
@@ -115,10 +115,10 @@ pub fn is_string() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!(""), json::is_empty_string());
-/// assert_that!(j!("hi"), not(json::is_empty_string()));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!(""), j::is_empty_string());
+/// assert_that!(json!("hi"), not(j::is_empty_string()));
 /// ```
 pub fn is_empty_string() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str>
 {
@@ -142,10 +142,10 @@ pub fn is_empty_string() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'stat
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!("hi"), json::is_non_empty_string());
-/// assert_that!(j!(""), not(json::is_non_empty_string()));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!("hi"), j::is_non_empty_string());
+/// assert_that!(json!(""), not(j::is_non_empty_string()));
 /// ```
 pub fn is_non_empty_string()
 -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
@@ -169,10 +169,10 @@ pub fn is_non_empty_string()
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!(3.14), json::is_number());
-/// assert_that!(j!("three"), not(json::is_number()));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!(3.14), j::is_number());
+/// assert_that!(json!("three"), not(j::is_number()));
 /// ```
 pub fn is_number() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
     JsonPredicateMatcher::new(
@@ -189,10 +189,10 @@ pub fn is_number() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!(42), json::is_integer());
-/// assert_that!(j!(3.14), not(json::is_integer()));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!(42), j::is_integer());
+/// assert_that!(json!(3.14), not(j::is_integer()));
 /// ```
 pub fn is_integer() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
     JsonPredicateMatcher::new(
@@ -215,10 +215,10 @@ pub fn is_integer() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static st
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!(2.0), json::is_whole_number());
-/// assert_that!(j!(2.5), not(json::is_whole_number()));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!(2.0), j::is_whole_number());
+/// assert_that!(json!(2.5), not(j::is_whole_number()));
 /// ```
 pub fn is_whole_number() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str>
 {
@@ -252,11 +252,11 @@ pub fn is_whole_number() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'stat
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!(3.5), json::is_fractional_number());
-/// assert_that!(j!(3), not(json::is_fractional_number()));
-/// assert_that!(j!(3.0), not(json::is_fractional_number()));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!(3.5), j::is_fractional_number());
+/// assert_that!(json!(3), not(j::is_fractional_number()));
+/// assert_that!(json!(3.0), not(j::is_fractional_number()));
 /// ```
 pub fn is_fractional_number()
 -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
@@ -289,10 +289,10 @@ pub fn is_fractional_number()
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!(true), json::is_boolean());
-/// assert_that!(j!(0), not(json::is_boolean()));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!(true), j::is_boolean());
+/// assert_that!(json!(0), not(j::is_boolean()));
 /// ```
 pub fn is_boolean() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
     JsonPredicateMatcher::new(
@@ -309,10 +309,10 @@ pub fn is_boolean() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static st
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!(true), json::is_true());
-/// assert_that!(j!(false), not(json::is_true()));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!(true), j::is_true());
+/// assert_that!(json!(false), not(j::is_true()));
 /// ```
 pub fn is_true() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
     JsonPredicateMatcher::new(
@@ -332,10 +332,10 @@ pub fn is_true() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, 
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!(false), json::is_false());
-/// assert_that!(j!(true), not(json::is_false()));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!(false), j::is_false());
+/// assert_that!(json!(true), not(j::is_false()));
 /// ```
 pub fn is_false() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
     JsonPredicateMatcher::new(
@@ -355,10 +355,10 @@ pub fn is_false() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str,
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!([1, 2]), json::is_array());
-/// assert_that!(j!({"a":1}), not(json::is_array()));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!([1, 2]), j::is_array());
+/// assert_that!(json!({"a":1}), not(j::is_array()));
 /// ```
 pub fn is_array() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
     JsonPredicateMatcher::new(
@@ -375,10 +375,10 @@ pub fn is_array() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str,
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!([]), json::is_empty_array());
-/// assert_that!(j!([1]), not(json::is_empty_array()));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!([]), j::is_empty_array());
+/// assert_that!(json!([1]), not(j::is_empty_array()));
 /// ```
 pub fn is_empty_array() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str>
 {
@@ -402,10 +402,10 @@ pub fn is_empty_array() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'stati
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!([1]), json::is_non_empty_array());
-/// assert_that!(j!([]), not(json::is_non_empty_array()));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!([1]), j::is_non_empty_array());
+/// assert_that!(json!([]), not(j::is_non_empty_array()));
 /// ```
 pub fn is_non_empty_array()
 -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
@@ -429,10 +429,10 @@ pub fn is_non_empty_array()
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!({"a": 1}), json::is_object());
-/// assert_that!(j!(null), not(json::is_object()));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!({"a": 1}), j::is_object());
+/// assert_that!(json!(null), not(j::is_object()));
 /// ```
 pub fn is_object() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {
     JsonPredicateMatcher::new(
@@ -449,10 +449,10 @@ pub fn is_object() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!({}), json::is_empty_object());
-/// assert_that!(j!({"a":1}), not(json::is_empty_object()));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!({}), j::is_empty_object());
+/// assert_that!(json!({"a":1}), not(j::is_empty_object()));
 /// ```
 pub fn is_empty_object() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str>
 {
@@ -476,10 +476,10 @@ pub fn is_empty_object() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'stat
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!({"a": 1}), json::is_non_empty_object());
-/// assert_that!(j!({}), not(json::is_non_empty_object()));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!({"a": 1}), j::is_non_empty_object());
+/// assert_that!(json!({}), not(j::is_non_empty_object()));
 /// ```
 pub fn is_non_empty_object()
 -> JsonPredicateMatcher<impl Fn(&Value) -> bool, &'static str, &'static str> {

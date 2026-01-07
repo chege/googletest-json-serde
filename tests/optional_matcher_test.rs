@@ -1,43 +1,37 @@
 use googletest::prelude::*;
-use googletest_json_serde::json;
-use serde_json::json as j;
+use googletest_json_serde::json as j;
+use serde_json::json;
 
 #[test]
 fn optional_matches_when_field_exists_and_matches_inner() -> Result<()> {
-    let val = j!({"name": "bill"});
-    verify_that!(
-        val,
-        json::pat!({"name": json::optional!(starts_with("bill"))})
-    )
+    let val = json!({"name": "bill"});
+    verify_that!(val, j::pat!({"name": j::optional!(starts_with("bill"))}))
 }
 
 #[test]
 fn optional_matches_when_field_missing() -> Result<()> {
-    let val = j!({});
-    verify_that!(
-        val,
-        json::pat!({"field": json::optional!(starts_with("value"))})
-    )
+    let val = json!({});
+    verify_that!(val, j::pat!({"field": j::optional!(starts_with("value"))}))
 }
 
 #[test]
 fn optional_unmatches_when_field_exists_but_fails_inner() -> Result<()> {
-    let val = j!({"field": "wrong"});
+    let val = json!({"field": "wrong"});
     verify_that!(
         val,
-        not(json::pat!({"field": json::optional!(starts_with("value"))}))
+        not(j::pat!({"field": j::optional!(starts_with("value"))}))
     )
 }
 
 #[test]
 fn optional_works_in_nested_object() -> Result<()> {
-    let val = j!({"user": {"id": 1}});
+    let val = json!({"user": {"id": 1}});
     verify_that!(
         val,
-        json::pat!({
-            "user": json::pat!({
+        j::pat!({
+            "user": j::pat!({
                 "id": eq(1),
-                "nickname": json::optional!(starts_with("Bob"))
+                "nickname": j::optional!(starts_with("Bob"))
             })
         })
     )
@@ -45,12 +39,12 @@ fn optional_works_in_nested_object() -> Result<()> {
 
 #[test]
 fn optional_explain_match_when_field_present_and_mismatch() -> Result<()> {
-    let matcher = json::pat!({
-        "user": json::pat!({
-            "nickname": json::optional!(starts_with("Bob"))
+    let matcher = j::pat!({
+        "user": j::pat!({
+            "nickname": j::optional!(starts_with("Bob"))
         })
     });
-    let val = j!({"user": {"nickname": "Alice"}});
+    let val = json!({"user": {"nickname": "Alice"}});
     let result = verify_that!(val, matcher);
     verify_that!(
         result,
@@ -62,22 +56,22 @@ fn optional_explain_match_when_field_present_and_mismatch() -> Result<()> {
 
 #[test]
 fn optional_explain_match_when_field_missing_should_not_error() -> Result<()> {
-    let val = j!({});
+    let val = json!({});
     verify_that!(
         val,
-        json::pat!({
-            "nickname": json::optional!(starts_with("Bob"))
+        j::pat!({
+            "nickname": j::optional!(starts_with("Bob"))
         })
     )
 }
 
 #[test]
 fn optional_allows_nested_pat_inside_optional() -> Result<()> {
-    let val = j!({});
+    let val = json!({});
     verify_that!(
         val,
-        json::pat!({
-            "profile": json::optional!(json::pat!({
+        j::pat!({
+            "profile": j::optional!(j::pat!({
                 "name": starts_with("Alice"),
                 "age": eq(30)
             }))
@@ -87,11 +81,11 @@ fn optional_allows_nested_pat_inside_optional() -> Result<()> {
 
 #[test]
 fn optional_nested_pat_matches_when_present_and_inner_matches() -> Result<()> {
-    let val = j!({"profile": {"name": "Alice", "age": 30}});
+    let val = json!({"profile": {"name": "Alice", "age": 30}});
     verify_that!(
         val,
-        json::pat!({
-            "profile": json::optional!(json::pat!({
+        j::pat!({
+            "profile": j::optional!(j::pat!({
                 "name": starts_with("Alice"),
                 "age": eq(30)
             }))
@@ -101,11 +95,11 @@ fn optional_nested_pat_matches_when_present_and_inner_matches() -> Result<()> {
 
 #[test]
 fn optional_nested_pat_fails_when_inner_mismatch() -> Result<()> {
-    let val = j!({"profile": {"name": "Bob", "age": 30}});
+    let val = json!({"profile": {"name": "Bob", "age": 30}});
     verify_that!(
         val,
-        not(json::pat!({
-            "profile": json::optional!(json::pat!({
+        not(j::pat!({
+            "profile": j::optional!(j::pat!({
                 "name": starts_with("Alice"),
                 "age": eq(30)
             }))
@@ -115,13 +109,13 @@ fn optional_nested_pat_fails_when_inner_mismatch() -> Result<()> {
 
 #[test]
 fn pat_inside_optional_inside_pat_allows_missing_subobject() -> Result<()> {
-    let val = j!({"user": {}});
+    let val = json!({"user": {}});
     verify_that!(
         val,
-        json::pat!({
-            "user": json::pat!({
-                "profile": json::optional!(
-                    json::pat!({
+        j::pat!({
+            "user": j::pat!({
+                "profile": j::optional!(
+                    j::pat!({
                     "nickname": starts_with("Bob")
                 }))
             })
@@ -131,12 +125,12 @@ fn pat_inside_optional_inside_pat_allows_missing_subobject() -> Result<()> {
 
 #[test]
 fn pat_inside_optional_inside_pat_matches_when_nested_object_present_and_correct() -> Result<()> {
-    let val = j!({"user": {"profile": {"nickname": "Bob"}}});
+    let val = json!({"user": {"profile": {"nickname": "Bob"}}});
     verify_that!(
         val,
-        json::pat!({
-            "user": json::pat!({
-                "profile": json::optional!(json::pat!({
+        j::pat!({
+            "user": j::pat!({
+                "profile": j::optional!(j::pat!({
                     "nickname": starts_with("Bob")
                 }))
             })
@@ -146,66 +140,63 @@ fn pat_inside_optional_inside_pat_matches_when_nested_object_present_and_correct
 
 #[test]
 fn optional_array_field_matches_when_present_and_all_elements_match() -> Result<()> {
-    let val = j!({"items": ["apple", "banana", "carrot"]});
+    let val = json!({"items": ["apple", "banana", "carrot"]});
     verify_that!(
         val,
-        json::pat!({
-            "items": json::optional!(json::elements_are![starts_with("ap"), starts_with("ban"), starts_with("car")])
+        j::pat!({
+            "items": j::optional!(j::elements_are![starts_with("ap"), starts_with("ban"), starts_with("car")])
         })
     )
 }
 
 #[test]
 fn optional_array_field_matches_when_missing() -> Result<()> {
-    let val = j!({});
+    let val = json!({});
     verify_that!(
         val,
-        json::pat!({
-            "tags": json::optional!(json::elements_are![starts_with("x"), starts_with("y")])
+        j::pat!({
+            "tags": j::optional!(j::elements_are![starts_with("x"), starts_with("y")])
         })
     )
 }
 
 #[test]
 fn optional_array_field_fails_when_element_mismatch() -> Result<()> {
-    let val = j!({"items": ["apple", "banana", "not_carrot"]});
+    let val = json!({"items": ["apple", "banana", "not_carrot"]});
     verify_that!(
         val,
-        not(json::pat!({
-            "items": json::optional!(json::elements_are![starts_with("ap"), starts_with("ban"), starts_with("car")])
+        not(j::pat!({
+            "items": j::optional!(j::elements_are![starts_with("ap"), starts_with("ban"), starts_with("car")])
         }))
     )
 }
 
 #[test]
 fn optional_matches_when_field_is_null() -> Result<()> {
-    let val = j!({"field": null});
-    verify_that!(
-        val,
-        json::pat!({"field": json::optional!(starts_with("Bob"))})
-    )
+    let val = json!({"field": null});
+    verify_that!(val, j::pat!({"field": j::optional!(starts_with("Bob"))}))
 }
 
 #[test]
 fn optional_does_not_trigger_strict_mode_violation_when_missing() -> Result<()> {
-    let val = j!({});
+    let val = json!({});
     verify_that!(
         val,
-        json::pat!({
-            "field": json::optional!(eq(1))
+        j::pat!({
+            "field": j::optional!(eq(1))
         })
     )
 }
 
 #[test]
 fn deeply_nested_optional_inside_multiple_pats() -> Result<()> {
-    let val = j!({"a": {"b": {"c": "Bob"}}});
+    let val = json!({"a": {"b": {"c": "Bob"}}});
     verify_that!(
         val,
-        json::pat!({
-            "a": json::pat!({
-                "b": json::pat!({
-                    "c": json::optional!(starts_with("Bob"))
+        j::pat!({
+            "a": j::pat!({
+                "b": j::pat!({
+                    "c": j::optional!(starts_with("Bob"))
                 })
             })
         })
@@ -214,27 +205,27 @@ fn deeply_nested_optional_inside_multiple_pats() -> Result<()> {
 
 #[test]
 fn optional_with_primitive_matcher() -> Result<()> {
-    let val = j!({"flag": true});
+    let val = json!({"flag": true});
     verify_that!(
         val,
-        json::pat!({"flag": json::optional!(json::primitive!(is_true()))})
+        j::pat!({"flag": j::optional!(j::primitive!(is_true()))})
     )
 }
 
 #[test]
 fn optional_with_primitive_matcher_fails_when_value_mismatch() -> Result<()> {
-    let val = j!({"flag": false});
+    let val = json!({"flag": false});
     verify_that!(
         val,
-        not(json::pat!({"flag": json::optional!(json::primitive!(is_true()))}))
+        not(j::pat!({"flag": j::optional!(j::primitive!(is_true()))}))
     )
 }
 
 #[test]
 fn optional_with_primitive_matcher_allows_missing_field() -> Result<()> {
-    let val = j!({});
+    let val = json!({});
     verify_that!(
         val,
-        json::pat!({"flag": json::optional!(json::primitive!(is_true()))})
+        j::pat!({"flag": j::optional!(j::primitive!(is_true()))})
     )
 }

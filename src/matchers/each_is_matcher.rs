@@ -49,10 +49,10 @@ fn build_each_is_type(
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!( ["a", "b" ]), json::each_is_string());
-/// assert_that!(j!([1, "b"]), not(json::each_is_string()));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!( ["a", "b" ]), j::each_is_string());
+/// assert_that!(json!([1, "b"]), not(j::each_is_string()));
 /// ```
 pub fn each_is_string() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, String, &'static str> {
     build_each_is_type("JSON string", |v| v.is_string())
@@ -64,10 +64,10 @@ pub fn each_is_string() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, String,
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!([1, 2, 3]), json::each_is_number());
-/// assert_that!(j!([1, "b"]), not(json::each_is_number()));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!([1, 2, 3]), j::each_is_number());
+/// assert_that!(json!([1, "b"]), not(j::each_is_number()));
 /// ```
 pub fn each_is_number() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, String, &'static str> {
     build_each_is_type("JSON number", |v| v.is_number())
@@ -79,10 +79,10 @@ pub fn each_is_number() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, String,
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!([true, false]), json::each_is_boolean());
-/// assert_that!(j!([true, 1]), not(json::each_is_boolean()));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!([true, false]), j::each_is_boolean());
+/// assert_that!(json!([true, 1]), not(j::each_is_boolean()));
 /// ```
 pub fn each_is_boolean() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, String, &'static str> {
     build_each_is_type("JSON boolean", |v| v.is_boolean())
@@ -94,10 +94,10 @@ pub fn each_is_boolean() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, String
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!([null, null]), json::each_is_null());
-/// assert_that!(j!([null, true]), not(json::each_is_null()));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!([null, null]), j::each_is_null());
+/// assert_that!(json!([null, true]), not(j::each_is_null()));
 /// ```
 pub fn each_is_null() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, String, &'static str> {
     build_each_is_type("JSON null", |v| v.is_null())
@@ -109,10 +109,10 @@ pub fn each_is_null() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, String, &
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!([[1], [2]]), json::each_is_array());
-/// assert_that!(j!([[1], {"a": 1}]), not(json::each_is_array()));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!([[1], [2]]), j::each_is_array());
+/// assert_that!(json!([[1], {"a": 1}]), not(j::each_is_array()));
 /// ```
 pub fn each_is_array() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, String, &'static str> {
     build_each_is_type("JSON array", |v| v.is_array())
@@ -124,10 +124,10 @@ pub fn each_is_array() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, String, 
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!([{ "a": 1 }, { "b": 2 }]), json::each_is_object());
-/// assert_that!(j!([{ "a": 1 }, [1]]), not(json::each_is_object()));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!([{ "a": 1 }, { "b": 2 }]), j::each_is_object());
+/// assert_that!(json!([{ "a": 1 }, [1]]), not(j::each_is_object()));
 /// ```
 pub fn each_is_object() -> JsonPredicateMatcher<impl Fn(&Value) -> bool, String, &'static str> {
     build_each_is_type("JSON object", |v| v.is_object())

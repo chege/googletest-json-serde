@@ -3,11 +3,11 @@
 //! # Examples
 //! ```rust
 //! # use googletest::prelude::*;
-//! # use googletest_json_serde::json;
-//! # use serde_json::json as j;
-//! let data = j!({"small": 12i8, "large": 65000u16});
-//! verify_that!(data["small"], json::primitive!(eq(12i8)));
-//! verify_that!(data["large"], json::primitive!(ge(65000u16)));
+//! # use googletest_json_serde::json as j;
+//! # use serde_json::json;
+//! let data = json!({"small": 12i8, "large": 65000u16});
+//! verify_that!(data["small"], j::primitive!(eq(12i8)));
+//! verify_that!(data["large"], j::primitive!(ge(65000u16)));
 //! ```
 
 /// Matches a JSON string, number, or boolean against the given matcher.
@@ -16,17 +16,17 @@
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// let data = j!({"active": true, "count": 3});
-/// verify_that!(data["active"], json::value!(eq(true)));
-/// verify_that!(data["count"], json::value!(ge(0)));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// let data = json!({"active": true, "count": 3});
+/// verify_that!(data["active"], j::value!(eq(true)));
+/// verify_that!(data["count"], j::value!(ge(0)));
 /// ```
 ///
 /// # Errors
 ///
 /// Fails when the JSON value is not a string, number, or boolean.
-#[deprecated(since = "0.2.0", note = "please use `json::primitive!` instead")]
+#[deprecated(since = "0.2.0", note = "please use `j::primitive!` instead")]
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_value {
@@ -41,13 +41,13 @@ macro_rules! __json_value {
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// let data = j!({"active": true, "count": 3, "small": 12i8, "limit": 65000u16});
-/// verify_that!(data["active"], json::primitive!(eq(true)));
-/// verify_that!(data["count"], json::primitive!(ge(0)));
-/// verify_that!(data["small"], json::primitive!(eq(12i8)));
-/// verify_that!(data["limit"], json::primitive!(eq(65000u16)));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// let data = json!({"active": true, "count": 3, "small": 12i8, "limit": 65000u16});
+/// verify_that!(data["active"], j::primitive!(eq(true)));
+/// verify_that!(data["count"], j::primitive!(ge(0)));
+/// verify_that!(data["small"], j::primitive!(eq(12i8)));
+/// verify_that!(data["limit"], j::primitive!(eq(65000u16)));
 /// ```
 ///
 /// # Errors

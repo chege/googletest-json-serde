@@ -4,16 +4,16 @@
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// let value = j!({ "id": 42 });
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// let value = json!({ "id": 42 });
 /// assert_that!(
 ///     value,
-///     json::pat!({
+///     j::pat!({
 ///         "id": eq(42),
-///         "nickname": json::optional!("Bob"),
-///         "alt": json::optional!(j!("Robert")),
-///         "tag": json::optional!(starts_with("B"))
+///         "nickname": j::optional!("Bob"),
+///         "alt": j::optional!(json!("Robert")),
+///         "tag": j::optional!(starts_with("B"))
 ///     })
 /// );
 /// ```

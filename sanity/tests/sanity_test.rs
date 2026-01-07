@@ -1,10 +1,10 @@
 use googletest::prelude::*;
-use googletest_json_serde::json;
-use serde_json::json as j;
+use googletest_json_serde::json as j;
+use serde_json::json;
 
 #[test]
 fn comprehensive_matchers_demo() {
-    let response = j!({
+    let response = json!({
         "type_checks": {
             "is_null": null,
             "is_not_null": "not null",
@@ -130,127 +130,127 @@ fn comprehensive_matchers_demo() {
 
     assert_that!(
         response,
-        json::pat!({
-            "type_checks": json::pat!({
-                "is_null": json::is_null(),
-                "is_not_null": json::is_not_null(),
-                "is_number": json::is_number(),
-                "is_string": json::is_string(),
-                "is_empty_string": json::is_empty_string(),
-                "is_non_empty_string": json::is_non_empty_string(),
-                "is_boolean": json::is_boolean(),
-                "is_true": json::is_true(),
-                "is_false": json::is_false(),
-                "is_array": json::is_array(),
-                "is_object": json::is_object(),
-                "is_empty_array": json::is_empty_array(),
-                "is_empty_object": json::is_empty_object(),
-                "is_non_empty_array": json::is_non_empty_array(),
-                "is_non_empty_object": json::is_non_empty_object(),
-                "is_integer": json::is_integer(),
-                "is_whole_number": json::is_whole_number(),
-                "is_fractional_number": json::is_fractional_number(),
-                "any_value": json::any_value(),
-                "primitive_number": json::primitive!(gt(0)),
-                "value_literal": json::value!(eq("literal")),
-                "optional_present": json::optional!(json::is_string()),
-                "optional_missing": json::optional!(json::is_not_null()),
+        j::pat!({
+            "type_checks": j::pat!({
+                "is_null": j::is_null(),
+                "is_not_null": j::is_not_null(),
+                "is_number": j::is_number(),
+                "is_string": j::is_string(),
+                "is_empty_string": j::is_empty_string(),
+                "is_non_empty_string": j::is_non_empty_string(),
+                "is_boolean": j::is_boolean(),
+                "is_true": j::is_true(),
+                "is_false": j::is_false(),
+                "is_array": j::is_array(),
+                "is_object": j::is_object(),
+                "is_empty_array": j::is_empty_array(),
+                "is_empty_object": j::is_empty_object(),
+                "is_non_empty_array": j::is_non_empty_array(),
+                "is_non_empty_object": j::is_non_empty_object(),
+                "is_integer": j::is_integer(),
+                "is_whole_number": j::is_whole_number(),
+                "is_fractional_number": j::is_fractional_number(),
+                "any_value": j::any_value(),
+                "primitive_number": j::primitive!(gt(0)),
+                "value_literal": j::value!(eq("literal")),
+                "optional_present": j::optional!(j::is_string()),
+                "optional_missing": j::optional!(j::is_not_null()),
             }),
-            "array_matchers": json::pat!({
-                "elements_are_ordered": json::elements_are![
+            "array_matchers": j::pat!({
+                "elements_are_ordered": j::elements_are![
                     "first",
-                    json::is_number(),
+                    j::is_number(),
                     starts_with("start")
                 ],
-                "unordered_elements": json::unordered_elements_are![
-                    json::is_boolean(),
+                "unordered_elements": j::unordered_elements_are![
+                    j::is_boolean(),
                     "middle",
                     lt(100)
                 ],
-                "contains_each": json::contains_each![
-                    json::is_string(),
-                    json::is_not_null()
+                "contains_each": j::contains_each![
+                    j::is_string(),
+                    j::is_not_null()
                 ],
-                "is_contained_in": json::is_contained_in![
+                "is_contained_in": j::is_contained_in![
                     1,
                     eq(2),
                     eq(3)
                 ],
-                "each_all_positive": json::each!(gt(0)),
-                "each_literal": json::each!("x"),
-                "len_three": json::len!(ge(3)),
-                "len_literal": json::len!(3),
-                "each_is_string": json::each_is_string(),
-                "each_is_number": json::each_is_number(),
-                "each_is_boolean": json::each_is_boolean(),
-                "each_is_null": json::each_is_null(),
-                "each_is_array": json::each_is_array(),
-                "each_is_object": json::each_is_object(),
+                "each_all_positive": j::each!(gt(0)),
+                "each_literal": j::each!("x"),
+                "len_three": j::len!(ge(3)),
+                "len_literal": j::len!(3),
+                "each_is_string": j::each_is_string(),
+                "each_is_number": j::each_is_number(),
+                "each_is_boolean": j::each_is_boolean(),
+                "each_is_null": j::each_is_null(),
+                "each_is_array": j::each_is_array(),
+                "each_is_object": j::each_is_object(),
             }),
-            "composite_patterns": json::pat!({
-                "simple_pat": json::pat!({
+            "composite_patterns": j::pat!({
+                "simple_pat": j::pat!({
                     "key1": eq("value1"),
                     "key2": gt(5),
                 }),
-                "matches_pattern_alias": json::matches_pattern!({
+                "matches_pattern_alias": j::matches_pattern!({
                     "name": starts_with("Nan"),
                     "age": gt(500),
                 }),
-                "nested_pat": json::pat!({
-                    "outer_key": json::pat!({
-                        "inner_key": json::is_boolean(),
-                        "inner_array": json::elements_are![
-                            json::is_string(),
-                            json::is_not_null(),
+                "nested_pat": j::pat!({
+                    "outer_key": j::pat!({
+                        "inner_key": j::is_boolean(),
+                        "inner_array": j::elements_are![
+                            j::is_string(),
+                            j::is_not_null(),
                             le(10)
                         ],
                     }),
                 }),
             }),
-            "mixed_types_and_nested": json::pat!({
+            "mixed_types_and_nested": j::pat!({
                 "string_field": eq("test_string"),
                 "number_field": eq(99),
                 "boolean_field": is_true(),
-                "null_field": json::is_null(),
-                "array_field": json::elements_are![
+                "null_field": j::is_null(),
+                "array_field": j::elements_are![
                     eq(1),
                     eq("two"),
                     is_false(),
-                    json::is_null()
+                    j::is_null()
                 ],
-                "object_field": json::pat!({
+                "object_field": j::pat!({
                     "nested_number": lt(10),
                     "nested_string": starts_with("nest"),
-                    "nested_null": json::is_null(),
-                    "nested_array": json::elements_are![
+                    "nested_null": j::is_null(),
+                    "nested_array": j::elements_are![
                         is_true(),
                         is_false(),
                         is_true()
                     ],
-                    "predicate_ok": json::predicate(|v| v.as_i64().is_some_and(|n| n > 5)),
+                    "predicate_ok": j::predicate(|v| v.as_i64().is_some_and(|n| n > 5)),
                 }),
             }),
-            "path_matchers": json::pat!({
-                "paths_allowing_extras": json::has_paths(&[
+            "path_matchers": j::pat!({
+                "paths_allowing_extras": j::has_paths(&[
                     "user.id",
                     "user.address.city",
                     "items.0.name",
                     "items.1.name"
                 ]),
-                "paths_exact": json::has_only_paths(&[
+                "paths_exact": j::has_only_paths(&[
                     "only",
                     "only.a",
                     "list",
                     "list.0",
                     "list.0.k"
                 ]),
-                "empty_object": json::is_empty_object(),
+                "empty_object": j::is_empty_object(),
             }),
         })
     );
 
     assert_that!(
         response,
-        json::has_path_with!("path_matchers.paths_allowing_extras.user.role", eq("admin"))
+        j::has_path_with!("path_matchers.paths_allowing_extras.user.role", eq("admin"))
     );
 }

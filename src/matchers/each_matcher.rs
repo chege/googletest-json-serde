@@ -4,12 +4,12 @@
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// assert_that!(j!([1, 2, 3]), json::each!(gt(0)));
-/// assert_that!(j!(["ab", "ax"]), json::each!(starts_with("a")));
-/// assert_that!(j!([1, 1]), json::each!(1));
-/// assert_that!(j!([j!(2), j!(2)]), json::each!(j!(2)));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// assert_that!(json!([1, 2, 3]), j::each!(gt(0)));
+/// assert_that!(json!(["ab", "ax"]), j::each!(starts_with("a")));
+/// assert_that!(json!([1, 1]), j::each!(1));
+/// assert_that!(json!([json!(2), json!(2)]), j::each!(json!(2)));
 /// ```
 ///
 /// # Errors

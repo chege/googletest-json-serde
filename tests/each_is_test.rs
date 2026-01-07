@@ -1,16 +1,16 @@
 use googletest::prelude::*;
-use googletest_json_serde::json;
+use googletest_json_serde::json as j;
 use indoc::indoc;
 use serde_json::json;
 
 #[test]
 fn each_is_string_matches_uniform_array() -> Result<()> {
-    verify_that!(json!(["a", "b"]), json::each_is_string())
+    verify_that!(json!(["a", "b"]), j::each_is_string())
 }
 
 #[test]
 fn each_is_number_rejects_mixed_array_and_reports_index() -> Result<()> {
-    let result = verify_that!(json!([1, "b"]), json::each_is_number());
+    let result = verify_that!(json!([1, "b"]), j::each_is_number());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -26,17 +26,17 @@ fn each_is_number_rejects_mixed_array_and_reports_index() -> Result<()> {
 
 #[test]
 fn each_is_number_rejects_non_array() -> Result<()> {
-    verify_that!(json!(null), not(json::each_is_number()))
+    verify_that!(json!(null), not(j::each_is_number()))
 }
 
 #[test]
 fn each_is_boolean_matches_uniform_array() -> Result<()> {
-    verify_that!(json!([true, false]), json::each_is_boolean())
+    verify_that!(json!([true, false]), j::each_is_boolean())
 }
 
 #[test]
 fn each_is_boolean_rejects_mixed_array_and_reports_index() -> Result<()> {
-    let result = verify_that!(json!([true, 1]), json::each_is_boolean());
+    let result = verify_that!(json!([true, 1]), j::each_is_boolean());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -52,12 +52,12 @@ fn each_is_boolean_rejects_mixed_array_and_reports_index() -> Result<()> {
 
 #[test]
 fn each_is_null_matches_uniform_array() -> Result<()> {
-    verify_that!(json!([null, null]), json::each_is_null())
+    verify_that!(json!([null, null]), j::each_is_null())
 }
 
 #[test]
 fn each_is_null_rejects_mixed_array_and_reports_index() -> Result<()> {
-    let result = verify_that!(json!([null, true]), json::each_is_null());
+    let result = verify_that!(json!([null, true]), j::each_is_null());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -73,12 +73,12 @@ fn each_is_null_rejects_mixed_array_and_reports_index() -> Result<()> {
 
 #[test]
 fn each_is_array_matches_uniform_array() -> Result<()> {
-    verify_that!(json!([[1], [2]]), json::each_is_array())
+    verify_that!(json!([[1], [2]]), j::each_is_array())
 }
 
 #[test]
 fn each_is_array_rejects_mixed_array_and_reports_index() -> Result<()> {
-    let result = verify_that!(json!([[1], {"a": 1}]), json::each_is_array());
+    let result = verify_that!(json!([[1], {"a": 1}]), j::each_is_array());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -94,12 +94,12 @@ fn each_is_array_rejects_mixed_array_and_reports_index() -> Result<()> {
 
 #[test]
 fn each_is_object_matches_uniform_array() -> Result<()> {
-    verify_that!(json!([{ "a": 1 }, { "b": 2 }]), json::each_is_object())
+    verify_that!(json!([{ "a": 1 }, { "b": 2 }]), j::each_is_object())
 }
 
 #[test]
 fn each_is_object_rejects_mixed_array_and_reports_index() -> Result<()> {
-    let result = verify_that!(json!([{ "a": 1 }, [1]]), json::each_is_object());
+    let result = verify_that!(json!([{ "a": 1 }, [1]]), j::each_is_object());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(

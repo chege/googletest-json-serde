@@ -3,11 +3,11 @@
 //! # Examples
 //! ```rust
 //! # use googletest::prelude::*;
-//! # use googletest_json_serde::json;
-//! # use serde_json::json as j;
+//! # use googletest_json_serde::json as j;
+//! # use serde_json::json;
 //! assert_that!(
-//!     j!(["b", "a", j!("c")]),
-//!     json::unordered_elements_are!["a", j!("c"), starts_with("b")]
+//!     json!(["b", "a", json!("c")]),
+//!     j::unordered_elements_are!["a", json!("c"), starts_with("b")]
 //! );
 //! ```
 
@@ -19,21 +19,21 @@
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
 /// assert_that!(
-///     j!(["a", "b", j!("c")]),
-///     json::unordered_elements_are!["a", j!("c"), starts_with("b")]
+///     json!(["a", "b", json!("c")]),
+///     j::unordered_elements_are!["a", json!("c"), starts_with("b")]
 /// );
 /// ```
 ///
 /// ```rust,should_panic
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
 /// assert_that!(
-///     j!(["a", "x", "c"]),
-///     json::unordered_elements_are![eq("c"), eq("a"), eq("b")]
+///     json!(["a", "x", "c"]),
+///     j::unordered_elements_are![eq("c"), eq("a"), eq("b")]
 /// );
 /// ```
 ///
@@ -73,20 +73,20 @@ macro_rules! __json_unordered_elements_are {
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
 /// verify_that!(
-///     j!(["alpha", "bingo", "c"]),
-///     json::contains_each!["c", j!("alpha"), starts_with("b")]
+///     json!(["alpha", "bingo", "c"]),
+///     j::contains_each!["c", json!("alpha"), starts_with("b")]
 /// )
 /// .unwrap();
 /// ```
 ///
 /// ```rust,should_panic
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
+/// # use googletest_json_serde::json as j;
 /// # use serde_json::json;
-/// verify_that!(json!(["a"]), json::contains_each![eq("a"), eq("b")]).unwrap();
+/// verify_that!(json!(["a"]), j::contains_each![eq("a"), eq("b")]).unwrap();
 /// ```
 ///
 /// # Supported Inputs
@@ -120,21 +120,21 @@ macro_rules! __json_contains_each {
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
 /// assert_that!(
-///     j!(["a", "b", j!("c")]),
-///     json::is_contained_in!["a", j!("c"), starts_with("b"), eq("d")]
+///     json!(["a", "b", json!("c")]),
+///     j::is_contained_in!["a", json!("c"), starts_with("b"), eq("d")]
 /// );
 /// ```
 ///
 /// ```rust,should_panic
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
 /// assert_that!(
-///     j!(["a", "x"]),
-///     json::is_contained_in![eq("a"), eq("b")]
+///     json!(["a", "x"]),
+///     j::is_contained_in![eq("a"), eq("b")]
 /// );
 /// ```
 ///

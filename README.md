@@ -49,17 +49,17 @@ cargo add googletest-json-serde --dev
 
 ```rust
 use googletest::prelude::*;
-use googletest_json_serde::json;
-use serde_json::json as j;
+use googletest_json_serde::json as j;
+use serde_json::json;
 
-let actual = j!({
+let actual = json!({
     "vampire": { "name": "Nandor the Relentless", "age": 758, "familiar": "Guillermo" },
     "house": { "city": "Staten Island", "roommates": ["Laszlo", "Nadja", "Colin Robinson"] }
 });
 
 assert_that!(
     actual,
-    json::pat!({
+    j::pat!({
         "vampire": {
             "name": starts_with("Nandor"),
             "age": gt(500),
@@ -67,7 +67,7 @@ assert_that!(
         },
         "house": {
             "city": eq("Staten Island"),
-            "roommates": json::unordered_elements_are![
+            "roommates": j::unordered_elements_are![
                 eq("Laszlo"),
                 eq("Nadja"),
                 contains_substring("Robinson"),
@@ -81,21 +81,21 @@ assert_that!(
 ## Features
 
 - Object patterns:
-  - `json::matches_pattern!` / `json::pat!` (strict or relaxed)
+  - `j::matches_pattern!` / `j::pat!` (strict or relaxed)
 - Arrays:
-  - Ordered: `json::elements_are!`
-  - Unordered: `json::unordered_elements_are!`
-  - Contains-each: `json::contains_each!`
-  - Contained-in: `json::is_contained_in!`
-  - Length: `json::len!`
-  - Apply to all elements: `json::each!`
-  - Type guard: `json::each_is_string()/number/boolean/null/array/object`
+  - Ordered: `j::elements_are!`
+  - Unordered: `j::unordered_elements_are!`
+  - Contains-each: `j::contains_each!`
+  - Contained-in: `j::is_contained_in!`
+  - Length: `j::len!`
+  - Apply to all elements: `j::each!`
+  - Type guard: `j::each_is_string()/number/boolean/null/array/object`
 - Primitives and kinds:
-  - `json::primitive!`, `json::is_number/integer/fractional_number/whole_number/string/boolean`, `json::is_true/false`, `json::is_null`, `json::is_not_null`, `json::is_empty_string/non_empty_string`, `json::is_empty_array/object`, `json::is_non_empty_array/object`
+  - `j::primitive!`, `j::is_number/integer/fractional_number/whole_number/string/boolean`, `j::is_true/false`, `j::is_null`, `j::is_not_null`, `j::is_empty_string/non_empty_string`, `j::is_empty_array/object`, `j::is_non_empty_array/object`
 - Paths and shape:
-  - `json::has_paths`, `json::has_only_paths`, `json::has_path_with!`
+  - `j::has_paths`, `j::has_only_paths`, `j::has_path_with!`
 - Optional fields:
-  - `json::optional!`
+  - `j::optional!`
 - Clear diagnostics that point to the failing path or element.
 
 ## More Examples
@@ -104,55 +104,55 @@ assert_that!(
 
 ```rust
 use googletest::prelude::*;
-use googletest_json_serde::json;
-use serde_json::json as j;
+use googletest_json_serde::json as j;
+use serde_json::json;
 
-assert_that!(j!(42),         json::primitive!(gt(40_i64)));
-assert_that!(j!("Laszlo"),   json::primitive!(starts_with("Las")));
-assert_that!(j!(true),       json::is_true());
-assert_that!(j!(null),       json::is_null());
-assert_that!(j!(7),          json::is_integer());
-assert_that!(j!(7.0),        json::is_whole_number());
-assert_that!(j!(7.25),       json::is_fractional_number());
+assert_that!(json!(42),         j::primitive!(gt(40_i64)));
+assert_that!(json!("Laszlo"),   j::primitive!(starts_with("Las")));
+assert_that!(json!(true),       j::is_true());
+assert_that!(json!(null),       j::is_null());
+assert_that!(json!(7),          j::is_integer());
+assert_that!(json!(7.0),        j::is_whole_number());
+assert_that!(json!(7.25),       j::is_fractional_number());
 ```
 
 ### Path value matching
 
 ```rust
 use googletest::prelude::*;
-use googletest_json_serde::json;
-use serde_json::json as j;
+use googletest_json_serde::json as j;
+use serde_json::json;
 
-let value = j!({"user": {"id": 7, "name": "Ada"}});
-assert_that!(value, json::has_path_with!("user.name", "Ada"));
-assert_that!(value, json::has_path_with!("user.id", j!(7)));
-assert_that!(value, json::has_path_with!("user.name", starts_with("A")));
+let value = json!({"user": {"id": 7, "name": "Ada"}});
+assert_that!(value, j::has_path_with!("user.name", "Ada"));
+assert_that!(value, j::has_path_with!("user.id", json!(7)));
+assert_that!(value, j::has_path_with!("user.name", starts_with("A")));
 ```
 
 ### Predicates
 
 ```rust
 use googletest::prelude::*;
-use googletest_json_serde::json;
-use serde_json::json as j;
+use googletest_json_serde::json as j;
+use serde_json::json;
 
-assert_that!(j!(42), json::predicate(|v| v.as_i64().map_or(false, |n| n > 0)));
-assert_that!(j!("Energy vampire"), json::predicate(|v| v.as_str().map_or(false, |s| s.contains("Energy"))));
+assert_that!(json!(42), j::predicate(|v| v.as_i64().map_or(false, |n| n > 0)));
+assert_that!(json!("Energy vampire"), j::predicate(|v| v.as_str().map_or(false, |s| s.contains("Energy"))));
 ```
 
 ### Objects
 
 ```rust
 use googletest::prelude::*;
-use googletest_json_serde::json;
-use serde_json::json as j;
+use googletest_json_serde::json as j;
+use serde_json::json;
 
 assert_that!(
-    j!({"name": "Laszlo", "age": 310, "familiar": null}),
-    json::pat!({
+    json!({"name": "Laszlo", "age": 310, "familiar": null}),
+    j::pat!({
         "name": starts_with("Las"),
         "age": gt(300),
-        "familiar": json::is_null(),
+        "familiar": j::is_null(),
         .. // allow extras like hobbies or cursed hats
     })
 );
@@ -162,27 +162,27 @@ assert_that!(
 
 ```rust
 use googletest::prelude::*;
-use googletest_json_serde::json;
-use serde_json::json as j;
+use googletest_json_serde::json as j;
+use serde_json::json;
 
 assert_that!(
-    j!(["Nandor", 758, true]),
-    json::elements_are![eq("Nandor"), json::is_number(), is_true()]
+    json!(["Nandor", 758, true]),
+    j::elements_are![eq("Nandor"), j::is_number(), is_true()]
 );
 
 assert_that!(
-    j!(["Laszlo", "Nadja", "Colin Robinson"]),
-    json::unordered_elements_are![eq("Colin Robinson"), "Laszlo", "Nadja"]
+    json!(["Laszlo", "Nadja", "Colin Robinson"]),
+    j::unordered_elements_are![eq("Colin Robinson"), "Laszlo", "Nadja"]
 );
 
 assert_that!(
-    j!(["familiar", 1, null]),
-    json::contains_each![json::is_string(), json::is_not_null()]
+    json!(["familiar", 1, null]),
+    j::contains_each![j::is_string(), j::is_not_null()]
 );
 
 assert_that!(
-    j!(["Nandor", "Nadja"]),
-    json::each_is_string()
+    json!(["Nandor", "Nadja"]),
+    j::each_is_string()
 );
 ```
 
@@ -190,11 +190,11 @@ assert_that!(
 
 ```rust
 use googletest::prelude::*;
-use googletest_json_serde::json;
-use serde_json::json as j;
+use googletest_json_serde::json as j;
+use serde_json::json;
 
 assert_that!(
-    j!({
+    json!({
         "guests": [
             {"name": "Baron Afanas", "age": 2000},
             {"name": "The Guide", "age": 500}
@@ -202,10 +202,10 @@ assert_that!(
         "house": { "city": "Staten Island", "roommates": 4 },
         "ignored": true
     }),
-    json::pat!({
-        "guests": json::unordered_elements_are![
-            json::pat!({ "name": starts_with("Baron"), "age": gt(1500) }),
-            json::pat!({ "name": eq("The Guide"), "age": ge(400) })
+    j::pat!({
+        "guests": j::unordered_elements_are![
+            j::pat!({ "name": starts_with("Baron"), "age": gt(1500) }),
+            j::pat!({ "name": eq("The Guide"), "age": ge(400) })
         ],
         "house": { "city": eq("Staten Island"), "roommates": eq(4) },
         ..
