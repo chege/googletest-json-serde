@@ -19,6 +19,8 @@ fn comprehensive_matchers_demo() {
             "is_object": { "a": 1 },
             "is_empty_array": [],
             "is_empty_object": {},
+            "is_non_empty_array": [1],
+            "is_non_empty_object": { "k": "v" },
             "is_integer": 7,
             "is_whole_number": 7.0,
             "is_fractional_number": 7.5,
@@ -53,11 +55,21 @@ fn comprehensive_matchers_demo() {
             "len_three": ["a", "b", "c"],
             "each_literal": ["x", "x", "x"],
             "len_literal": [10, 20, 30],
+            "each_is_string": ["a", "b"],
+            "each_is_number": [1, 2],
+            "each_is_boolean": [true, false],
+            "each_is_null": [null, null],
+            "each_is_array": [[1], [2]],
+            "each_is_object": [{"a": 1}, {"b": 2}],
         },
         "composite_patterns": {
             "simple_pat": {
                 "key1": "value1",
                 "key2": 10
+            },
+            "matches_pattern_alias": {
+                "name": "Nandor",
+                "age": 758
             },
             "nested_pat": {
                 "outer_key": {
@@ -133,6 +145,8 @@ fn comprehensive_matchers_demo() {
                 "is_object": json::is_object(),
                 "is_empty_array": json::is_empty_array(),
                 "is_empty_object": json::is_empty_object(),
+                "is_non_empty_array": json::is_non_empty_array(),
+                "is_non_empty_object": json::is_non_empty_object(),
                 "is_integer": json::is_integer(),
                 "is_whole_number": json::is_whole_number(),
                 "is_fractional_number": json::is_fractional_number(),
@@ -166,11 +180,21 @@ fn comprehensive_matchers_demo() {
                 "each_literal": json::each!("x"),
                 "len_three": json::len!(ge(3)),
                 "len_literal": json::len!(3),
+                "each_is_string": json::each_is_string(),
+                "each_is_number": json::each_is_number(),
+                "each_is_boolean": json::each_is_boolean(),
+                "each_is_null": json::each_is_null(),
+                "each_is_array": json::each_is_array(),
+                "each_is_object": json::each_is_object(),
             }),
             "composite_patterns": json::pat!({
                 "simple_pat": json::pat!({
                     "key1": eq("value1"),
                     "key2": gt(5),
+                }),
+                "matches_pattern_alias": json::matches_pattern!({
+                    "name": starts_with("Nan"),
+                    "age": gt(500),
                 }),
                 "nested_pat": json::pat!({
                     "outer_key": json::pat!({
