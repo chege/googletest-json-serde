@@ -6,21 +6,21 @@
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use serde_json::json as j;
-/// # use googletest_json_serde::json;
-/// let value = j!({
+/// # use serde_json::json;
+/// # use googletest_json_serde::json as j;
+/// let value = json!({
 ///     "name": "Alice",
 ///     "age": 30,
 ///     "active": true,
-///     "role": j!("admin")
+///     "role": json!("admin")
 /// });
 /// assert_that!(
 ///     value,
-///     json::pat!({
+///     j::pat!({
 ///         "name": starts_with("Al"),
 ///         "age": ge(29),
 ///         "active": true,
-///         "role": j!("admin"),
+///         "role": json!("admin"),
 ///         .. // allows additional fields
 ///     })
 /// );
@@ -30,7 +30,7 @@
 ///
 /// Fails when the value is not a JSON object, when a required field is missing, when a field value mismatches, or when extra fields appear without `..`.
 ///
-/// This macro is reexported as [`json::pat!`](crate::json::pat).
+/// This macro is reexported as [`j::pat!`](crate::json::pat).
 ///
 /// # Supported Inputs
 /// - Literal JSON-compatible values
@@ -51,7 +51,7 @@ macro_rules! __json_matches_pattern {
             $crate::__json_matches_pattern!({ $($inner)* })
         )
     };
-    // Expression arm: handles matchers and values like `eq(1)` or `j!(...)`.
+    // Expression arm: handles matchers and values like `eq(1)` or `json!(...)`.
     (@wrap_matcher $expr:expr) => {
         $crate::matchers::__internal_unstable_do_not_depend_on_these::IntoJsonMatcher::into_json_matcher($expr)
     };
@@ -63,7 +63,7 @@ macro_rules! __json_matches_pattern {
     };
     // Error case: `..` is only valid at the end of the object pattern.
     (@parse $fields:ident $strict:ident; .. , $($rest:tt)+) => {
-        compile_error!("`..` must be the last token in a json::pat! object pattern");
+        compile_error!("`..` must be the last token in a j::pat! object pattern");
     };
     // Nested object value: recurse into the inner pattern (e.g., `"user": { "id": eq(1) }`).
     (@parse $fields:ident $strict:ident;

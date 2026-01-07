@@ -1,12 +1,12 @@
 use googletest::Result;
 use googletest::prelude::*;
-use googletest_json_serde::json;
+use googletest_json_serde::json as j;
 use indoc::indoc;
-use serde_json::json as j;
+use serde_json::json;
 
 #[test]
 fn pat_matches_nested_object_strict() -> Result<()> {
-    let val = j!({
+    let val = json!({
         "user": {
             "id": 1,
             "name": "Alice"
@@ -16,19 +16,19 @@ fn pat_matches_nested_object_strict() -> Result<()> {
 
     verify_that!(
         val,
-        json::pat!({
-            "user": json::pat!({
+        j::pat!({
+            "user": j::pat!({
                 "id": eq(1),
                 "name": starts_with("Alic"),
             }),
-            "active": j!(true),
+            "active": json!(true),
         })
     )
 }
 
 #[test]
 fn pat_matches_nested_object_strict_implicit() -> Result<()> {
-    let val = j!({
+    let val = json!({
         "user": {
             "id": 1,
             "name": "Alice"
@@ -38,19 +38,19 @@ fn pat_matches_nested_object_strict_implicit() -> Result<()> {
 
     verify_that!(
         val,
-        json::pat!({
+        j::pat!({
             "user": {
                 "id": eq(1),
                 "name": starts_with("Alic"),
             },
-            "active": j!(true),
+            "active": json!(true),
         })
     )
 }
 
 #[test]
 fn pat_matches_nested_object_non_strict() -> Result<()> {
-    let val = j!({
+    let val = json!({
         "user": {
             "id": 1,
             "name": "Alice",
@@ -60,8 +60,8 @@ fn pat_matches_nested_object_non_strict() -> Result<()> {
 
     verify_that!(
         val,
-        json::pat!({
-            "user": json::pat!({
+        j::pat!({
+            "user": j::pat!({
                 "id": ge(1),
                 ..
             })
@@ -71,7 +71,7 @@ fn pat_matches_nested_object_non_strict() -> Result<()> {
 
 #[test]
 fn pat_matches_nested_object_non_strict_implicit() -> Result<()> {
-    let val = j!({
+    let val = json!({
         "user": {
             "id": 1,
             "name": "Alice",
@@ -81,7 +81,7 @@ fn pat_matches_nested_object_non_strict_implicit() -> Result<()> {
 
     verify_that!(
         val,
-        json::pat!({
+        j::pat!({
             "user": {
                 "id": ge(1),
                 ..
@@ -92,7 +92,7 @@ fn pat_matches_nested_object_non_strict_implicit() -> Result<()> {
 
 #[test]
 fn pat_matches_nested_object_mixed_strictness_outer_relaxed_inner_strict() -> Result<()> {
-    let val = j!({
+    let val = json!({
         "user": {
             "id": 1,
             "name": "Alice"
@@ -103,7 +103,7 @@ fn pat_matches_nested_object_mixed_strictness_outer_relaxed_inner_strict() -> Re
 
     verify_that!(
         val,
-        json::pat!({
+        j::pat!({
             "user": {
                 "id": eq(1),
                 "name": starts_with("Alic"),
@@ -116,7 +116,7 @@ fn pat_matches_nested_object_mixed_strictness_outer_relaxed_inner_strict() -> Re
 
 #[test]
 fn pat_matches_nested_object_mixed_strictness_outer_strict_inner_relaxed() -> Result<()> {
-    let val = j!({
+    let val = json!({
         "user": {
             "id": 1,
             "name": "Alice",
@@ -127,7 +127,7 @@ fn pat_matches_nested_object_mixed_strictness_outer_strict_inner_relaxed() -> Re
 
     verify_that!(
         val,
-        json::pat!({
+        j::pat!({
             "user": {
                 "id": ge(1),
                 ..
@@ -139,7 +139,7 @@ fn pat_matches_nested_object_mixed_strictness_outer_strict_inner_relaxed() -> Re
 
 #[test]
 fn pat_matches_nested_object_non_strict_outer_and_inner() -> Result<()> {
-    let val = j!({
+    let val = json!({
         "user": {
             "id": 1,
             "name": "Alice",
@@ -151,7 +151,7 @@ fn pat_matches_nested_object_non_strict_outer_and_inner() -> Result<()> {
 
     verify_that!(
         val,
-        json::pat!({
+        j::pat!({
             "user": {
                 "id": eq(1),
                 ..
@@ -164,7 +164,7 @@ fn pat_matches_nested_object_non_strict_outer_and_inner() -> Result<()> {
 
 #[test]
 fn pat_rejects_nested_object_outer_relaxed_inner_strict_with_extra_inner_field() -> Result<()> {
-    let val = j!({
+    let val = json!({
         "user": {
             "id": 1,
             "name": "Alice",
@@ -176,7 +176,7 @@ fn pat_rejects_nested_object_outer_relaxed_inner_strict_with_extra_inner_field()
 
     verify_that!(
         val,
-        not(json::pat!({
+        not(j::pat!({
             "user": {
                 "id": eq(1),
                 "name": eq("Alice"),
@@ -189,7 +189,7 @@ fn pat_rejects_nested_object_outer_relaxed_inner_strict_with_extra_inner_field()
 
 #[test]
 fn pat_rejects_nested_object_outer_strict_inner_relaxed_with_extra_outer_field() -> Result<()> {
-    let val = j!({
+    let val = json!({
         "user": {
             "id": 1,
             "name": "Alice",
@@ -201,7 +201,7 @@ fn pat_rejects_nested_object_outer_strict_inner_relaxed_with_extra_outer_field()
 
     verify_that!(
         val,
-        not(json::pat!({
+        not(j::pat!({
             "user": {
                 "id": eq(1),
                 ..
@@ -213,7 +213,7 @@ fn pat_rejects_nested_object_outer_strict_inner_relaxed_with_extra_outer_field()
 
 #[test]
 fn pat_rejects_nested_object_strict_with_extra_inner_field() -> Result<()> {
-    let val = j!({
+    let val = json!({
         "user": {
             "id": 1,
             "name": "Alice",
@@ -224,7 +224,7 @@ fn pat_rejects_nested_object_strict_with_extra_inner_field() -> Result<()> {
 
     verify_that!(
         val,
-        not(json::pat!({
+        not(j::pat!({
             "user": {
                 "id": eq(1),
                 "name": eq("Alice"),
@@ -236,7 +236,7 @@ fn pat_rejects_nested_object_strict_with_extra_inner_field() -> Result<()> {
 
 #[test]
 fn pat_rejects_nested_object_strict_with_extra_outer_field() -> Result<()> {
-    let val = j!({
+    let val = json!({
         "user": {
             "id": 1,
             "name": "Alice"
@@ -247,7 +247,7 @@ fn pat_rejects_nested_object_strict_with_extra_outer_field() -> Result<()> {
 
     verify_that!(
         val,
-        not(json::pat!({
+        not(j::pat!({
             "user": {
                 "id": eq(1),
                 "name": eq("Alice"),
@@ -259,14 +259,14 @@ fn pat_rejects_nested_object_strict_with_extra_outer_field() -> Result<()> {
 
 #[test]
 fn pat_rejects_enum_like_object_strict() -> Result<()> {
-    let val = j!({
+    let val = json!({
         "type": "Dog",
         "bark": true
     });
 
     verify_that!(
         val,
-        not(json::pat!({
+        not(j::pat!({
             "type": eq("Cat"),
             "meow": is_true()
         }))
@@ -275,7 +275,7 @@ fn pat_rejects_enum_like_object_strict() -> Result<()> {
 
 #[test]
 fn pat_matches_option_nested_mixed_matchers() -> Result<()> {
-    let val = Some(j!({
+    let val = Some(json!({
         "type": "Dog",
         "props": {
             "bark": true,
@@ -285,9 +285,9 @@ fn pat_matches_option_nested_mixed_matchers() -> Result<()> {
 
     verify_that!(
         val,
-        json::pat!({
+        j::pat!({
             "type": eq("Dog"),
-            "props": json::pat!({
+            "props": j::pat!({
                 "bark": eq(true),
                 "age": gt(2),
             }),
@@ -297,7 +297,7 @@ fn pat_matches_option_nested_mixed_matchers() -> Result<()> {
 
 #[test]
 fn pat_fails_on_unexpected_fields_strict() -> Result<()> {
-    let val = j!({
+    let val = json!({
         "a": 1,
         "b": 2,
         "unexpected": 3
@@ -305,7 +305,7 @@ fn pat_fails_on_unexpected_fields_strict() -> Result<()> {
 
     verify_that!(
         val,
-        not(json::pat!({
+        not(j::pat!({
             "a": eq(1),
             "b": eq(2),
         }))
@@ -313,12 +313,12 @@ fn pat_fails_on_unexpected_fields_strict() -> Result<()> {
 }
 #[test]
 fn pat_matches_object_with_any_value_field() -> Result<()> {
-    let val = j!({"field": "value", "unexpected": 123});
+    let val = json!({"field": "value", "unexpected": 123});
     verify_that!(
         val,
-        json::pat!({
+        j::pat!({
             "field": eq("value"),
-            "unexpected": json::is_not_null()
+            "unexpected": j::is_not_null()
         })
     )
 }
@@ -326,15 +326,15 @@ fn pat_matches_object_with_any_value_field() -> Result<()> {
 #[test]
 fn pat_rejects_option_none() -> Result<()> {
     let val: Option<serde_json::Value> = None;
-    verify_that!(val, not(json::pat!({ "field": eq("value") })))
+    verify_that!(val, not(j::pat!({ "field": eq("value") })))
 }
 
 #[test]
 fn pat_rejects_object_with_wrong_field() -> Result<()> {
-    let val = j!({"field": "other"});
+    let val = json!({"field": "other"});
     verify_that!(
         val,
-        not(json::pat!({
+        not(j::pat!({
             "field": eq("value")
         }))
     )
@@ -342,7 +342,7 @@ fn pat_rejects_object_with_wrong_field() -> Result<()> {
 
 #[test]
 fn pat_explains_mismatch_nested_object() -> Result<()> {
-    let val = j!({
+    let val = json!({
         "field": {
             "subfield": 123,
             "flag": false
@@ -352,8 +352,8 @@ fn pat_explains_mismatch_nested_object() -> Result<()> {
 
     let result = verify_that!(
         val,
-        json::pat!({
-            "field": json::pat!({
+        j::pat!({
+            "field": j::pat!({
                 "subfield": eq(999),
                 "flag": eq(true)
             }),
@@ -374,8 +374,8 @@ fn pat_explains_mismatch_nested_object() -> Result<()> {
 #[test]
 fn pat_explains_single_field_mismatch() -> Result<()> {
     let result = verify_that!(
-        j!({"foo": 1}),
-        json::pat!({
+        json!({"foo": 1}),
+        j::pat!({
             "foo": eq(2)
         })
     );
@@ -390,8 +390,8 @@ fn pat_explains_single_field_mismatch() -> Result<()> {
 #[test]
 fn pat_explains_wrong_type() -> Result<()> {
     let result = verify_that!(
-        j!(123),
-        json::pat!({
+        json!(123),
+        j::pat!({
             "foo": eq(1)
         })
     );
@@ -405,7 +405,7 @@ fn pat_explains_wrong_type() -> Result<()> {
 fn pat_explains_option_none() -> Result<()> {
     let result = verify_that!(
         None::<serde_json::Value>,
-        json::pat!({
+        j::pat!({
             "foo": eq(1)
         })
     );
@@ -415,8 +415,8 @@ fn pat_explains_option_none() -> Result<()> {
 #[test]
 fn pat_explains_option_some_mismatch() -> Result<()> {
     let result = verify_that!(
-        Some(j!({"foo": 1})),
-        json::pat!({
+        Some(json!({"foo": 1})),
+        j::pat!({
             "foo": eq(2)
         })
     );
@@ -431,12 +431,12 @@ fn pat_explains_option_some_mismatch() -> Result<()> {
 #[test]
 fn matches_pattern_produces_correct_failure_message() -> Result<()> {
     let result = verify_that!(
-        j!({
+        json!({
             "user": { "id": 1, "name": "Alice" },
             "active": true
         }),
-        json::pat!({
-            "user": json::pat!({
+        j::pat!({
+            "user": j::pat!({
                 "id": eq(2),
                 "name": eq("Bob"),
             }),
@@ -447,7 +447,7 @@ fn matches_pattern_produces_correct_failure_message() -> Result<()> {
         result,
         err(displays_as(starts_with(indoc!(
             r#"
-                Value of: j!({ "user": { "id": 1, "name": "Alice" }, "active": true })
+                Value of: json!({ "user": { "id": 1, "name": "Alice" }, "active": true })
                 Expected: has JSON object with expected fields
                 Actual: Object {
                     "active": Bool(true),
@@ -466,89 +466,92 @@ fn matches_pattern_produces_correct_failure_message() -> Result<()> {
 }
 #[test]
 fn pat_matches_mixed_types_with_owned_values() -> Result<()> {
-    let value = j!({"a": "x", "b": 1, "c": true});
-    let a = j!("x");
-    let b = j!(1);
-    let c = j!(true);
-    verify_that!(value, json::pat!({"a": a, "b": b, "c": c}))
+    let value = json!({"a": "x", "b": 1, "c": true});
+    let a = json!("x");
+    let b = json!(1);
+    let c = json!(true);
+    verify_that!(value, j::pat!({"a": a, "b": b, "c": c}))
 }
 
 #[test]
 fn pat_matches_mixed_types_with_borrowed_values() -> Result<()> {
-    let value = j!({"a": "x", "b": 1, "c": true});
-    let a = j!("x");
-    let b = j!(1);
-    let c = j!(true);
-    verify_that!(value, json::pat!({"a": &a, "b": &b, "c": &c}))
+    let value = json!({"a": "x", "b": 1, "c": true});
+    let a = json!("x");
+    let b = json!(1);
+    let c = json!(true);
+    verify_that!(value, j::pat!({"a": &a, "b": &b, "c": &c}))
 }
 
 #[test]
 fn pat_matches_mixed_types_with_inline_borrowed_literals() -> Result<()> {
     verify_that!(
-        j!({"a": "x", "b": 1, "c": true}),
-        json::pat!({"a": &j!("x"), "b": &j!(1), "c": &j!(true)})
+        json!({"a": "x", "b": 1, "c": true}),
+        j::pat!({"a": &json!("x"), "b": &json!(1), "c": &json!(true)})
     )
 }
 
 #[test]
 fn pat_matches_mixed_types_with_inline_owned_literals() -> Result<()> {
     verify_that!(
-        j!({"a": "x", "b": 1, "c": true}),
-        json::pat!({"a": j!("x"), "b": j!(1), "c": j!(true)})
+        json!({"a": "x", "b": 1, "c": true}),
+        j::pat!({"a": json!("x"), "b": json!(1), "c": json!(true)})
     )
 }
 
 #[test]
 fn pat_matches_mixed_types_with_mixed_owned_and_borrowed() -> Result<()> {
-    let value = j!({"a": "x", "b": 1, "c": true});
-    let a = j!("x");
-    verify_that!(value, json::pat!({"a": a, "b": j!(1), "c": &j!(true)}))
+    let value = json!({"a": "x", "b": 1, "c": true});
+    let a = json!("x");
+    verify_that!(value, j::pat!({"a": a, "b": json!(1), "c": &json!(true)}))
 }
 
 #[test]
 fn pat_unmatch_with_owned_values() -> Result<()> {
-    let value = j!({"a": "x", "b": 1, "c": false});
-    let a = j!("x");
-    let b = j!(1);
-    let c = j!(true);
-    verify_that!(value, not(json::pat!({"a": a, "b": b, "c": c})))
+    let value = json!({"a": "x", "b": 1, "c": false});
+    let a = json!("x");
+    let b = json!(1);
+    let c = json!(true);
+    verify_that!(value, not(j::pat!({"a": a, "b": b, "c": c})))
 }
 
 #[test]
 fn pat_unmatch_with_borrowed_values() -> Result<()> {
-    let value = j!({"a": "x", "b": 1, "c": false});
-    let a = j!("x");
-    let b = j!(1);
-    let c = j!(true);
-    verify_that!(value, not(json::pat!({"a": &a, "b": &b, "c": &c})))
+    let value = json!({"a": "x", "b": 1, "c": false});
+    let a = json!("x");
+    let b = json!(1);
+    let c = json!(true);
+    verify_that!(value, not(j::pat!({"a": &a, "b": &b, "c": &c})))
 }
 
 #[test]
 fn pat_unmatch_with_inline_borrowed_literals() -> Result<()> {
     verify_that!(
-        j!({"a": "x", "b": 1, "c": false}),
-        not(json::pat!({"a": &j!("x"), "b": &j!(1), "c": &j!(true)}))
+        json!({"a": "x", "b": 1, "c": false}),
+        not(j::pat!({"a": &json!("x"), "b": &json!(1), "c": &json!(true)}))
     )
 }
 
 #[test]
 fn pat_unmatch_with_inline_owned_literals() -> Result<()> {
     verify_that!(
-        j!({"a": "x", "b": 1, "c": false}),
-        not(json::pat!({"a": j!("x"), "b": j!(1), "c": j!(true)}))
+        json!({"a": "x", "b": 1, "c": false}),
+        not(j::pat!({"a": json!("x"), "b": json!(1), "c": json!(true)}))
     )
 }
 
 #[test]
 fn pat_unmatch_with_mixed_owned_and_borrowed() -> Result<()> {
-    let value = j!({"a": "x", "b": 1, "c": false});
-    let a = j!("x");
-    verify_that!(value, not(json::pat!({"a": a, "b": j!(1), "c": &j!(true)})))
+    let value = json!({"a": "x", "b": 1, "c": false});
+    let a = json!("x");
+    verify_that!(
+        value,
+        not(j::pat!({"a": a, "b": json!(1), "c": &json!(true)}))
+    )
 }
 
 #[test]
 fn pat_matches_all_numeric_types_flat_object() -> Result<()> {
-    let value = j!({
+    let value = json!({
         "i8_val": 12i8,
         "i16_val": 32000i16,
         "i32_val": 123456i32,
@@ -563,7 +566,7 @@ fn pat_matches_all_numeric_types_flat_object() -> Result<()> {
 
     verify_that!(
         value,
-        json::pat!({
+        j::pat!({
             "i8_val": eq(12i8),
             "i16_val": eq(32000i16),
             "i32_val": eq(123456i32),
@@ -580,10 +583,10 @@ fn pat_matches_all_numeric_types_flat_object() -> Result<()> {
 
 #[test]
 fn pat_matches_with_primitive_literals() -> Result<()> {
-    let value = j!({"a": "x", "b": 1, "c": true});
+    let value = json!({"a": "x", "b": 1, "c": true});
     verify_that!(
         value,
-        json::pat!({
+        j::pat!({
             "a": "x",   // literal string
             "b": 1i64,     // literal number
             ..
@@ -593,10 +596,10 @@ fn pat_matches_with_primitive_literals() -> Result<()> {
 
 #[test]
 fn pat_unmatch_with_primitive_literals() -> Result<()> {
-    let value = j!({"a": "x", "b": 1, "c": false});
+    let value = json!({"a": "x", "b": 1, "c": false});
     verify_that!(
         value,
-        not(json::pat!({
+        not(j::pat!({
             "a": "x",
             "b": 2i64,
             "c": true

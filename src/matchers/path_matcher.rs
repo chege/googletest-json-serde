@@ -14,14 +14,14 @@ use std::collections::BTreeSet;
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// let value = j!({"user": {"id": 7, "name": "Ada"}});
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// let value = json!({"user": {"id": 7, "name": "Ada"}});
 /// assert_that!(
 ///     value,
-///     json::has_path_with!("user.name", "Ada")
-///         .and(json::has_path_with!("user.id", j!(7)))
-///         .and(json::has_path_with!("user.name", starts_with("A")))
+///     j::has_path_with!("user.name", "Ada")
+///         .and(j::has_path_with!("user.id", json!(7)))
+///         .and(j::has_path_with!("user.name", starts_with("A")))
 /// );
 /// ```
 ///
@@ -52,10 +52,10 @@ macro_rules! __json_has_path_with {
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// let value = j!({"user": {"id": 7, "name": "Ada"}});
-/// assert_that!(value, json::has_paths(&["user.id", "user.name"]));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// let value = json!({"user": {"id": 7, "name": "Ada"}});
+/// assert_that!(value, j::has_paths(&["user.id", "user.name"]));
 /// ```
 ///
 /// # Errors
@@ -121,10 +121,10 @@ pub fn has_paths(paths: &[&str]) -> JsonPredicateMatcher<impl Fn(&Value) -> bool
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// let value = j!({"ids": [1, 2], "ok": true});
-/// assert_that!(value, json::has_only_paths(&["ids", "ids.0", "ids.1", "ok"]));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// let value = json!({"ids": [1, 2], "ok": true});
+/// assert_that!(value, j::has_only_paths(&["ids", "ids.0", "ids.1", "ok"]));
 /// ```
 ///
 /// # Errors

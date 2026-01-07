@@ -6,14 +6,14 @@
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use serde_json::json as j;
-/// # use crate::googletest_json_serde::json;
-/// let value = j!(["alex", "bart", "cucumberbatch"]);
+/// # use serde_json::json;
+/// # use crate::googletest_json_serde::json as j;
+/// let value = json!(["alex", "bart", "cucumberbatch"]);
 /// assert_that!(
 ///     value,
-///     json::elements_are![
+///     j::elements_are![
 ///         "alex",
-///         j!("bart"),
+///         json!("bart"),
 ///         char_count(eq(13))
 ///     ]
 /// );
@@ -21,14 +21,14 @@
 ///
 /// ```rust,should_panic
 /// # use googletest::prelude::*;
-/// # use serde_json::json as j;
-/// # use crate::googletest_json_serde::json;
-/// let value = j!(["cucumberbatch", "alex", "bart"]);
+/// # use serde_json::json;
+/// # use crate::googletest_json_serde::json as j;
+/// let value = json!(["cucumberbatch", "alex", "bart"]);
 /// assert_that!(
 ///     value,
-///     json::elements_are![
+///     j::elements_are![
 ///         "alex",
-///         j!("bart"),
+///         json!("bart"),
 ///         char_count(eq(13))
 ///     ]
 /// );

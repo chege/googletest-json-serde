@@ -1,22 +1,22 @@
 use googletest::Result;
 use googletest::prelude::*;
-use googletest_json_serde::json;
+use googletest_json_serde::json as j;
 use indoc::indoc;
 use serde_json::json;
 
 #[test]
 fn is_false_matches_false() -> Result<()> {
-    verify_that!(json!(false), json::is_false())
+    verify_that!(json!(false), j::is_false())
 }
 
 #[test]
 fn is_false_rejects_true() -> Result<()> {
-    verify_that!(json!(true), not(json::is_false()))
+    verify_that!(json!(true), not(j::is_false()))
 }
 
 #[test]
 fn is_false_fails_and_includes_full_message_for_true() -> Result<()> {
-    let result = verify_that!(json!(true), json::is_false());
+    let result = verify_that!(json!(true), j::is_false());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -32,7 +32,7 @@ fn is_false_fails_and_includes_full_message_for_true() -> Result<()> {
 
 #[test]
 fn is_false_fails_and_includes_full_message_for_non_bool() -> Result<()> {
-    let result = verify_that!(json!(0), json::is_false());
+    let result = verify_that!(json!(0), j::is_false());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(

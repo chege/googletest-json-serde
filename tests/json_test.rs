@@ -2,23 +2,23 @@
 
 use googletest::Result;
 use googletest::prelude::*;
-use googletest_json_serde::json;
+use googletest_json_serde::json as j;
 use indoc::indoc;
 use serde_json::json;
 
 #[test]
 fn any_value_matches_non_null() -> Result<()> {
-    verify_that!(json!("2112"), json::any_value())
+    verify_that!(json!("2112"), j::any_value())
 }
 
 #[test]
 fn any_value_rejects_null() -> Result<()> {
-    verify_that!(json!(null), not(json::any_value()))
+    verify_that!(json!(null), not(j::any_value()))
 }
 
 #[test]
 fn any_value_fails_and_includes_full_message() -> Result<()> {
-    let result = verify_that!(json!(null), json::any_value());
+    let result = verify_that!(json!(null), j::any_value());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -34,15 +34,15 @@ fn any_value_fails_and_includes_full_message() -> Result<()> {
 
 #[test]
 fn is_not_null_matches_strings() -> Result<()> {
-    verify_that!(json!("2112"), json::is_not_null())
+    verify_that!(json!("2112"), j::is_not_null())
 }
 #[test]
 fn is_not_null_rejects_null() -> Result<()> {
-    verify_that!(json!(null), not(json::is_not_null()))
+    verify_that!(json!(null), not(j::is_not_null()))
 }
 #[test]
 fn is_not_null_fails_and_includes_full_message() -> Result<()> {
-    let result = verify_that!(json!(null), json::is_not_null());
+    let result = verify_that!(json!(null), j::is_not_null());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -58,15 +58,15 @@ fn is_not_null_fails_and_includes_full_message() -> Result<()> {
 
 #[test]
 fn is_null_matches_null() -> Result<()> {
-    verify_that!(json!(null), json::is_null())
+    verify_that!(json!(null), j::is_null())
 }
 #[test]
 fn is_null_rejects_non_null() -> Result<()> {
-    verify_that!(json!("not null"), not(json::is_null()))
+    verify_that!(json!("not null"), not(j::is_null()))
 }
 #[test]
 fn is_null_fails_and_includes_full_message() -> Result<()> {
-    let result = verify_that!(json!("not null"), json::is_null());
+    let result = verify_that!(json!("not null"), j::is_null());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -82,15 +82,15 @@ fn is_null_fails_and_includes_full_message() -> Result<()> {
 
 #[test]
 fn is_string_matches_string() -> Result<()> {
-    verify_that!(json!("a string"), json::is_string())
+    verify_that!(json!("a string"), j::is_string())
 }
 #[test]
 fn is_string_rejects_number() -> Result<()> {
-    verify_that!(json!(123), not(json::is_string()))
+    verify_that!(json!(123), not(j::is_string()))
 }
 #[test]
 fn is_string_fails_and_includes_full_message() -> Result<()> {
-    let result = verify_that!(json!(123), json::is_string());
+    let result = verify_that!(json!(123), j::is_string());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -106,17 +106,17 @@ fn is_string_fails_and_includes_full_message() -> Result<()> {
 
 #[test]
 fn is_empty_string_matches_empty() -> Result<()> {
-    verify_that!(json!(""), json::is_empty_string())
+    verify_that!(json!(""), j::is_empty_string())
 }
 
 #[test]
 fn is_empty_string_rejects_non_empty() -> Result<()> {
-    verify_that!(json!("hi"), not(json::is_empty_string()))
+    verify_that!(json!("hi"), not(j::is_empty_string()))
 }
 
 #[test]
 fn is_empty_string_fails_for_non_empty_string_and_includes_full_message() -> Result<()> {
-    let result = verify_that!(json!("hi"), json::is_empty_string());
+    let result = verify_that!(json!("hi"), j::is_empty_string());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -132,7 +132,7 @@ fn is_empty_string_fails_for_non_empty_string_and_includes_full_message() -> Res
 
 #[test]
 fn is_empty_string_fails_for_number_and_includes_full_message() -> Result<()> {
-    let result = verify_that!(json!(123), json::is_empty_string());
+    let result = verify_that!(json!(123), j::is_empty_string());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -148,17 +148,17 @@ fn is_empty_string_fails_for_number_and_includes_full_message() -> Result<()> {
 
 #[test]
 fn is_non_empty_string_matches_non_empty() -> Result<()> {
-    verify_that!(json!("hi"), json::is_non_empty_string())
+    verify_that!(json!("hi"), j::is_non_empty_string())
 }
 
 #[test]
 fn is_non_empty_string_rejects_empty() -> Result<()> {
-    verify_that!(json!(""), not(json::is_non_empty_string()))
+    verify_that!(json!(""), not(j::is_non_empty_string()))
 }
 
 #[test]
 fn is_non_empty_string_fails_for_empty_string_and_includes_full_message() -> Result<()> {
-    let result = verify_that!(json!(""), json::is_non_empty_string());
+    let result = verify_that!(json!(""), j::is_non_empty_string());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -174,7 +174,7 @@ fn is_non_empty_string_fails_for_empty_string_and_includes_full_message() -> Res
 
 #[test]
 fn is_non_empty_string_fails_for_boolean_and_includes_full_message() -> Result<()> {
-    let result = verify_that!(json!(true), json::is_non_empty_string());
+    let result = verify_that!(json!(true), j::is_non_empty_string());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -190,15 +190,15 @@ fn is_non_empty_string_fails_for_boolean_and_includes_full_message() -> Result<(
 
 #[test]
 fn is_number_matches_number() -> Result<()> {
-    verify_that!(json!(123), json::is_number())
+    verify_that!(json!(123), j::is_number())
 }
 #[test]
 fn is_number_rejects_bool() -> Result<()> {
-    verify_that!(json!(true), not(json::is_number()))
+    verify_that!(json!(true), not(j::is_number()))
 }
 #[test]
 fn is_number_fails_and_includes_full_message() -> Result<()> {
-    let result = verify_that!(json!(true), json::is_number());
+    let result = verify_that!(json!(true), j::is_number());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -214,32 +214,32 @@ fn is_number_fails_and_includes_full_message() -> Result<()> {
 
 #[test]
 fn is_integer_matches_integer_number() -> Result<()> {
-    verify_that!(json!(123), json::is_integer())
+    verify_that!(json!(123), j::is_integer())
 }
 
 #[test]
 fn is_integer_rejects_fractional_number() -> Result<()> {
-    verify_that!(json!(3.5), not(json::is_integer()))
+    verify_that!(json!(3.5), not(j::is_integer()))
 }
 
 #[test]
 fn is_integer_rejects_float_without_fraction_but_encoded_as_float() -> Result<()> {
-    verify_that!(json!(2.0), not(json::is_integer()))
+    verify_that!(json!(2.0), not(j::is_integer()))
 }
 
 #[test]
 fn is_integer_rejects_large_imprecise_float() -> Result<()> {
-    verify_that!(json!(1e23), not(json::is_integer()))
+    verify_that!(json!(1e23), not(j::is_integer()))
 }
 
 #[test]
 fn is_integer_rejects_non_number() -> Result<()> {
-    verify_that!(json!("string"), not(json::is_integer()))
+    verify_that!(json!("string"), not(j::is_integer()))
 }
 
 #[test]
 fn is_integer_fails_and_includes_full_message_for_fractional_number() -> Result<()> {
-    let result = verify_that!(json!(3.5), json::is_integer());
+    let result = verify_that!(json!(3.5), j::is_integer());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -255,7 +255,7 @@ fn is_integer_fails_and_includes_full_message_for_fractional_number() -> Result<
 
 #[test]
 fn is_integer_fails_and_includes_full_message_for_non_number() -> Result<()> {
-    let result = verify_that!(json!("vampire"), json::is_integer());
+    let result = verify_that!(json!("vampire"), j::is_integer());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -271,23 +271,23 @@ fn is_integer_fails_and_includes_full_message_for_non_number() -> Result<()> {
 
 #[test]
 fn is_whole_number_matches_integer_and_float_with_zero_fraction() -> Result<()> {
-    verify_that!(json!(123), json::is_whole_number())?;
-    verify_that!(json!(123.0), json::is_whole_number())
+    verify_that!(json!(123), j::is_whole_number())?;
+    verify_that!(json!(123.0), j::is_whole_number())
 }
 
 #[test]
 fn is_whole_number_rejects_fractional_number() -> Result<()> {
-    verify_that!(json!(3.5), not(json::is_whole_number()))
+    verify_that!(json!(3.5), not(j::is_whole_number()))
 }
 
 #[test]
 fn is_whole_number_rejects_non_number() -> Result<()> {
-    verify_that!(json!("string"), not(json::is_whole_number()))
+    verify_that!(json!("string"), not(j::is_whole_number()))
 }
 
 #[test]
 fn is_whole_number_fails_and_includes_full_message_for_fractional_number() -> Result<()> {
-    let result = verify_that!(json!(3.5), json::is_whole_number());
+    let result = verify_that!(json!(3.5), j::is_whole_number());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -303,7 +303,7 @@ fn is_whole_number_fails_and_includes_full_message_for_fractional_number() -> Re
 
 #[test]
 fn is_whole_number_fails_and_includes_full_message_for_non_number() -> Result<()> {
-    let result = verify_that!(json!("vampire"), json::is_whole_number());
+    let result = verify_that!(json!("vampire"), j::is_whole_number());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -319,23 +319,23 @@ fn is_whole_number_fails_and_includes_full_message_for_non_number() -> Result<()
 
 #[test]
 fn is_fractional_number_matches_fractional() -> Result<()> {
-    verify_that!(json!(3.5), json::is_fractional_number())
+    verify_that!(json!(3.5), j::is_fractional_number())
 }
 
 #[test]
 fn is_fractional_number_rejects_integer_and_zero_fraction_float() -> Result<()> {
-    verify_that!(json!(3), not(json::is_fractional_number()))?;
-    verify_that!(json!(3.0), not(json::is_fractional_number()))
+    verify_that!(json!(3), not(j::is_fractional_number()))?;
+    verify_that!(json!(3.0), not(j::is_fractional_number()))
 }
 
 #[test]
 fn is_fractional_number_rejects_non_number() -> Result<()> {
-    verify_that!(json!(true), not(json::is_fractional_number()))
+    verify_that!(json!(true), not(j::is_fractional_number()))
 }
 
 #[test]
 fn is_fractional_number_fails_and_includes_full_message_for_integer() -> Result<()> {
-    let result = verify_that!(json!(5), json::is_fractional_number());
+    let result = verify_that!(json!(5), j::is_fractional_number());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -351,7 +351,7 @@ fn is_fractional_number_fails_and_includes_full_message_for_integer() -> Result<
 
 #[test]
 fn is_fractional_number_fails_and_includes_full_message_for_non_number() -> Result<()> {
-    let result = verify_that!(json!("vampire"), json::is_fractional_number());
+    let result = verify_that!(json!("vampire"), j::is_fractional_number());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -367,15 +367,15 @@ fn is_fractional_number_fails_and_includes_full_message_for_non_number() -> Resu
 
 #[test]
 fn is_boolean_matches_bool() -> Result<()> {
-    verify_that!(json!(true), json::is_boolean())
+    verify_that!(json!(true), j::is_boolean())
 }
 #[test]
 fn is_boolean_rejects_array() -> Result<()> {
-    verify_that!(json!([1, 2, 3]), not(json::is_boolean()))
+    verify_that!(json!([1, 2, 3]), not(j::is_boolean()))
 }
 #[test]
 fn is_boolean_fails_and_includes_full_message() -> Result<()> {
-    let result = verify_that!(json!([1, 2, 3]), json::is_boolean());
+    let result = verify_that!(json!([1, 2, 3]), j::is_boolean());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -391,16 +391,16 @@ fn is_boolean_fails_and_includes_full_message() -> Result<()> {
 
 #[test]
 fn is_array_matches_array() -> Result<()> {
-    verify_that!(json!([1, 2, 3]), json::is_array())
+    verify_that!(json!([1, 2, 3]), j::is_array())
 }
 #[test]
 fn is_array_rejects_object() -> Result<()> {
-    verify_that!(json!({"key": "value"}), not(json::is_array()))
+    verify_that!(json!({"key": "value"}), not(j::is_array()))
 }
 #[test]
 
 fn is_array_fails_and_includes_full_message() -> Result<()> {
-    let result = verify_that!(json!({"key": "value"}), json::is_array());
+    let result = verify_that!(json!({"key": "value"}), j::is_array());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -416,17 +416,17 @@ fn is_array_fails_and_includes_full_message() -> Result<()> {
 
 #[test]
 fn is_empty_array_matches_empty() -> Result<()> {
-    verify_that!(json!([]), json::is_empty_array())
+    verify_that!(json!([]), j::is_empty_array())
 }
 
 #[test]
 fn is_empty_array_rejects_non_empty() -> Result<()> {
-    verify_that!(json!([1]), not(json::is_empty_array()))
+    verify_that!(json!([1]), not(j::is_empty_array()))
 }
 
 #[test]
 fn is_empty_array_fails_for_non_empty_array_and_includes_full_message() -> Result<()> {
-    let result = verify_that!(json!([1]), json::is_empty_array());
+    let result = verify_that!(json!([1]), j::is_empty_array());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -442,7 +442,7 @@ fn is_empty_array_fails_for_non_empty_array_and_includes_full_message() -> Resul
 
 #[test]
 fn is_empty_array_fails_for_boolean_and_includes_full_message() -> Result<()> {
-    let result = verify_that!(json!(true), json::is_empty_array());
+    let result = verify_that!(json!(true), j::is_empty_array());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -458,17 +458,17 @@ fn is_empty_array_fails_for_boolean_and_includes_full_message() -> Result<()> {
 
 #[test]
 fn is_non_empty_array_matches_non_empty() -> Result<()> {
-    verify_that!(json!([1]), json::is_non_empty_array())
+    verify_that!(json!([1]), j::is_non_empty_array())
 }
 
 #[test]
 fn is_non_empty_array_rejects_empty() -> Result<()> {
-    verify_that!(json!([]), not(json::is_non_empty_array()))
+    verify_that!(json!([]), not(j::is_non_empty_array()))
 }
 
 #[test]
 fn is_non_empty_array_fails_for_empty_array_and_includes_full_message() -> Result<()> {
-    let result = verify_that!(json!([]), json::is_non_empty_array());
+    let result = verify_that!(json!([]), j::is_non_empty_array());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -484,7 +484,7 @@ fn is_non_empty_array_fails_for_empty_array_and_includes_full_message() -> Resul
 
 #[test]
 fn is_non_empty_array_fails_for_boolean_and_includes_full_message() -> Result<()> {
-    let result = verify_that!(json!(true), json::is_non_empty_array());
+    let result = verify_that!(json!(true), j::is_non_empty_array());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -500,12 +500,12 @@ fn is_non_empty_array_fails_for_boolean_and_includes_full_message() -> Result<()
 
 #[test]
 fn each_is_string_matches_uniform_array() -> Result<()> {
-    verify_that!(json!(["a", "b"]), json::each_is_string())
+    verify_that!(json!(["a", "b"]), j::each_is_string())
 }
 
 #[test]
 fn each_is_number_rejects_mixed_array_and_reports_index() -> Result<()> {
-    let result = verify_that!(json!([1, "b"]), json::each_is_number());
+    let result = verify_that!(json!([1, "b"]), j::each_is_number());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -521,17 +521,17 @@ fn each_is_number_rejects_mixed_array_and_reports_index() -> Result<()> {
 
 #[test]
 fn each_is_number_rejects_non_array() -> Result<()> {
-    verify_that!(json!(null), not(json::each_is_number()))
+    verify_that!(json!(null), not(j::each_is_number()))
 }
 
 #[test]
 fn each_is_boolean_matches_uniform_array() -> Result<()> {
-    verify_that!(json!([true, false]), json::each_is_boolean())
+    verify_that!(json!([true, false]), j::each_is_boolean())
 }
 
 #[test]
 fn each_is_boolean_rejects_mixed_array_and_reports_index() -> Result<()> {
-    let result = verify_that!(json!([true, 1]), json::each_is_boolean());
+    let result = verify_that!(json!([true, 1]), j::each_is_boolean());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -547,12 +547,12 @@ fn each_is_boolean_rejects_mixed_array_and_reports_index() -> Result<()> {
 
 #[test]
 fn each_is_null_matches_uniform_array() -> Result<()> {
-    verify_that!(json!([null, null]), json::each_is_null())
+    verify_that!(json!([null, null]), j::each_is_null())
 }
 
 #[test]
 fn each_is_null_rejects_mixed_array_and_reports_index() -> Result<()> {
-    let result = verify_that!(json!([null, true]), json::each_is_null());
+    let result = verify_that!(json!([null, true]), j::each_is_null());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -568,12 +568,12 @@ fn each_is_null_rejects_mixed_array_and_reports_index() -> Result<()> {
 
 #[test]
 fn each_is_array_matches_uniform_array() -> Result<()> {
-    verify_that!(json!([[1], [2]]), json::each_is_array())
+    verify_that!(json!([[1], [2]]), j::each_is_array())
 }
 
 #[test]
 fn each_is_array_rejects_mixed_array_and_reports_index() -> Result<()> {
-    let result = verify_that!(json!([[1], {"a": 1}]), json::each_is_array());
+    let result = verify_that!(json!([[1], {"a": 1}]), j::each_is_array());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -589,12 +589,12 @@ fn each_is_array_rejects_mixed_array_and_reports_index() -> Result<()> {
 
 #[test]
 fn each_is_object_matches_uniform_array() -> Result<()> {
-    verify_that!(json!([{"a": 1}, {"b": 2}]), json::each_is_object())
+    verify_that!(json!([{"a": 1}, {"b": 2}]), j::each_is_object())
 }
 
 #[test]
 fn each_is_object_rejects_mixed_array_and_reports_index() -> Result<()> {
-    let result = verify_that!(json!([{"a": 1}, [1]]), json::each_is_object());
+    let result = verify_that!(json!([{"a": 1}, [1]]), j::each_is_object());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -610,30 +610,30 @@ fn each_is_object_rejects_mixed_array_and_reports_index() -> Result<()> {
 
 #[test]
 fn is_object_matches_object() -> Result<()> {
-    verify_that!(json!({"key": "value"}), json::is_object())
+    verify_that!(json!({"key": "value"}), j::is_object())
 }
 #[test]
 fn is_object_rejects_boolean() -> Result<()> {
-    verify_that!(json!(false), not(json::is_object()))
+    verify_that!(json!(false), not(j::is_object()))
 }
 
 #[test]
 fn is_empty_object_matches_empty() -> Result<()> {
-    verify_that!(json!({}), json::is_empty_object())
+    verify_that!(json!({}), j::is_empty_object())
 }
 
 #[test]
 fn is_empty_object_rejects_non_empty() -> Result<()> {
-    verify_that!(json!({"a": 1}), not(json::is_empty_object()))
+    verify_that!(json!({"a": 1}), not(j::is_empty_object()))
 }
 
 #[test]
 fn is_empty_object_rejects_non_object() -> Result<()> {
-    verify_that!(json!(["a"]), not(json::is_empty_object()))
+    verify_that!(json!(["a"]), not(j::is_empty_object()))
 }
 #[test]
 fn is_object_fails_and_includes_full_message() -> Result<()> {
-    let result = verify_that!(json!(false), json::is_object());
+    let result = verify_that!(json!(false), j::is_object());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -649,17 +649,17 @@ fn is_object_fails_and_includes_full_message() -> Result<()> {
 
 #[test]
 fn is_non_empty_object_matches_non_empty() -> Result<()> {
-    verify_that!(json!({"a": 1}), json::is_non_empty_object())
+    verify_that!(json!({"a": 1}), j::is_non_empty_object())
 }
 
 #[test]
 fn is_non_empty_object_rejects_empty() -> Result<()> {
-    verify_that!(json!({}), not(json::is_non_empty_object()))
+    verify_that!(json!({}), not(j::is_non_empty_object()))
 }
 
 #[test]
 fn is_non_empty_object_fails_for_empty_object_and_includes_full_message() -> Result<()> {
-    let result = verify_that!(json!({}), json::is_non_empty_object());
+    let result = verify_that!(json!({}), j::is_non_empty_object());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(
@@ -675,7 +675,7 @@ fn is_non_empty_object_fails_for_empty_object_and_includes_full_message() -> Res
 
 #[test]
 fn is_non_empty_object_fails_for_array_and_includes_full_message() -> Result<()> {
-    let result = verify_that!(json!([]), json::is_non_empty_object());
+    let result = verify_that!(json!([]), j::is_non_empty_object());
     verify_that!(
         result,
         err(displays_as(contains_substring(indoc!(

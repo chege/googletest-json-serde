@@ -4,12 +4,12 @@
 ///
 /// ```rust
 /// # use googletest::prelude::*;
-/// # use googletest_json_serde::json;
-/// # use serde_json::json as j;
-/// verify_that!(j!(["a", "b", "c"]), json::len!(3));
-/// verify_that!(j!(["a", "b", "c"]), json::len!(ge(2)));
-/// verify_that!(j!(["a", "b", "c"]), json::len!(j!(3)));
-/// assert_that!(j!(["a"]), not(json::len!(2)));
+/// # use googletest_json_serde::json as j;
+/// # use serde_json::json;
+/// verify_that!(json!(["a", "b", "c"]), j::len!(3));
+/// verify_that!(json!(["a", "b", "c"]), j::len!(ge(2)));
+/// verify_that!(json!(["a", "b", "c"]), j::len!(json!(3)));
+/// assert_that!(json!(["a"]), not(j::len!(2)));
 /// ```
 ///
 /// # Errors
