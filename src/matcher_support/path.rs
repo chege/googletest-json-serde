@@ -185,4 +185,18 @@ mod tests {
         let path = vec![f("user.name"), PathSegment::Index(0)];
         assert_eq!(format_path(&path), r"user\.name.0");
     }
+
+    #[test]
+    fn parse_path_errors_on_trailing_escape() {
+        let ParsedPaths { parsed, errors } = parse_expected_paths(&["user\\"]);
+        assert!(parsed.is_empty());
+        assert_eq!(errors.len(), 1);
+        assert!(errors[0].contains("trailing escape"));
+    }
+
+    #[test]
+    fn format_path_escapes_backslashes() {
+        let path = vec![f("user\\name")];
+        assert_eq!(format_path(&path), r"user\\name");
+    }
 }

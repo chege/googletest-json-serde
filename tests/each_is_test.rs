@@ -112,3 +112,23 @@ fn each_is_object_rejects_mixed_array_and_reports_index() -> Result<()> {
         ))))
     )
 }
+
+#[test]
+fn each_is_number_reports_null_element_kind() -> Result<()> {
+    let result = verify_that!(json!([1, null]), j::each_is_number());
+    verify_that!(
+        result,
+        err(displays_as(contains_substring(
+            "which contains a JSON null at index 1"
+        )))
+    )
+}
+
+#[test]
+fn each_is_number_explains_non_array_type() -> Result<()> {
+    let result = verify_that!(json!(null), j::each_is_number());
+    verify_that!(
+        result,
+        err(displays_as(contains_substring("which is a JSON null")))
+    )
+}

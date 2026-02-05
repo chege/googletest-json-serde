@@ -1,6 +1,13 @@
 version: '3'
 silent: true
+
 tasks:
+  default:
+    desc: List all available tasks
+    cmds:
+      - task --list
+    silent: false
+
   verify:
     desc: Run all checks equivalent to CI
     cmds:
@@ -46,3 +53,15 @@ tasks:
           cargo test --all-features --quiet
         fi
     silent: false
+
+  coverage:
+    desc: Run tests and report code coverage (requires cargo-llvm-cov)
+    cmds:
+      - echo "🧪 Running coverage (threshold 90%)..."
+      - cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info --fail-under-lines 90
+
+  open-coverage:
+    desc: Open the interactive HTML coverage report
+    cmds:
+      - echo "🖥️ Generating and opening HTML report..."
+      - cargo llvm-cov --all-features --workspace --html --open

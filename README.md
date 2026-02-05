@@ -126,8 +126,8 @@ use googletest_json_serde::json as j;
 use serde_json::json;
 
 // Bridge to native googletest matchers with explicit type unwrapping
-assert_that!(json!("123-ABC"), j::as_string(matches_regex(r"^\d{3}")));
-assert_that!(json!(3.14159),   j::as_f64(near(3.14, 0.01)));
+assert_that!(json!("123-ABC"), j::as_string(matches_regex(r"\d{3}-[A-Z]+")));
+assert_that!(json!(std::f64::consts::PI), j::as_f64(near(std::f64::consts::PI, 0.01)));
 assert_that!(json!([1, 2, 3]), j::as_array(contains(j::as_i64(eq(2)))));
 ```
 

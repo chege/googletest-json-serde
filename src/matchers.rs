@@ -10,8 +10,8 @@ mod primitive_matcher;
 mod unordered_elements_are_matcher;
 
 pub use as_matcher::{
-    as_array, as_bool, as_f64, as_i16, as_i32, as_i64, as_i8, as_object, as_string, as_u16, as_u32,
-    as_u64, as_u8, as_usize,
+    as_array, as_bool, as_f64, as_i8, as_i16, as_i32, as_i64, as_object, as_string, as_u8, as_u16,
+    as_u32, as_u64, as_usize,
 };
 #[allow(deprecated)]
 pub use json_matcher::{

@@ -151,7 +151,7 @@ where
 /// # use googletest::prelude::*;
 /// # use googletest_json_serde::json as j;
 /// # use serde_json::json;
-/// assert_that!(json!({"a": 1}), j::as_object(contains_key("a")));
+/// assert_that!(json!({"a": 1}), j::as_object(len(eq(1))));
 /// ```
 pub fn as_object<M>(inner: M) -> JsonAsMatcher<M, Map<String, Value>>
 where
@@ -306,7 +306,10 @@ pub mod internal {
                                         .into()
                                 }
                             },
-                            None => format!("which is a JSON number but out of range").into(),
+                            None => {
+                                format!("which is a JSON number but not a valid {} number", $desc)
+                                    .into()
+                            }
                         },
                         None => describe_json_type(actual),
                     }

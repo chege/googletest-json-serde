@@ -91,3 +91,42 @@ fn has_only_paths_rejects_missing_nested_leaf() -> Result<()> {
         )))
     )
 }
+
+#[test]
+fn has_paths_reports_invalid_paths() -> Result<()> {
+    let result = verify_that!(json!({"id": 1}), j::has_paths(&["user..id"]));
+    verify_that!(
+        result,
+        err(displays_as(contains_substring("empty segment")))
+    )
+}
+
+#[test]
+fn has_paths_explains_non_object() -> Result<()> {
+    let result = verify_that!(json!(1), j::has_paths(&["id"]));
+    verify_that!(
+        result,
+        err(displays_as(contains_substring("which is a JSON number")))
+    )
+}
+
+#[test]
+fn has_only_paths_reports_missing_and_extra() -> Result<()> {
+    let result = verify_that!(
+        json!({"id": 1, "extra": true}),
+        j::has_only_paths(&["id", "name"])
+    );
+    verify_that!(
+        result,
+        err(displays_as(contains_substring("extra paths [\"extra\"]")))
+    )
+}
+
+#[test]
+fn has_only_paths_explains_non_object() -> Result<()> {
+    let result = verify_that!(json!(null), j::has_only_paths(&["id"]));
+    verify_that!(
+        result,
+        err(displays_as(contains_substring("which is a JSON null")))
+    )
+}

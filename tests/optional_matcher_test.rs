@@ -204,6 +204,17 @@ fn deeply_nested_optional_inside_multiple_pats() -> Result<()> {
 }
 
 #[test]
+fn optional_not_describes_no_match() -> Result<()> {
+    let result = verify_that!(json!(null), not(j::optional!(eq(1))));
+    verify_that!(
+        result,
+        err(displays_as(contains_substring(
+            "neither null nor matches inner matcher"
+        )))
+    )
+}
+
+#[test]
 fn optional_with_primitive_matcher() -> Result<()> {
     let val = json!({"flag": true});
     verify_that!(

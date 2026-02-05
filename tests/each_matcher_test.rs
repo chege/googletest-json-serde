@@ -157,3 +157,12 @@ fn each_explain_failure_message() -> Result<()> {
     verify_that!(msg, displays_as(contains_substring("element #1 (3)")))?;
     Ok(())
 }
+
+#[test]
+fn each_explains_all_elements_matched_for_not() -> Result<()> {
+    let result = verify_that!(json!([1, 1]), not(j::each!(eq(1))));
+    verify_that!(
+        result,
+        err(displays_as(contains_substring("all 2 elements matched")))
+    )
+}

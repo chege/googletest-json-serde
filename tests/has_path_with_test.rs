@@ -78,3 +78,47 @@ fn has_path_with_handles_nested_array_indices() -> Result<()> {
     let value = json!({"items": [ {"id": 1}, {"id": 2, "name": "two"} ]});
     verify_that!(value, j::has_path_with!("items.1.name", eq("two")))
 }
+
+#[test]
+fn has_path_with_reports_invalid_path() -> Result<()> {
+    let result = verify_that!(json!({"id": 1}), j::has_path_with!("foo..bar", eq(1)));
+    verify_that!(
+        result,
+        err(displays_as(contains_substring("empty segment")))
+    )
+}
+
+#[test]
+fn has_path_with_reports_missing_path() -> Result<()> {
+    let result = verify_that!(
+        json!({"user": {"id": 1}}),
+        j::has_path_with!("user.name", eq("Ada"))
+    );
+    verify_that!(
+        result,
+        err(displays_as(contains_substring("missing path `user.name`")))
+    )
+}
+
+#[test]
+fn has_path_with_reports_non_object() -> Result<()> {
+    let result = verify_that!(json!(true), j::has_path_with!("user.id", eq(1)));
+    verify_that!(
+        result,
+        err(displays_as(contains_substring("which is a JSON boolean")))
+    )
+}
+
+#[test]
+fn has_path_with_not_describe_no_match() -> Result<()> {
+    let result = verify_that!(
+        json!({"user": {"id": 1}}),
+        not(j::has_path_with!("user.id", eq(1)))
+    );
+    verify_that!(
+        result,
+        err(displays_as(contains_substring(
+            "has path `user.id` whose value does not match"
+        )))
+    )
+}

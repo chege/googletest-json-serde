@@ -317,3 +317,12 @@ fn elements_are_matches_with_mixed_literals_and_matchers() -> Result<()> {
         j::elements_are![starts_with("a"), a, is_true()]
     )
 }
+
+#[test]
+fn elements_are_explains_all_match_when_negated() -> Result<()> {
+    let result = verify_that!(json!([1, 2]), not(j::elements_are![1, 2]));
+    verify_that!(
+        result,
+        err(displays_as(contains_substring("whose elements all match")))
+    )
+}
