@@ -1,3 +1,4 @@
+mod as_matcher;
 mod each_matcher;
 mod elements_are_matcher;
 mod json_matcher;
@@ -8,6 +9,10 @@ mod path_matcher;
 mod primitive_matcher;
 mod unordered_elements_are_matcher;
 
+pub use as_matcher::{
+    as_array, as_bool, as_f64, as_i16, as_i32, as_i64, as_i8, as_object, as_string, as_u16, as_u32,
+    as_u64, as_u8, as_usize,
+};
 #[allow(deprecated)]
 pub use json_matcher::{
     any_value, is_array, is_boolean, is_empty_array, is_empty_object, is_empty_string, is_false,
@@ -33,6 +38,7 @@ pub use crate::{
 
 #[doc(hidden)]
 pub mod __internal_unstable_do_not_depend_on_these {
+    pub use super::as_matcher::internal::JsonAsMatcher;
     pub use super::each_matcher::internal::JsonEachMatcher;
     pub use super::elements_are_matcher::internal::JsonElementsAre;
     pub use super::json_matcher::internal::IntoJsonMatcher;

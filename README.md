@@ -94,6 +94,8 @@ assert_that!(
   - `j::primitive!`, `j::is_number/integer/fractional_number/whole_number/string/boolean`, `j::is_true/false`, `j::is_null`, `j::is_not_null`, `j::is_empty_string/non_empty_string`, `j::is_empty_array/object`, `j::is_non_empty_array/object`
 - Paths and shape:
   - `j::has_paths`, `j::has_only_paths`, `j::has_path_with!`
+- Adapters (bridge to native matchers):
+  - `j::as_string`, `j::as_bool`, `j::as_i64` (and other number types), `j::as_array`, `j::as_object`
 - Optional fields:
   - `j::optional!`
 - Clear diagnostics that point to the failing path or element.
@@ -114,6 +116,19 @@ assert_that!(json!(null),       j::is_null());
 assert_that!(json!(7),          j::is_integer());
 assert_that!(json!(7.0),        j::is_whole_number());
 assert_that!(json!(7.25),       j::is_fractional_number());
+```
+
+### Adapters (Bridge to native matchers)
+
+```rust
+use googletest::prelude::*;
+use googletest_json_serde::json as j;
+use serde_json::json;
+
+// Bridge to native googletest matchers with explicit type unwrapping
+assert_that!(json!("123-ABC"), j::as_string(matches_regex(r"^\d{3}")));
+assert_that!(json!(3.14159),   j::as_f64(near(3.14, 0.01)));
+assert_that!(json!([1, 2, 3]), j::as_array(contains(j::as_i64(eq(2)))));
 ```
 
 ### Path value matching
