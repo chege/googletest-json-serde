@@ -688,3 +688,37 @@ fn is_non_empty_object_fails_for_array_and_includes_full_message() -> Result<()>
         ))))
     )
 }
+
+#[test]
+fn as_string_matches_and_explains() -> Result<()> {
+    verify_that!(json!("hello"), j::as_string(starts_with("h")))?;
+    let result = verify_that!(json!(42), j::as_string(anything()));
+    verify_that!(
+        result,
+        err(displays_as(contains_substring(indoc!(
+            r#"
+            Value of: json!(42)
+            Expected: is a JSON string which is anything
+            Actual: Number(42),
+              which is a JSON number
+            "#
+        ))))
+    )
+}
+
+#[test]
+fn as_i64_matches_and_explains() -> Result<()> {
+    verify_that!(json!(42), j::as_i64(gt(40)))?;
+    let result = verify_that!(json!("not a number"), j::as_i64(anything()));
+    verify_that!(
+        result,
+        err(displays_as(contains_substring(indoc!(
+            r#"
+            Value of: json!("not a number")
+            Expected: is a JSON number (i64) which is anything
+            Actual: String("not a number"),
+              which is a JSON string
+            "#
+        ))))
+    )
+}

@@ -606,3 +606,23 @@ fn pat_unmatch_with_primitive_literals() -> Result<()> {
         }))
     )
 }
+
+#[test]
+fn pat_matches_with_as_adapters() -> Result<()> {
+    let value = json!({
+        "name": "Alice",
+        "age": 30,
+        "active": true,
+        "score": 95.5
+    });
+
+    verify_that!(
+        value,
+        j::pat!({
+            "name": j::as_string(starts_with("A")),
+            "age": j::as_i64(ge(18)),
+            "active": j::as_bool(anything()),
+            "score": j::as_f64(near(95.0, 1.0)),
+        })
+    )
+}
