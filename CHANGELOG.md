@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.5.1](https://github.com/chege/googletest-json-serde/compare/v0.5.0...v0.5.1) - 2026-02-07
+
+[View diff on diff.rs](https://diff.rs/googletest-json-serde/0.5.0/googletest-json-serde/0.5.1/Cargo.toml)
+
+### <!-- 0 -->⛰️ Features
+
+- implement 'as_' adapter matchers for JSON values
+
+### <!-- 6 -->🧪 Testing
+
+- improve matcher coverage
+
 ## [0.5.0](https://github.com/chege/googletest-json-serde/compare/v0.4.6...v0.5.0) - 2026-01-07
 
 [View diff on diff.rs](https://diff.rs/googletest-json-serde/0.4.6/googletest-json-serde/0.5.0/Cargo.toml)
