@@ -80,6 +80,12 @@ fn comprehensive_matchers_demo() {
                         10
                     ]
                 }
+            },
+            "implicit_pat": {
+                "outer": {
+                    "inner": "ok",
+                    "count": 2
+                }
             }
         },
         "mixed_types_and_nested": {
@@ -205,6 +211,12 @@ fn comprehensive_matchers_demo() {
                             le(10)
                         ],
                     }),
+                }),
+                "implicit_pat": j::pat!({
+                    "outer": {
+                        "inner": starts_with("o"),
+                        "count": ge(2),
+                    },
                 }),
             }),
             "mixed_types_and_nested": j::pat!({
