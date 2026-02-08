@@ -267,6 +267,8 @@ pub mod internal {
         pub(crate) fn find_best_match(&self) -> BestMatch {
             let mut actual_match = vec![None; self.actual_len];
             let mut expected_match: Vec<Option<usize>> = vec![None; self.expected_len];
+            let mut seen_marks = vec![0u32; self.expected_len];
+            let mut seen_mark = 1u32;
             // Searches the residual flow graph for a path from each actual node to
             // the sink in the residual flow graph, and if one is found, add this path
             // to the graph.
@@ -282,13 +284,18 @@ pub mod internal {
             // by looking at the node once.
             for actual_idx in 0..self.actual_len {
                 assert!(actual_match[actual_idx].is_none());
-                let mut seen = vec![false; self.expected_len];
+                if seen_mark == u32::MAX {
+                    seen_marks.fill(0);
+                    seen_mark = 1;
+                }
                 self.try_augment(
                     actual_idx,
-                    &mut seen,
+                    &mut seen_marks,
+                    seen_mark,
                     &mut actual_match,
                     &mut expected_match,
                 );
+                seen_mark += 1;
             }
             BestMatch::new(actual_match, self.expected_len)
         }
@@ -314,19 +321,20 @@ pub mod internal {
         fn try_augment(
             &self,
             actual_idx: usize,
-            seen: &mut Vec<bool>,
+            seen_marks: &mut [u32],
+            seen_mark: u32,
             actual_match: &mut [Option<usize>],
-            expected_match: &mut Vec<Option<usize>>,
+            expected_match: &mut [Option<usize>],
         ) -> bool {
             for expected_idx in 0..self.expected_len {
-                if seen[expected_idx] {
+                if seen_marks[expected_idx] == seen_mark {
                     continue;
                 }
                 if self.cell(actual_idx, expected_idx).is_no_match() {
                     continue;
                 }
                 // There is an edge between `actual_idx` and `expected_idx`.
-                seen[expected_idx] = true;
+                seen_marks[expected_idx] = seen_mark;
                 // Next a search is performed to determine whether
                 // this edge is a dead end or leads to the sink.
                 //
@@ -338,14 +346,22 @@ pub mod internal {
                 // `expected_match[expected_idx].unwrap()` by calling
                 // ourselves recursively to see if this ultimately leads to
                 // sink.
-                if expected_match[expected_idx].is_none()
-                    || self.try_augment(
-                        expected_match[expected_idx].unwrap(),
-                        seen,
-                        actual_match,
-                        expected_match,
-                    )
-                {
+                if expected_match[expected_idx].is_none() {
+                    // We found a residual flow from source to sink. We thus need to add the new
+                    // edge to the current flow.
+                    // Note: this also remove the potential flow that existed by overwriting the
+                    // value in the `expected_match` and `actual_match`.
+                    expected_match[expected_idx] = Some(actual_idx);
+                    actual_match[actual_idx] = Some(expected_idx);
+                    return true;
+                }
+                if self.try_augment(
+                    expected_match[expected_idx].unwrap(),
+                    seen_marks,
+                    seen_mark,
+                    actual_match,
+                    expected_match,
+                ) {
                     // We found a residual flow from source to sink. We thus need to add the new
                     // edge to the current flow.
                     // Note: this also remove the potential flow that existed by overwriting the
