@@ -80,3 +80,57 @@ fn perfect_match_large_perf_guard() -> Result<()> {
     let matcher = make_unordered_eq_matcher(&expected, Requirements::PerfectMatch);
     verify_that!(as_json_array(&actual), matcher)
 }
+
+#[test]
+fn explanation_branch_no_actual_but_multiple_expected_unmatchable() -> Result<()> {
+    // Equal lengths avoids size-short-circuit and forces unmatchable explanation path.
+    let matcher = make_unordered_eq_matcher(&[1, 2, 3], Requirements::PerfectMatch);
+    verify_that!(
+        matcher.explain_match(&as_json_array(&[1, 1, 1])),
+        displays_as(eq(
+            "which has no elements matching the expected elements #1, #2"
+        ))
+    )
+}
+
+#[test]
+fn explanation_branch_many_actual_one_expected_unmatchable() -> Result<()> {
+    let matcher = make_unordered_eq_matcher(&[1, 1, 4], Requirements::PerfectMatch);
+    verify_that!(
+        matcher.explain_match(&as_json_array(&[1, 2, 3])),
+        displays_as(eq(
+            "whose elements #1, #2 do not match any expected elements and no elements match the expected element #2"
+        ))
+    )
+}
+
+#[test]
+fn explanation_branch_one_actual_many_expected_unmatchable() -> Result<()> {
+    let matcher = make_unordered_eq_matcher(&[1, 3, 4], Requirements::PerfectMatch);
+    verify_that!(
+        matcher.explain_match(&as_json_array(&[1, 1, 2])),
+        displays_as(eq(
+            "whose element #2 does not match any expected elements and no elements match the expected elements #1, #2"
+        ))
+    )
+}
+
+#[test]
+#[ignore = "slow perf guard for matrix-heavy matcher changes"]
+fn contains_each_semantics_large_perf_guard() -> Result<()> {
+    let actual: Vec<i64> = (0..4500).map(i64::from).collect();
+    let expected: Vec<i64> = (900..1900).map(i64::from).collect();
+
+    let matcher = make_unordered_eq_matcher(&expected, Requirements::Superset);
+    verify_that!(as_json_array(&actual), matcher)
+}
+
+#[test]
+#[ignore = "slow perf guard for matrix-heavy matcher changes"]
+fn is_contained_in_semantics_large_perf_guard() -> Result<()> {
+    let actual: Vec<i64> = (0..1000).map(i64::from).collect();
+    let expected: Vec<i64> = (0..5000).map(i64::from).collect();
+
+    let matcher = make_unordered_eq_matcher(&expected, Requirements::Subset);
+    verify_that!(as_json_array(&actual), matcher)
+}
