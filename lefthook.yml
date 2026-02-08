@@ -1,0 +1,4 @@
+pre-push:
+  commands:
+    commitlint:
+      run: scripts/lint-push-commits.sh
