@@ -40,10 +40,15 @@ googletest = "0.14.2"
 serde_json = "1.0.149"
 
 [dev-dependencies]
+criterion = "0.5.1"
 indoc = "2.0.7"
 
 [lib]
 doctest = true
+
+[[bench]]
+name = "match_matrix_bench"
+harness = false
 
 [badges]
 maintenance = { status = "actively-developed" }

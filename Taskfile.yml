@@ -67,6 +67,13 @@ tasks:
       - cargo test --doc --all-features --quiet
     silent: false
 
+  bench-matrix:
+    desc: Run Criterion benchmarks for match matrix performance
+    cmds:
+      - echo "📈 Running match_matrix Criterion benchmark..."
+      - cargo bench --bench match_matrix_bench
+    silent: false
+
   coverage:
     desc: Run tests and report code coverage (requires cargo-llvm-cov)
     cmds:
