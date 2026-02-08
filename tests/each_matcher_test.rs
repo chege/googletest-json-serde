@@ -68,7 +68,7 @@ fn each_fails_on_object() -> Result<()> {
 
 #[test]
 fn each_fails_on_null() -> Result<()> {
-    let result = verify_that!(json!(null), j::each!(j::is_string()));
+    let result = verify_that!(json!(null), j::each!(starts_with("a")));
     verify_that!(
         result,
         err(displays_as(contains_substring("not a JSON array")))

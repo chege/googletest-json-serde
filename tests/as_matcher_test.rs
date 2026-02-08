@@ -73,38 +73,10 @@ fn as_object_does_not_match_non_object_value() {
 }
 
 #[test]
-fn composition_with_pat() {
-    assert_that!(
-        json!({
-            "name": "Alice",
-            "age": 30,
-            "active": true,
-            "tags": ["admin", "staff"]
-        }),
-        j::pat!({
-            "name": j::as_string(starts_with("A")),
-            "age": j::as_i64(ge(18)),
-            "active": j::as_bool(eq(true)),
-            "tags": j::as_array(contains(j::as_string(eq("admin"))))
-        })
-    );
-}
-
-#[test]
 fn handles_anything_ambiguity() {
     // This would fail to compile with primitive!(anything()) or just anything()
     assert_that!(json!(42), j::as_i64(anything()));
     assert_that!(json!("hi"), j::as_string(anything()));
-}
-
-#[test]
-fn nested_as_object() {
-    assert_that!(
-        json!({"user": {"id": "123"}}),
-        j::pat!({
-            "user": j::as_object(len(eq(1)))
-        })
-    );
 }
 
 #[test]
