@@ -20,7 +20,6 @@ pub mod internal {
     use crate::matchers::__internal_unstable_do_not_depend_on_these::JsonMatcher;
     use googletest::description::Description;
     use googletest::matcher::MatcherResult;
-    use std::collections::HashSet;
     use std::fmt::Display;
 
     /// The requirements of the mapping between matchers and actual values by
@@ -498,9 +497,14 @@ pub mod internal {
         }
 
         pub(crate) fn get_unmatched_expected(&self) -> Vec<usize> {
-            let matched_expected: HashSet<_> = self.actual_match.iter().flatten().collect();
+            let mut matched_expected = vec![false; self.expected_len];
+            for &maybe_expected_idx in &self.actual_match {
+                if let Some(expected_idx) = maybe_expected_idx {
+                    matched_expected[expected_idx] = true;
+                }
+            }
             (0..self.expected_len)
-                .filter(|expected_idx| !matched_expected.contains(expected_idx))
+                .filter(|&expected_idx| !matched_expected[expected_idx])
                 .collect()
         }
 
@@ -514,10 +518,6 @@ pub mod internal {
             if self.is_full_match() {
                 return None;
             }
-            let mut error_message =
-                format!("which does not have a {requirements} match with the expected elements.");
-
-            error_message.push_str("\n  The best match found was: ");
 
             let matches = self.get_matches().map(|(actual_idx, expected_idx)|{
                 format!(
