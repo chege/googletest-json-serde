@@ -74,6 +74,33 @@ tasks:
       - cargo bench --bench match_matrix_bench
     silent: false
 
+  bench-matrix-rss:
+    desc: Run ignored matrix perf guards and report wall time + peak RSS
+    cmds:
+      - echo "📉 Running matrix perf guards with RSS reporting..."
+      - |
+        for t in \
+          perfect_match_large_perf_guard \
+          contains_each_semantics_large_perf_guard \
+          is_contained_in_semantics_large_perf_guard; do
+          echo "=== $t ==="
+          if /usr/bin/time -l cargo test --release --test match_matrix_regression_test -- --ignored --exact "$t" >/tmp/${t}.log 2>/tmp/${t}.time; then
+            status=0
+          else
+            status=$?
+          fi
+          cat /tmp/${t}.time
+          if [ $status -ne 0 ]; then
+            if /opt/homebrew/bin/rg -q "test result: ok\\." /tmp/${t}.log && /opt/homebrew/bin/rg -q "kern.clockrate: Operation not permitted" /tmp/${t}.time; then
+              echo "note: continuing despite sandbox-restricted /usr/bin/time -l"
+            else
+              cat /tmp/${t}.log
+              exit $status
+            fi
+          fi
+        done
+    silent: false
+
   coverage:
     desc: Run tests and report code coverage (requires cargo-llvm-cov)
     cmds:
