@@ -93,8 +93,17 @@ fn unordered_elements_are_unmatchable_actual_description_mismatch() -> Result<()
     )
 }
 #[test]
-fn unordered_elements_are_matches_when_expected_duplicates_are_fully_matched() -> Result<()> {
+fn unordered_elements_are_rejects_when_expected_duplicates_exceed_actual() -> Result<()> {
     let value = json!(["a", "b"]);
+    verify_that!(
+        value,
+        not(j::unordered_elements_are![eq("a"), eq("a"), eq("b")])
+    )
+}
+
+#[test]
+fn unordered_elements_are_matches_when_expected_duplicates_are_fully_present() -> Result<()> {
+    let value = json!(["a", "a", "b"]);
     verify_that!(value, j::unordered_elements_are![eq("a"), eq("a"), eq("b")])
 }
 #[test]

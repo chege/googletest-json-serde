@@ -90,7 +90,9 @@ pub mod internal {
     ///
     /// This matrix is specialized for matching JSON values using `JsonMatcher`.
     pub(crate) struct MatchMatrix {
-        graph: Vec<Vec<MatcherResult>>, // graph[actual_idx][expected_idx]
+        // Flat row-major matrix storing match results for (actual_idx, expected_idx).
+        graph: Vec<MatcherResult>,
+        actual_len: usize,
         expected_len: usize,
     }
 
@@ -100,19 +102,34 @@ pub mod internal {
             expected: &[Box<dyn JsonMatcher>],
         ) -> Self {
             let expected_len = expected.len();
-            let graph = actual
-                .into_iter()
-                .map(|value| {
-                    expected
-                        .iter()
-                        .map(|matcher| matcher.matches(value))
-                        .collect()
-                })
-                .collect();
+            let mut graph = Vec::new();
+            let mut actual_len = 0;
+            for value in actual {
+                actual_len += 1;
+                graph.extend(expected.iter().map(|matcher| matcher.matches(value)));
+            }
             MatchMatrix {
                 graph,
+                actual_len,
                 expected_len,
             }
+        }
+
+        fn matrix_index(&self, actual_idx: usize, expected_idx: usize) -> usize {
+            actual_idx * self.expected_len + expected_idx
+        }
+
+        fn cell(&self, actual_idx: usize, expected_idx: usize) -> MatcherResult {
+            self.graph[self.matrix_index(actual_idx, expected_idx)]
+        }
+
+        fn actual_has_match(&self, actual_idx: usize) -> bool {
+            (0..self.expected_len)
+                .any(|expected_idx| self.cell(actual_idx, expected_idx).is_match())
+        }
+
+        fn expected_has_match(&self, expected_idx: usize) -> bool {
+            (0..self.actual_len).any(|actual_idx| self.cell(actual_idx, expected_idx).is_match())
         }
 
         pub(crate) fn is_match_for(&self, requirements: Requirements) -> bool {
@@ -149,18 +166,12 @@ pub mod internal {
         // This is a necessary condition but not sufficient. But it is faster
         // than `find_best_match()`.
         fn find_unmatchable_elements(&self) -> UnmatchableElements {
-            let unmatchable_actual = self
-                .graph
-                .iter()
-                .map(|row| row.iter().all(|&e| e.is_no_match()))
+            let unmatchable_actual = (0..self.actual_len)
+                .map(|actual_idx| !self.actual_has_match(actual_idx))
                 .collect();
             let mut unmatchable_expected = vec![false; self.expected_len];
             for (col_idx, expected) in unmatchable_expected.iter_mut().enumerate() {
-                *expected = self
-                    .graph
-                    .iter()
-                    .map(|row| row[col_idx])
-                    .all(|e| e.is_no_match());
+                *expected = !self.expected_has_match(col_idx);
             }
             UnmatchableElements {
                 unmatchable_actual,
@@ -171,23 +182,17 @@ pub mod internal {
         fn find_unmatched_expected(&self) -> UnmatchableElements {
             let mut unmatchable_expected = vec![false; self.expected_len];
             for (col_idx, expected) in unmatchable_expected.iter_mut().enumerate() {
-                *expected = self
-                    .graph
-                    .iter()
-                    .map(|row| row[col_idx])
-                    .all(|e| e.is_no_match());
+                *expected = !self.expected_has_match(col_idx);
             }
             UnmatchableElements {
-                unmatchable_actual: vec![false; self.expected_len],
+                unmatchable_actual: vec![false; self.actual_len],
                 unmatchable_expected,
             }
         }
 
         fn find_unmatched_actual(&self) -> UnmatchableElements {
-            let unmatchable_actual = self
-                .graph
-                .iter()
-                .map(|row| row.iter().all(|e| e.is_no_match()))
+            let unmatchable_actual = (0..self.actual_len)
+                .map(|actual_idx| !self.actual_has_match(actual_idx))
                 .collect();
             UnmatchableElements {
                 unmatchable_actual,
@@ -260,7 +265,7 @@ pub mod internal {
         //   [2] "Ford-Fulkerson algorithm", Wikipedia,
         //       'http://en.wikipedia.org/wiki/Ford%E2%80%93Fulkerson_algorithm'
         pub(crate) fn find_best_match(&self) -> BestMatch {
-            let mut actual_match = vec![None; self.graph.len()];
+            let mut actual_match = vec![None; self.actual_len];
             let mut expected_match: Vec<Option<usize>> = vec![None; self.expected_len];
             // Searches the residual flow graph for a path from each actual node to
             // the sink in the residual flow graph, and if one is found, add this path
@@ -275,7 +280,7 @@ pub mod internal {
             // need to visit the actual nodes more than once looking for
             // augmented paths. The flow is known to be possible or impossible
             // by looking at the node once.
-            for actual_idx in 0..self.graph.len() {
+            for actual_idx in 0..self.actual_len {
                 assert!(actual_match[actual_idx].is_none());
                 let mut seen = vec![false; self.expected_len];
                 self.try_augment(
@@ -317,7 +322,7 @@ pub mod internal {
                 if seen[expected_idx] {
                     continue;
                 }
-                if self.graph[actual_idx][expected_idx].is_no_match() {
+                if self.cell(actual_idx, expected_idx).is_no_match() {
                     continue;
                 }
                 // There is an edge between `actual_idx` and `expected_idx`.

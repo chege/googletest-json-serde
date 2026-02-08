@@ -190,6 +190,13 @@ pub mod internal {
             let Value::Array(actual_array) = actual else {
                 return MatcherResult::NoMatch;
             };
+            if self
+                .requirements
+                .explain_size_mismatch(actual_array, self.elements.len())
+                .is_some()
+            {
+                return MatcherResult::NoMatch;
+            }
             let matrix = MatchMatrix::generate(actual_array, &self.elements);
             matrix.is_match_for(self.requirements).into()
         }
