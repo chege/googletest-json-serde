@@ -122,13 +122,26 @@ pub mod internal {
             self.graph[self.matrix_index(actual_idx, expected_idx)]
         }
 
-        fn actual_has_match(&self, actual_idx: usize) -> bool {
-            (0..self.expected_len)
-                .any(|expected_idx| self.cell(actual_idx, expected_idx).is_match())
+        fn matched_actual_and_expected(&self) -> (Vec<bool>, Vec<bool>) {
+            let mut matched_actual = vec![false; self.actual_len];
+            let mut matched_expected = vec![false; self.expected_len];
+
+            for actual_idx in 0..self.actual_len {
+                let row_start = actual_idx * self.expected_len;
+                for expected_idx in 0..self.expected_len {
+                    if self.graph[row_start + expected_idx].is_match() {
+                        matched_actual[actual_idx] = true;
+                        matched_expected[expected_idx] = true;
+                    }
+                }
+            }
+
+            (matched_actual, matched_expected)
         }
 
-        fn expected_has_match(&self, expected_idx: usize) -> bool {
-            (0..self.actual_len).any(|actual_idx| self.cell(actual_idx, expected_idx).is_match())
+        fn actual_has_match(&self, actual_idx: usize) -> bool {
+            let row_start = actual_idx * self.expected_len;
+            (0..self.expected_len).any(|expected_idx| self.graph[row_start + expected_idx].is_match())
         }
 
         pub(crate) fn is_match_for(&self, requirements: Requirements) -> bool {
@@ -165,13 +178,12 @@ pub mod internal {
         // This is a necessary condition but not sufficient. But it is faster
         // than `find_best_match()`.
         fn find_unmatchable_elements(&self) -> UnmatchableElements {
-            let unmatchable_actual = (0..self.actual_len)
-                .map(|actual_idx| !self.actual_has_match(actual_idx))
+            let (matched_actual, matched_expected) = self.matched_actual_and_expected();
+            let unmatchable_actual = matched_actual.into_iter().map(|matched| !matched).collect();
+            let unmatchable_expected = matched_expected
+                .into_iter()
+                .map(|matched| !matched)
                 .collect();
-            let mut unmatchable_expected = vec![false; self.expected_len];
-            for (col_idx, expected) in unmatchable_expected.iter_mut().enumerate() {
-                *expected = !self.expected_has_match(col_idx);
-            }
             UnmatchableElements {
                 unmatchable_actual,
                 unmatchable_expected,
@@ -179,10 +191,11 @@ pub mod internal {
         }
 
         fn find_unmatched_expected(&self) -> UnmatchableElements {
-            let mut unmatchable_expected = vec![false; self.expected_len];
-            for (col_idx, expected) in unmatchable_expected.iter_mut().enumerate() {
-                *expected = !self.expected_has_match(col_idx);
-            }
+            let (_, matched_expected) = self.matched_actual_and_expected();
+            let unmatchable_expected = matched_expected
+                .into_iter()
+                .map(|matched| !matched)
+                .collect();
             UnmatchableElements {
                 unmatchable_actual: vec![false; self.actual_len],
                 unmatchable_expected,
