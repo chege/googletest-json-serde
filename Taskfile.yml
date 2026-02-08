@@ -54,6 +54,19 @@ tasks:
         fi
     silent: false
 
+  test-all:
+    desc: Run all tests (unit, integration, ignored, and doctests)
+    cmds:
+      - echo "🧪 Running unit/integration tests..."
+      - cargo test --all-features --quiet
+
+      - echo "🧪 Running ignored tests..."
+      - cargo test --all-features --quiet -- --ignored
+
+      - echo "🧪 Running doctests..."
+      - cargo test --doc --all-features --quiet
+    silent: false
+
   coverage:
     desc: Run tests and report code coverage (requires cargo-llvm-cov)
     cmds:
