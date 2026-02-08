@@ -101,7 +101,9 @@ pub mod internal {
             expected: &[Box<dyn JsonMatcher>],
         ) -> Self {
             let expected_len = expected.len();
-            let mut graph = Vec::new();
+            let actual = actual.into_iter();
+            let (actual_lower_bound, _) = actual.size_hint();
+            let mut graph = Vec::with_capacity(actual_lower_bound.saturating_mul(expected_len));
             let mut actual_len = 0;
             for value in actual {
                 actual_len += 1;
@@ -125,11 +127,13 @@ pub mod internal {
         fn matched_actual_and_expected(&self) -> (Vec<bool>, Vec<bool>) {
             let mut matched_actual = vec![false; self.actual_len];
             let mut matched_expected = vec![false; self.expected_len];
+            if self.expected_len == 0 {
+                return (matched_actual, matched_expected);
+            }
 
-            for actual_idx in 0..self.actual_len {
-                let row_start = actual_idx * self.expected_len;
-                for expected_idx in 0..self.expected_len {
-                    if self.graph[row_start + expected_idx].is_match() {
+            for (actual_idx, row) in self.graph.chunks(self.expected_len).enumerate() {
+                for (expected_idx, &cell) in row.iter().enumerate() {
+                    if cell.is_match() {
                         matched_actual[actual_idx] = true;
                         matched_expected[expected_idx] = true;
                     }
@@ -141,7 +145,8 @@ pub mod internal {
 
         fn actual_has_match(&self, actual_idx: usize) -> bool {
             let row_start = actual_idx * self.expected_len;
-            (0..self.expected_len).any(|expected_idx| self.graph[row_start + expected_idx].is_match())
+            (0..self.expected_len)
+                .any(|expected_idx| self.graph[row_start + expected_idx].is_match())
         }
 
         pub(crate) fn is_match_for(&self, requirements: Requirements) -> bool {
