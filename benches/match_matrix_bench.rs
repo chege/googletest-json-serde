@@ -1,9 +1,10 @@
-use criterion::{Criterion, black_box, criterion_group, criterion_main};
+use criterion::{Criterion, criterion_group, criterion_main};
 use googletest::matcher::Matcher;
 use googletest_json_serde::matchers::__internal_unstable_do_not_depend_on_these::{
     IntoJsonMatcher, JsonUnorderedElementsAreMatcher, Literal, Requirements,
 };
 use serde_json::Value;
+use std::hint::black_box;
 use std::time::Duration;
 
 fn as_json_array(values: &[i64]) -> Value {
