@@ -1,3 +1,5 @@
 [toolchain]
+# Pinned dev toolchain for reproducible clippy/rustfmt diagnostics in local runs and CI.
+# Public compatibility is still MSRV 1.89.0 (see Cargo.toml and `task msrv`).
 channel = "1.96.1"
 components = ["clippy", "rustfmt"]

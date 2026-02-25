@@ -60,7 +60,8 @@ cargo add googletest googletest-json-serde serde_json --dev
 ## Prerequisites
 
 - Consumer MSRV: Rust `1.89.0` or newer (`rust-version` in `Cargo.toml`)
-- Contributor toolchain: latest stable Rust for `task verify` / Clippy parity with CI
+- Default contributor toolchain: Rust `1.93.1` (`rust-toolchain.toml`) for reproducible `clippy`/`rustfmt` diagnostics
+- Rationale: we pin a newer dev toolchain for consistent local/CI lint output while keeping crate compatibility at MSRV
 - To verify MSRV locally: `rustup toolchain install 1.89.0` then `task msrv`
 - Cargo with `cargo add` support
 - A Rust project where you run tests (for consumer quickstart)
