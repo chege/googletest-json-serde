@@ -49,6 +49,71 @@ fn pat_matches_nested_object_strict_implicit() -> Result<()> {
 }
 
 #[test]
+fn matches_pattern_alias_parity_strict_match() -> Result<()> {
+    let value = json!({
+        "user": {
+            "id": 1,
+            "name": "Alice"
+        },
+        "active": true
+    });
+
+    verify_that!(
+        value.clone(),
+        j::pat!({
+            "user": {
+                "id": eq(1),
+                "name": starts_with("Ali"),
+            },
+            "active": eq(true),
+        })
+    )?;
+    verify_that!(
+        value,
+        j::matches_pattern!({
+            "user": {
+                "id": eq(1),
+                "name": starts_with("Ali"),
+            },
+            "active": eq(true),
+        })
+    )
+}
+
+#[test]
+fn matches_pattern_alias_parity_strict_rejects_extra_fields() -> Result<()> {
+    let value = json!({
+        "user": {
+            "id": 1,
+            "name": "Alice"
+        },
+        "active": true,
+        "extra_top": "unexpected"
+    });
+
+    verify_that!(
+        value.clone(),
+        not(j::pat!({
+            "user": {
+                "id": eq(1),
+                "name": eq("Alice"),
+            },
+            "active": eq(true),
+        }))
+    )?;
+    verify_that!(
+        value,
+        not(j::matches_pattern!({
+            "user": {
+                "id": eq(1),
+                "name": eq("Alice"),
+            },
+            "active": eq(true),
+        }))
+    )
+}
+
+#[test]
 fn pat_matches_nested_object_non_strict() -> Result<()> {
     let val = json!({
         "user": {
@@ -66,6 +131,78 @@ fn pat_matches_nested_object_non_strict() -> Result<()> {
                 ..
             })
         })
+    )
+}
+
+#[test]
+fn matches_pattern_alias_parity_relaxed_match() -> Result<()> {
+    let value = json!({
+        "user": {
+            "id": 1,
+            "name": "Alice",
+            "extra": "ok"
+        },
+        "active": true,
+        "extra_top": "allowed"
+    });
+
+    verify_that!(
+        value.clone(),
+        j::pat!({
+            "user": {
+                "id": eq(1),
+                ..
+            },
+            "active": eq(true),
+            ..
+        })
+    )?;
+    verify_that!(
+        value,
+        j::matches_pattern!({
+            "user": {
+                "id": eq(1),
+                ..
+            },
+            "active": eq(true),
+            ..
+        })
+    )
+}
+
+#[test]
+fn matches_pattern_alias_parity_relaxed_still_checks_required_fields() -> Result<()> {
+    let value = json!({
+        "user": {
+            "id": 1,
+            "name": "Alice",
+            "extra": "ok"
+        },
+        "active": false,
+        "extra_top": "allowed"
+    });
+
+    verify_that!(
+        value.clone(),
+        not(j::pat!({
+            "user": {
+                "id": eq(1),
+                ..
+            },
+            "active": eq(true),
+            ..
+        }))
+    )?;
+    verify_that!(
+        value,
+        not(j::matches_pattern!({
+            "user": {
+                "id": eq(1),
+                ..
+            },
+            "active": eq(true),
+            ..
+        }))
     )
 }
 
