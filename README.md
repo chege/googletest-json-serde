@@ -12,6 +12,8 @@
     <span> | </span>
     <a href="#more-examples">More Examples</a>
     <span> | </span>
+    <a href="#runnable-examples">Runnable Examples</a>
+    <span> | </span>
     <a href="#documentation">Documentation</a>
     <span> | </span>
     <a href="#contributing">Contributing</a>
@@ -228,11 +230,22 @@ assert_that!(
 );
 ```
 
+## Runnable Examples
+
+All files in `examples/` are runnable binaries with a standard `fn main()` entry point:
+
+```bash
+cargo run --example quickstart
+cargo run --example path_matchers
+cargo run --example arrays_unordered
+```
+
 ## Documentation
 
 - API reference: <https://docs.rs/googletest-json-serde>
 - Crate: <https://crates.io/crates/googletest-json-serde>
-- More usage patterns live in `tests/` and `sanity/tests/sanity_test.rs`.
+- Runnable examples: `examples/quickstart.rs`, `examples/path_matchers.rs`, `examples/arrays_unordered.rs`.
+- Additional repo-only usage patterns live in `tests/` and `sanity/tests/sanity_test.rs`.
 
 ## Contributing
 
