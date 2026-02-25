@@ -46,6 +46,32 @@ tasks:
         fi
     silent: false
 
+  msrv:
+    desc: Run tests and doctests on MSRV (Rust 1.89.0)
+    cmds:
+      - echo "🦀 Running MSRV checks (Rust 1.89.0)..."
+      - |
+        if ! command -v rustup >/dev/null 2>&1; then
+          echo "rustup is required for this task"
+          exit 1
+        fi
+        if ! rustup run 1.89.0 rustc --version >/dev/null 2>&1; then
+          echo "missing Rust 1.89.0 toolchain. install with: rustup toolchain install 1.89.0"
+          exit 1
+        fi
+      - |
+        if command -v cargo-nextest >/dev/null 2>&1; then
+          cargo +1.89.0 nextest run --all-features \
+            --hide-progress-bar \
+            --failure-output=immediate \
+            --success-output=never \
+            --status-level=fail
+          cargo +1.89.0 test --doc --all-features --quiet
+        else
+          cargo +1.89.0 test --all-features --quiet
+        fi
+    silent: false
+
   fix:
     desc: Auto-fix formatting and Clippy issues, then run tests
     cmds:
