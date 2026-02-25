@@ -17,6 +17,21 @@ tasks:
       - echo "🔍 Running Clippy (stable)..."
       - cargo clippy --workspace --all-targets --all-features -- -D warnings
 
+      - echo "📦 Verifying package includes runnable examples..."
+      - |
+        if [ -x /opt/homebrew/bin/rg ]; then
+          RG=/opt/homebrew/bin/rg
+        else
+          RG=rg
+        fi
+        list="$(cargo package --allow-dirty --no-verify --list)"
+        for ex in examples/quickstart.rs examples/path_matchers.rs examples/arrays_unordered.rs; do
+          if ! printf '%s\n' "$list" | "$RG" -q "^${ex}$"; then
+            echo "missing packaged example: ${ex}"
+            exit 1
+          fi
+        done
+
       - echo "🧪 Running tests..."
       - |
         if command -v cargo-nextest >/dev/null 2>&1; then

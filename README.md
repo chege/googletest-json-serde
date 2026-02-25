@@ -6,7 +6,11 @@
     <span> | </span>
     <a href="#installation">Installation</a>
     <span> | </span>
+    <a href="#first-assertion">First Assertion</a>
+    <span> | </span>
     <a href="#usage">Usage</a>
+    <span> | </span>
+    <a href="#matcher-selection-guide">Matcher Selection Guide</a>
     <span> | </span>
     <a href="#features">Features</a>
     <span> | </span>
@@ -47,6 +51,27 @@ Add as a dev-dependency:
 cargo add googletest-json-serde --dev
 ```
 
+## First Assertion
+
+Start with one minimal, readable assertion:
+
+```rust
+use googletest::prelude::*;
+use googletest_json_serde::json as j;
+use serde_json::json;
+
+fn main() {
+    let response = json!({"ok": true, "count": 3});
+    assert_that!(response, j::pat!({"ok": j::is_true(), "count": ge(1), ..}));
+}
+```
+
+Or run the built-in quickstart directly:
+
+```bash
+cargo run --example quickstart
+```
+
 ## Usage
 
 ```rust
@@ -79,6 +104,24 @@ assert_that!(
     })
 );
 ```
+
+## Matcher Selection Guide
+
+Use this as a quick decision table while writing assertions:
+
+| You want to assert | Use |
+| --- | --- |
+| Exact object structure and values | `j::pat!({ ... })` |
+| Object structure with extra fields allowed | `j::pat!({ ... , .. })` |
+| Array elements in exact order | `j::elements_are![ ... ]` |
+| Array elements regardless of order | `j::unordered_elements_are![ ... ]` |
+| Array contains required subset | `j::contains_each![ ... ]` |
+| Every array element matches one rule | `j::each!(...)` or `j::each_is_*()` |
+| Specific leaf path value | `j::has_path_with!(\"path.to.leaf\", ...)` |
+| Required path presence | `j::has_paths(&[ ... ])` |
+| Exact path set (no extras/missing) | `j::has_only_paths(&[ ... ])` |
+| Type-safe bridge to native matchers | `j::as_string(...)`, `j::as_i64(...)`, ... |
+| Field can be missing/null/or matched | `j::optional!(...)` |
 
 ## Features
 
