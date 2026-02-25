@@ -6,7 +6,11 @@
     <span> | </span>
     <a href="#installation">Installation</a>
     <span> | </span>
+    <a href="#prerequisites">Prerequisites</a>
+    <span> | </span>
     <a href="#first-assertion">First Assertion</a>
+    <span> | </span>
+    <a href="#after-first-success">After First Success</a>
     <span> | </span>
     <a href="#usage">Usage</a>
     <span> | </span>
@@ -19,6 +23,8 @@
     <a href="#runnable-examples">Runnable Examples</a>
     <span> | </span>
     <a href="#documentation">Documentation</a>
+    <span> | </span>
+    <a href="#troubleshooting">Troubleshooting</a>
     <span> | </span>
     <a href="#contributing">Contributing</a>
     <span> | </span>
@@ -45,32 +51,49 @@ heterogeneous arrays, deep object patterns, path checks, and produces readable f
 
 ## Installation
 
-Add as a dev-dependency:
+For a fresh test project, add the matcher crate and the directly-used crates from the snippets:
 
 ```bash
-cargo add googletest-json-serde --dev
+cargo add googletest googletest-json-serde serde_json --dev
 ```
+
+## Prerequisites
+
+- Rust toolchain compatible with this crate's MSRV (`rust-version = 1.89.0`)
+- Cargo with `cargo add` support
+- A Rust project where you run tests (for consumer quickstart)
 
 ## First Assertion
 
-Start with one minimal, readable assertion:
+Use this assertion body in any test function in your own project:
 
 ```rust
 use googletest::prelude::*;
 use googletest_json_serde::json as j;
 use serde_json::json;
 
-fn main() {
-    let response = json!({"ok": true, "count": 3});
-    assert_that!(response, j::pat!({"ok": j::is_true(), "count": ge(1), ..}));
-}
+let response = json!({"ok": true, "count": 3});
+assert_that!(response, j::pat!({"ok": j::is_true(), "count": ge(1), ..}));
 ```
 
-Or run the built-in quickstart directly:
+Run it:
+
+```bash
+cargo test
+```
+
+To run repository-owned runnable examples, execute from this repository root:
 
 ```bash
 cargo run --example quickstart
 ```
+
+## After First Success
+
+1. Use the [Matcher Selection Guide](#matcher-selection-guide) to choose the right matcher family.
+2. Run the other examples:
+   `cargo run --example path_matchers` and `cargo run --example arrays_unordered`.
+3. Expand assertions from a single field to full object/array shape checks with `j::pat!`.
 
 ## Usage
 
@@ -117,7 +140,7 @@ Use this as a quick decision table while writing assertions:
 | Array elements regardless of order | `j::unordered_elements_are![ ... ]` |
 | Array contains required subset | `j::contains_each![ ... ]` |
 | Every array element matches one rule | `j::each!(...)` or `j::each_is_*()` |
-| Specific leaf path value | `j::has_path_with!(\"path.to.leaf\", ...)` |
+| Specific leaf path value | `j::has_path_with!("path.to.leaf", ...)` |
 | Required path presence | `j::has_paths(&[ ... ])` |
 | Exact path set (no extras/missing) | `j::has_only_paths(&[ ... ])` |
 | Type-safe bridge to native matchers | `j::as_string(...)`, `j::as_i64(...)`, ... |
@@ -275,7 +298,8 @@ assert_that!(
 
 ## Runnable Examples
 
-All files in `examples/` are runnable binaries with a standard `fn main()` entry point:
+All files in `examples/` are runnable binaries with a standard `fn main()` entry point.
+Run these from this repository checkout:
 
 ```bash
 cargo run --example quickstart
@@ -289,6 +313,18 @@ cargo run --example arrays_unordered
 - Crate: <https://crates.io/crates/googletest-json-serde>
 - Runnable examples: `examples/quickstart.rs`, `examples/path_matchers.rs`, `examples/arrays_unordered.rs`.
 - Additional repo-only usage patterns live in `tests/` and `sanity/tests/sanity_test.rs`.
+
+## Troubleshooting
+
+- `use of unresolved module or unlinked crate 'googletest'`:
+  add missing dev dependencies:
+  `cargo add googletest googletest-json-serde serde_json --dev`
+- `no example target named 'quickstart'`:
+  run example commands from this repository root, not a consumer project.
+- Path matcher fails on dotted keys:
+  escape dots in field names, e.g. `user\\.name.id`.
+- Assertion output is hard to interpret:
+  start with `j::has_path_with!` on one leaf, then expand to `j::pat!` once the shape is confirmed.
 
 ## Contributing
 
