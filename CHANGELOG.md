@@ -6,6 +6,39 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.5.2](https://github.com/chege/googletest-json-serde/compare/v0.5.1...v0.5.2) - 2026-05-05
+
+[View diff on diff.rs](https://diff.rs/googletest-json-serde/0.5.1/googletest-json-serde/0.5.2/Cargo.toml)
+
+### <!-- 0 -->⛰️ Features
+
+- *(onboarding)* add first assertion guide and package example guard
+- *(examples)* add runnable main-based examples
+
+### <!-- 1 -->🐛 Bug Fixes
+
+- resolve deprecation warnings in benches and sanity tests
+
+### <!-- 2 -->🚜 Refactor
+
+- flatten match matrix and short-circuit size mismatches
+
+### <!-- 3 -->📚 Documentation
+
+- *(readme)* improve onboarding and troubleshooting
+
+### <!-- 4 -->⚡ Performance
+
+- *(match-matrix)* preallocate graph from size hint
+- *(match-matrix)* single-pass unmatchable graph scans
+- *(match-matrix)* remove hashset churn in explanations
+- *(match-matrix)* reuse seen state during augmentation
+- *(bench)* add criterion match-matrix benchmarks
+
+### <!-- 7 -->⚙️ Miscellaneous Tasks
+
+- *(hooks)* migrate husky commitlint to lefthook pre-push
+
 ## [0.5.1](https://github.com/chege/googletest-json-serde/compare/v0.5.0...v0.5.1) - 2026-02-07
 
 [View diff on diff.rs](https://diff.rs/googletest-json-serde/0.5.0/googletest-json-serde/0.5.1/Cargo.toml)
