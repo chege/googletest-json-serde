@@ -143,6 +143,7 @@ Use this as a quick decision table while writing assertions:
 | Array elements regardless of order | `j::unordered_elements_are![ ... ]` |
 | Array contains required subset | `j::contains_each![ ... ]` |
 | Every array element matches one rule | `j::each!(...)` or `j::each_is_*()` |
+| Every top-level object key/value matches one rule | `j::each_key(...)` / `j::each_value(...)` |
 | Specific leaf path value | `j::has_path_with!("path.to.leaf", ...)` |
 | Required path presence | `j::has_paths(&[ ... ])` |
 | Exact path set (no extras/missing) | `j::has_only_paths(&[ ... ])` |
@@ -161,6 +162,9 @@ Use this as a quick decision table while writing assertions:
   - Length: `j::len!`
   - Apply to all elements: `j::each!`
   - Type guard: `j::each_is_string()/number/boolean/null/array/object`
+- Object keys and values:
+  - Top-level keys: `j::each_key`
+  - Top-level values: `j::each_value`
 - Primitives and kinds:
   - `j::primitive!`, `j::is_number/integer/fractional_number/whole_number/string/boolean`, `j::is_true/false`, `j::is_null`, `j::is_not_null`, `j::is_empty_string/non_empty_string`, `j::is_empty_array/object`, `j::is_non_empty_array/object`
 - Paths and shape:
@@ -200,6 +204,26 @@ use serde_json::json;
 assert_that!(json!("123-ABC"), j::as_string(matches_regex(r"\d{3}-[A-Z]+")));
 assert_that!(json!(std::f64::consts::PI), j::as_f64(near(std::f64::consts::PI, 0.01)));
 assert_that!(json!([1, 2, 3]), j::as_array(contains(j::as_i64(eq(2)))));
+```
+
+### Object keys and values
+
+Apply a native googletest matcher to every key in a JSON object, or a JSON-aware matcher to every value:
+
+```rust
+use googletest::prelude::*;
+use googletest_json_serde::json as j;
+use serde_json::json;
+
+assert_that!(
+    json!({"usr_id": 1, "usr_name": "Nadja"}),
+    j::each_key(starts_with("usr_"))
+);
+
+assert_that!(
+    json!({"hp": 10, "mp": 20}),
+    j::each_value(j::as_i64(gt(0)))
+);
 ```
 
 ### Path value matching
