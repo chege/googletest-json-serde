@@ -131,6 +131,22 @@ fn comprehensive_matchers_demo() {
                 ]
             },
             "empty_object": {}
+        },
+        "adapter_matchers": {
+            "string": "adapter string",
+            "bool": true,
+            "i64": -64,
+            "u64": 64,
+            "f64": 3.5,
+            "i32": -32,
+            "u32": 32,
+            "i16": -16,
+            "u16": 16,
+            "i8": -8,
+            "u8": 8,
+            "usize": 5,
+            "array": [1, 2, 3],
+            "object": { "k": "v" }
         }
     });
 
@@ -257,6 +273,22 @@ fn comprehensive_matchers_demo() {
                     "list.0.k"
                 ]),
                 "empty_object": j::is_empty_object(),
+            }),
+            "adapter_matchers": j::pat!({
+                "string": j::as_string(starts_with("adapter")),
+                "bool": j::as_bool(is_true()),
+                "i64": j::as_i64(lt(0)),
+                "u64": j::as_u64(gt(0)),
+                "f64": j::as_f64(gt(3.0)),
+                "i32": j::as_i32(lt(0)),
+                "u32": j::as_u32(gt(0)),
+                "i16": j::as_i16(lt(0)),
+                "u16": j::as_u16(gt(0)),
+                "i8": j::as_i8(lt(0)),
+                "u8": j::as_u8(gt(0)),
+                "usize": j::as_usize(gt(0)),
+                "array": j::as_array(len(eq(3))),
+                "object": j::as_object(len(eq(1))),
             }),
         })
     );
