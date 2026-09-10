@@ -74,6 +74,12 @@ fn has_path_with_supports_escaped_dot_paths() -> Result<()> {
 }
 
 #[test]
+fn has_path_with_supports_numeric_object_keys() -> Result<()> {
+    let value = json!({"0": "zero"});
+    verify_that!(value, j::has_path_with!("0", eq("zero")))
+}
+
+#[test]
 fn has_path_with_handles_nested_array_indices() -> Result<()> {
     let value = json!({"items": [ {"id": 1}, {"id": 2, "name": "two"} ]});
     verify_that!(value, j::has_path_with!("items.1.name", eq("two")))

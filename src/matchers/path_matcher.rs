@@ -240,11 +240,11 @@ pub mod internal {
             let mut current = value;
             for seg in &self.segments {
                 match (seg, current) {
-                    (PathSegment::Field(name), Value::Object(map)) => {
+                    (PathSegment::KeyOrIndex(name), Value::Object(map)) => {
                         current = map.get(name)?;
                     }
-                    (PathSegment::Index(idx), Value::Array(arr)) => {
-                        current = arr.get(*idx)?;
+                    (PathSegment::KeyOrIndex(index), Value::Array(arr)) => {
+                        current = arr.get(index.parse::<usize>().ok()?)?;
                     }
                     _ => return None,
                 }

@@ -3,8 +3,7 @@ use std::collections::BTreeSet;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub(crate) enum PathSegment {
-    Field(String),
-    Index(usize),
+    KeyOrIndex(String),
 }
 
 #[derive(Clone, Debug)]
@@ -64,11 +63,7 @@ fn push_segment(
     if current.is_empty() {
         return Err(format!("Invalid path {path:?}: empty segment"));
     }
-    if let Ok(idx) = current.parse::<usize>() {
-        segments.push(PathSegment::Index(idx));
-    } else {
-        segments.push(PathSegment::Field(current.clone()));
-    }
+    segments.push(PathSegment::KeyOrIndex(current.clone()));
     current.clear();
     Ok(())
 }
@@ -90,14 +85,14 @@ fn collect_paths_inner(
     match value {
         Value::Object(map) => {
             for (k, v) in map {
-                current.push(PathSegment::Field(k.clone()));
+                current.push(PathSegment::KeyOrIndex(k.clone()));
                 collect_paths_inner(v, current, out);
                 current.pop();
             }
         }
         Value::Array(arr) => {
             for (idx, v) in arr.iter().enumerate() {
-                current.push(PathSegment::Index(idx));
+                current.push(PathSegment::KeyOrIndex(idx.to_string()));
                 collect_paths_inner(v, current, out);
                 current.pop();
             }
@@ -109,8 +104,7 @@ fn collect_paths_inner(
 pub(crate) fn format_path(path: &[PathSegment]) -> String {
     path.iter()
         .map(|segment| match segment {
-            PathSegment::Field(f) => escape_field(f),
-            PathSegment::Index(i) => i.to_string(),
+            PathSegment::KeyOrIndex(value) => escape_field(value),
         })
         .collect::<Vec<_>>()
         .join(".")
@@ -140,7 +134,7 @@ mod tests {
     use serde_json::json;
 
     fn f(name: &str) -> PathSegment {
-        PathSegment::Field(name.to_string())
+        PathSegment::KeyOrIndex(name.to_string())
     }
 
     #[test]
@@ -148,10 +142,7 @@ mod tests {
         let ParsedPaths { parsed, errors } = parse_expected_paths(&["user.id", "items.0.id"]);
         assert!(errors.is_empty());
         assert_eq!(parsed[0].segments, vec![f("user"), f("id")]);
-        assert_eq!(
-            parsed[1].segments,
-            vec![f("items"), PathSegment::Index(0), f("id")]
-        );
+        assert_eq!(parsed[1].segments, vec![f("items"), f("0"), f("id")]);
     }
 
     #[test]
@@ -176,13 +167,13 @@ mod tests {
         assert!(paths.contains(&vec![f("user")]));
         assert!(paths.contains(&vec![f("user"), f("id")]));
         assert!(paths.contains(&vec![f("list")]));
-        assert!(paths.contains(&vec![f("list"), PathSegment::Index(0)]));
-        assert!(paths.contains(&vec![f("list"), PathSegment::Index(0), f("a")]));
+        assert!(paths.contains(&vec![f("list"), f("0")]));
+        assert!(paths.contains(&vec![f("list"), f("0"), f("a")]));
     }
 
     #[test]
     fn format_path_round_trips_with_escape() {
-        let path = vec![f("user.name"), PathSegment::Index(0)];
+        let path = vec![f("user.name"), f("0")];
         assert_eq!(format_path(&path), r"user\.name.0");
     }
 
