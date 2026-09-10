@@ -42,6 +42,14 @@ fn has_paths_supports_array_indices() -> Result<()> {
 }
 
 #[test]
+fn has_paths_supports_numeric_object_keys() -> Result<()> {
+    verify_that!(
+        json!({"users": {"0": {"name": "Ada"}}}),
+        j::has_paths(&["users.0", "users.0.name"])
+    )
+}
+
+#[test]
 fn has_only_paths_matches_exact_set() -> Result<()> {
     verify_that!(
         json!({"id": 1, "name": "Alice"}),
@@ -75,6 +83,14 @@ fn has_only_paths_supports_nested_paths() -> Result<()> {
     verify_that!(
         json!({"user": {"id": 1}}),
         j::has_only_paths(&["user", "user.id"])
+    )
+}
+
+#[test]
+fn has_only_paths_supports_numeric_object_keys() -> Result<()> {
+    verify_that!(
+        json!({"0": {"name": "Ada"}}),
+        j::has_only_paths(&["0", "0.name"])
     )
 }
 
