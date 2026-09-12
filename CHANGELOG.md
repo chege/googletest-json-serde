@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.5.3](https://github.com/chege/googletest-json-serde/compare/v0.5.2...v0.5.3) - 2026-09-12
+
+> **Recovery release:** This release replaces the yanked version 0.5.2. It contains all changes
+> listed under 0.5.2 below and restores the public changes omitted from that release's notes.
+
+[View diff on diff.rs](https://diff.rs/googletest-json-serde/0.5.2/googletest-json-serde/0.5.3/Cargo.toml)
+
+### <!-- 0 -->⛰️ Features
+
+- Add `each_key` for matching every key in a top-level JSON object
+- Add `each_value` for matching every value in a top-level JSON object
+
+### <!-- 1 -->🐛 Bug Fixes
+
+- Support numeric object keys in `has_path_with`, `has_paths`, and `has_only_paths`
+
 ## [0.5.2](https://github.com/chege/googletest-json-serde/compare/v0.5.1...v0.5.2) - 2026-05-05
 
 > **Yanked:** The published package contained changes that were missing from these generated
