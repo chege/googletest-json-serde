@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.2](https://github.com/chege/googletest-json-serde/compare/v0.5.1...v0.5.2) - 2026-05-05
 
+> **Yanked:** The published package contained changes that were missing from these generated
+> release notes. Use version 0.5.3 or later.
+
 [View diff on diff.rs](https://diff.rs/googletest-json-serde/0.5.1/googletest-json-serde/0.5.2/Cargo.toml)
 
 ### <!-- 0 -->⛰️ Features
