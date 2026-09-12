@@ -297,4 +297,18 @@ fn comprehensive_matchers_demo() {
         response,
         j::has_path_with!("path_matchers.paths_allowing_extras.user.role", eq("admin"))
     );
+
+    assert_that!(
+        json!({"usr_primary": 1, "usr_secondary": 2}),
+        j::each_key(starts_with("usr_"))
+    );
+    assert_that!(
+        json!({"health": 10, "mana": 20}),
+        j::each_value(j::as_i64(gt(0)))
+    );
+
+    let numeric_key = json!({"0": {"value": "zero"}});
+    assert_that!(numeric_key, j::has_path_with!("0.value", eq("zero")));
+    assert_that!(numeric_key, j::has_paths(&["0", "0.value"]));
+    assert_that!(numeric_key, j::has_only_paths(&["0", "0.value"]));
 }
