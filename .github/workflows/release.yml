@@ -23,7 +23,7 @@ jobs:
           persist-credentials: false
       - &setup-rust
         name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9
+        uses: dtolnay/rust-toolchain@02cb101ec7c40f2c49e1d9714d64511d8e1b74de
         with:
           toolchain: stable
       # Generating a GitHub token, so that PRs and tags created by
@@ -37,7 +37,7 @@ jobs:
           # pull-requests permission is not needed for the `release` command, so restricting it to contents only
           permission-contents: write
       - name: Run `release-plz release`
-        uses: release-plz/action@b5543c19b03be9bd48852d20ca89f478b7723260 # v0.5.132
+        uses: release-plz/action@a80d79efe0a195618acb02a4089d55fe74d2505f # v0.5.136
         with:
           command: release
         env:
