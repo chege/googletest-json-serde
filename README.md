@@ -142,6 +142,7 @@ Use this as a quick decision table while writing assertions:
 | Array elements in exact order | `j::elements_are![ ... ]` |
 | Array elements regardless of order | `j::unordered_elements_are![ ... ]` |
 | Array contains required subset | `j::contains_each![ ... ]` |
+| Array subset/superset of JSON values (duplicates ignored) | `j::subset_of![ ... ]` / `j::superset_of![ ... ]` |
 | Every array element matches one rule | `j::each!(...)` or `j::each_is_*()` |
 | Every top-level object key/value matches one rule | `j::each_key(...)` / `j::each_value(...)` |
 | Specific leaf path value | `j::has_path_with!("path.to.leaf", ...)` |
@@ -159,6 +160,7 @@ Use this as a quick decision table while writing assertions:
   - Unordered: `j::unordered_elements_are!`
   - Contains-each: `j::contains_each!`
   - Contained-in: `j::is_contained_in!`
+  - Set membership by JSON value: `j::subset_of!`, `j::superset_of!`
   - Length: `j::len!`
   - Apply to all elements: `j::each!`
   - Type guard: `j::each_is_string()/number/boolean/null/array/object`
@@ -270,6 +272,20 @@ assert_that!(
 
 ### Arrays
 
+`j::subset_of!` and `j::superset_of!` compare JSON values for equality, ignoring
+order and duplicates in both arrays, like googletest's native set matchers.
+In contrast, `j::is_contained_in!` and `j::contains_each!` accept values or
+matchers and require distinct element-to-expected-entry assignments;
+duplicates therefore matter.
+The set macros accept mixed JSON-serializable values, not matchers, and convert
+each value using `serde_json::json!`; use `json!(null)` for null. Conversion
+panics if a value cannot be serialized as JSON; non-finite floats become JSON
+null. Unlike `j::as_array` with the native set matchers, they own expectations
+and compose inside JSON patterns.
+Native set matchers can also be used after extracting an array with
+`Value::as_array()`, but passing ordinary borrowed JSON expectations through
+`j::as_array` encounters the native matchers' iterator lifetime bounds.
+
 ```rust
 use googletest::prelude::*;
 use googletest_json_serde::json as j;
@@ -294,6 +310,12 @@ assert_that!(
     json!(["Nandor", "Nadja"]),
     j::each_is_string()
 );
+
+assert_that!(
+    json!({"tags": ["vampire", "vampire", 1]}),
+    j::pat!({"tags": j::subset_of!["vampire", 1]})
+);
+assert_that!(json!([1]), j::superset_of![1, 1]);
 ```
 
 ### Combined Example

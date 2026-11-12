@@ -16,8 +16,8 @@ pub mod json {
         is_contained_in, is_empty_array, is_empty_object, is_empty_string, is_false,
         is_fractional_number, is_integer, is_non_empty_array, is_non_empty_object,
         is_non_empty_string, is_not_null, is_null, is_number, is_object, is_string, is_true,
-        is_whole_number, len, matches_pattern, optional, pat, predicate, primitive,
-        unordered_elements_are, value,
+        is_whole_number, len, matches_pattern, optional, pat, predicate, primitive, subset_of,
+        superset_of, unordered_elements_are, value,
     };
 }
 
@@ -32,5 +32,5 @@ pub use json::{
     is_empty_array, is_empty_object, is_empty_string, is_false, is_fractional_number, is_integer,
     is_non_empty_array, is_non_empty_object, is_non_empty_string, is_not_null, is_null, is_number,
     is_object, is_string, is_true, is_whole_number, len, matches_pattern, optional, pat, predicate,
-    primitive, unordered_elements_are, value,
+    primitive, subset_of, superset_of, unordered_elements_are, value,
 };
