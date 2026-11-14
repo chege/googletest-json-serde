@@ -18,6 +18,65 @@ env:
   CARGO_PROFILE_DEV_DEBUG: 0  # Reduce debug info in dev builds
 
 jobs:
+  commitlint:
+    name: Commit messages
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Test commit message policy
+        run: node --test scripts/test-commitlint.cjs
+      - name: Check every PR commit
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          commits="$(git rev-list --reverse "$BASE_SHA..$HEAD_SHA")"
+          if [[ -z "$commits" ]]; then
+            echo "::error::No PR commits found to lint."
+            exit 1
+          fi
+          while read -r commit; do
+            echo "Checking commit $commit"
+            git log -1 --format=%B "$commit" | npx --no -- commitlint
+          done <<< "$commits"
+
+  audit:
+    name: Audit dependencies
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2.1.1
+        with:
+          rust-version: 1.89.0
+
+  guardrail-tests:
+    name: Guardrail tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: git-cliff@2.13.1
+      - run: python3 -m unittest discover -s scripts -p 'test_*.py'
+
   format:
     name: Format
     runs-on: ubuntu-24.04
@@ -135,3 +194,18 @@ jobs:
         env:
           RUSTFLAGS: -D warnings
         run: cargo test --all-features -- --nocapture
+
+  pr-gate:
+    name: pr-gate
+    if: ${{ always() && github.event_name == 'pull_request' }}
+    needs: [commitlint, audit, guardrail-tests, format, clippy, msrv, docs, minimal-versions, coverage, test]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check required job results
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: bash scripts/check-pr-gate.sh
