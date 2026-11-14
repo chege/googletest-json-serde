@@ -312,3 +312,98 @@ fn comprehensive_matchers_demo() {
     assert_that!(numeric_key, j::has_paths(&["0", "0.value"]));
     assert_that!(numeric_key, j::has_only_paths(&["0", "0.value"]));
 }
+
+#[test]
+#[allow(deprecated)]
+fn deprecated_matcher_aliases_remain_available() {
+    assert_that!(json!("value"), j::any_value());
+    assert_that!(json!(null), not(j::any_value()));
+    assert_that!(json!(42), j::value!(eq(42)));
+    assert_that!(json!(41), not(j::value!(eq(42))));
+}
+
+#[test]
+fn set_matchers_handle_duplicates_and_composition() {
+    let response = json!({
+        "subset": [1, "x", "x", [true, null]],
+        "superset": [1, "x", [true, null]]
+    });
+    assert_that!(
+        response,
+        j::pat!({
+            "subset": j::subset_of![1, "x", [true, null], false],
+            "superset": j::superset_of![1, 1, "x", [true, null]],
+        })
+    );
+    assert_that!(json!([1, 1]), not(j::is_contained_in![1]));
+    assert_that!(json!([1]), not(j::contains_each![1, 1]));
+    assert_that!(json!([1]), j::subset_of![1, 1]);
+    assert_that!(json!([1, 1]), j::superset_of![1]);
+    assert_that!(json!([1, 2]), not(j::subset_of![1]));
+    assert_that!(json!([1]), not(j::superset_of![1, 2]));
+    assert_that!(json!([]), j::subset_of![1]);
+    assert_that!(json!([1]), j::superset_of![]);
+    assert_that!(json!({}), not(j::subset_of![]));
+    assert_that!(json!(null), not(j::superset_of![]));
+}
+
+#[test]
+fn array_matchers_treat_nested_literals_as_single_values() {
+    let value = json!([[1, "x"], [true, null], []]);
+    assert_that!(value, j::elements_are![[1, "x"], [true, null], []]);
+    assert_that!(
+        value,
+        j::unordered_elements_are![[true, null], [], [1, "x"]]
+    );
+    assert_that!(value, j::contains_each![[1, "x"], [true, null]]);
+    assert_that!(
+        value,
+        j::is_contained_in![[1, "x"], [true, null], [], false]
+    );
+    assert_that!(json!([1, 2]), not(j::elements_are![[1, 2]]));
+    assert_that!(json!([1, 2]), not(j::unordered_elements_are![[1, 2]]));
+    assert_that!(json!([1, 2]), not(j::contains_each![[1, 2]]));
+    assert_that!(json!([1, 2]), not(j::is_contained_in![[1, 2]]));
+}
+
+#[test]
+fn array_paths_require_canonical_indices() {
+    let value = json!({"items": [10, 20], "00": "object key", "+0": "another key"});
+    assert_that!(value, j::has_path_with!("items.0", 10));
+    assert_that!(value, j::has_path_with!("00", "object key"));
+    assert_that!(value, j::has_path_with!("+0", "another key"));
+    for path in ["items.00", "items.+0", "items.01", "items.+1"] {
+        assert_that!(value, not(j::has_path_with!(path, j::is_number())));
+        assert_that!(value, not(j::has_paths(&[path])));
+    }
+
+    let result = verify_that!(json!([42]), j::has_path_with!("1", 42));
+    assert_that!(
+        result,
+        err(displays_as(contains_substring("missing path `1`")))
+    );
+}
+
+#[test]
+fn matcher_failures_explain_predicates_and_integer_conversions() {
+    let predicate = verify_that!(json!(1), not(j::predicate(|v| v.is_number())));
+    assert_that!(
+        predicate,
+        err(displays_as(contains_substring(
+            "which matches the predicate"
+        )))
+    );
+
+    let float = verify_that!(json!(1.0), j::primitive!(eq(1i64)));
+    assert_that!(
+        float,
+        err(displays_as(contains_substring(
+            "not a JSON integer representable as i64"
+        )))
+    );
+    let out_of_range = verify_that!(json!(-1), j::primitive!(eq(1u64)));
+    assert_that!(
+        out_of_range,
+        err(displays_as(contains_substring("out of u64 range")))
+    );
+}
