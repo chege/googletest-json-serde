@@ -314,6 +314,15 @@ fn comprehensive_matchers_demo() {
 }
 
 #[test]
+#[allow(deprecated)]
+fn deprecated_matcher_aliases_remain_available() {
+    assert_that!(json!("value"), j::any_value());
+    assert_that!(json!(null), not(j::any_value()));
+    assert_that!(json!(42), j::value!(eq(42)));
+    assert_that!(json!(41), not(j::value!(eq(42))));
+}
+
+#[test]
 fn set_matchers_handle_duplicates_and_composition() {
     let response = json!({
         "subset": [1, "x", "x", [true, null]],
