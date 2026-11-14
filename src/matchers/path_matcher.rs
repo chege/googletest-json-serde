@@ -5,10 +5,11 @@ use googletest::description::Description;
 use serde_json::Value;
 use std::collections::BTreeSet;
 
-/// Matches a JSON leaf at the given path against the provided matcher.
+/// Matches a JSON value at the given path against the provided matcher.
 ///
 /// The path uses the same dot-and-escape rules as [`has_paths`]. The matcher can be a literal,
-/// a `serde_json::Value`, or any native googletest matcher.
+/// a `serde_json::Value`, or any native googletest matcher. Paths can traverse objects and arrays,
+/// including a root array.
 ///
 /// # Examples
 ///
@@ -23,6 +24,8 @@ use std::collections::BTreeSet;
 ///         .and(j::has_path_with!("user.id", json!(7)))
 ///         .and(j::has_path_with!("user.name", starts_with("A")))
 /// );
+/// assert_that!(value, j::has_path_with!("user", json!({"id": 7, "name": "Ada"})));
+/// assert_that!(json!([{"id": 7}]), j::has_path_with!("0.id", 7));
 /// ```
 ///
 /// # Supported Inputs
@@ -31,8 +34,8 @@ use std::collections::BTreeSet;
 /// - Native googletest matchers
 ///
 /// # Errors
-/// Fails when the path is invalid, missing, the value is not an object, or the leaf does not
-/// satisfy the matcher.
+/// Fails when the path is invalid or missing, or the value at the path does not satisfy the
+/// matcher. A scalar root has no paths.
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_has_path_with {
@@ -280,7 +283,7 @@ pub mod internal {
             }
             let Some(leaf) = self.find_leaf(value) else {
                 return match value {
-                    Value::Object(_) => Description::new()
+                    Value::Object(_) | Value::Array(_) => Description::new()
                         .text(format!("missing path `{}`", format_path(&self.segments))),
                     _ => describe_json_type(value),
                 };

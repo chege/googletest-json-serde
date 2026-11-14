@@ -86,6 +86,20 @@ fn has_path_with_supports_numeric_object_keys() -> Result<()> {
 }
 
 #[test]
+fn has_path_with_supports_root_arrays() -> Result<()> {
+    verify_that!(json!([{"id": 7}]), j::has_path_with!("0.id", 7))
+}
+
+#[test]
+fn has_path_with_reports_missing_root_array_path() -> Result<()> {
+    let result = verify_that!(json!([42]), j::has_path_with!("1", 42));
+    verify_that!(
+        result,
+        err(displays_as(contains_substring("missing path `1`")))
+    )
+}
+
+#[test]
 fn has_path_with_handles_nested_array_indices() -> Result<()> {
     let value = json!({"items": [ {"id": 1}, {"id": 2, "name": "two"} ]});
     verify_that!(value, j::has_path_with!("items.1.name", eq("two")))

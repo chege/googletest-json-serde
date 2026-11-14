@@ -145,7 +145,7 @@ Use this as a quick decision table while writing assertions:
 | Array subset/superset of JSON values (duplicates ignored) | `j::subset_of![ ... ]` / `j::superset_of![ ... ]` |
 | Every array element matches one rule | `j::each!(...)` or `j::each_is_*()` |
 | Every top-level object key/value matches one rule | `j::each_key(...)` / `j::each_value(...)` |
-| Specific leaf path value | `j::has_path_with!("path.to.leaf", ...)` |
+| Value at a specific path | `j::has_path_with!("path.to.value", ...)` |
 | Required path presence | `j::has_paths(&[ ... ])` |
 | Exact path set (no extras/missing) | `j::has_only_paths(&[ ... ])` |
 | Type-safe bridge to native matchers | `j::as_string(...)`, `j::as_i64(...)`, ... |
@@ -239,7 +239,11 @@ let value = json!({"user": {"id": 7, "name": "Ada"}});
 assert_that!(value, j::has_path_with!("user.name", "Ada"));
 assert_that!(value, j::has_path_with!("user.id", json!(7)));
 assert_that!(value, j::has_path_with!("user.name", starts_with("A")));
+assert_that!(value, j::has_path_with!("user", json!({"id": 7, "name": "Ada"})));
+assert_that!(json!([{"id": 7}]), j::has_path_with!("0.id", 7));
 ```
+
+`j::has_path_with!` traverses root arrays as well as objects.
 
 ### Predicates
 
