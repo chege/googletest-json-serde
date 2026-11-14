@@ -44,18 +44,56 @@ fn predicate_with_description_overrides_default() -> Result<()> {
     let result = verify_that!(json!(1), matcher);
     verify_that!(
         result,
+        err(displays_as(all![
+            contains_substring("Expected: a string"),
+            contains_substring("which does not match the predicate")
+        ]))
+    )
+}
+
+#[test]
+fn predicate_explains_matching_value() -> Result<()> {
+    let matcher = j::predicate(|v| v.is_boolean());
+    verify_that!(
+        matcher.explain_match(&json!(true)),
+        displays_as(eq("which matches the predicate"))
+    )
+}
+
+#[test]
+fn predicate_explains_negated_match() -> Result<()> {
+    let matcher = j::predicate(|v| v.is_number());
+    let result = verify_that!(json!(1), not(matcher));
+    verify_that!(
+        result,
         err(displays_as(contains_substring(
-            "which does not match the predicate"
+            "which matches the predicate"
         )))
     )
 }
 
 #[test]
-fn predicate_explains_json_type() -> Result<()> {
-    let matcher = j::predicate(|v| v.is_boolean());
+fn predicate_with_description_explains_negated_match() -> Result<()> {
+    let matcher =
+        j::predicate(|v| v.is_number()).with_description("a number", "which is not a number");
+    let result = verify_that!(json!(1), not(matcher));
     verify_that!(
-        matcher.explain_match(&json!(true)),
-        displays_as(contains_substring("which does not match the predicate"))
+        result,
+        err(displays_as(all![
+            contains_substring("Expected: which is not a number"),
+            contains_substring("which matches the predicate")
+        ]))
+    )
+}
+
+#[test]
+fn predicate_with_explain_fn_explains_negated_match() -> Result<()> {
+    let matcher = j::predicate(|v| v.is_number())
+        .with_explain_fn(|_| Description::new().text("which is a number"));
+    let result = verify_that!(json!(1), not(matcher));
+    verify_that!(
+        result,
+        err(displays_as(contains_substring("which is a number")))
     )
 }
 
