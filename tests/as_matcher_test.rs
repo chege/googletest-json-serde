@@ -208,6 +208,27 @@ fn as_u64_explains_out_of_range() -> Result<()> {
 }
 
 #[test]
+fn integer_adapters_explain_float_encoded_numbers() -> Result<()> {
+    for value in [json!(1.0), json!(1.5)] {
+        let signed = verify_that!(value, j::as_i64(eq(1)));
+        verify_that!(
+            signed,
+            err(displays_as(contains_substring(
+                "not a JSON integer representable as i64"
+            )))
+        )?;
+        let unsigned = verify_that!(value, j::as_u64(eq(1)));
+        verify_that!(
+            unsigned,
+            err(displays_as(contains_substring(
+                "not a JSON integer representable as u64"
+            )))
+        )?;
+    }
+    Ok(())
+}
+
+#[test]
 fn as_i32_explains_not_valid_number() -> Result<()> {
     let result = verify_that!(json!(1.2), j::as_i32(eq(1)));
     verify_that!(

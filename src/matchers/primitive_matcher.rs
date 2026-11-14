@@ -68,7 +68,15 @@ pub mod internal {
     use crate::matchers::json_matcher::internal::{IntoJsonMatcher, JsonMatcher};
     use googletest::description::Description;
     use googletest::matcher::{Matcher, MatcherBase, MatcherResult};
-    use serde_json::Value;
+    use serde_json::{Number, Value};
+
+    fn integer_conversion_error(number: &Number, target: &str) -> Description {
+        if number.is_i64() || number.is_u64() {
+            format!("number out of {target} range: {number}").into()
+        } else {
+            format!("number is not a JSON integer representable as {target}: {number}").into()
+        }
+    }
 
     #[doc(hidden)]
     #[derive(MatcherBase)]
@@ -126,7 +134,7 @@ pub mod internal {
             match actual {
                 Value::Number(n) => match n.as_i64() {
                     Some(i) => self.inner.explain_match(i),
-                    None => Description::new().text(format!("number out of i64 range: {n}")),
+                    None => integer_conversion_error(n, "i64"),
                 },
                 _ => Description::new().text("which is not a JSON number"),
             }
@@ -214,7 +222,7 @@ pub mod internal {
             match actual {
                 Value::Number(n) => match n.as_u64() {
                     Some(u) => self.inner.explain_match(u),
-                    None => Description::new().text(format!("number out of u64 range: {n}")),
+                    None => integer_conversion_error(n, "u64"),
                 },
                 _ => Description::new().text("which is not a JSON number"),
             }
@@ -283,7 +291,7 @@ pub mod internal {
                         Ok(i32_val) => self.inner.explain_match(i32_val),
                         Err(_) => Description::new().text(format!("number out of i32 range: {n}")),
                     },
-                    None => Description::new().text(format!("number out of i64 range: {n}")),
+                    None => integer_conversion_error(n, "i32"),
                 },
                 _ => Description::new().text("which is not a JSON number"),
             }
@@ -325,7 +333,7 @@ pub mod internal {
                         Ok(i8_val) => self.inner.explain_match(i8_val),
                         Err(_) => Description::new().text(format!("number out of i8 range: {n}")),
                     },
-                    None => Description::new().text(format!("number out of i64 range: {n}")),
+                    None => integer_conversion_error(n, "i8"),
                 },
                 _ => Description::new().text("which is not a JSON number"),
             }
@@ -367,7 +375,7 @@ pub mod internal {
                         Ok(i16_val) => self.inner.explain_match(i16_val),
                         Err(_) => Description::new().text(format!("number out of i16 range: {n}")),
                     },
-                    None => Description::new().text(format!("number out of i64 range: {n}")),
+                    None => integer_conversion_error(n, "i16"),
                 },
                 _ => Description::new().text("which is not a JSON number"),
             }
@@ -409,7 +417,7 @@ pub mod internal {
                         Ok(u8_val) => self.inner.explain_match(u8_val),
                         Err(_) => Description::new().text(format!("number out of u8 range: {n}")),
                     },
-                    None => Description::new().text(format!("number out of u64 range: {n}")),
+                    None => integer_conversion_error(n, "u8"),
                 },
                 _ => Description::new().text("which is not a JSON number"),
             }
@@ -451,7 +459,7 @@ pub mod internal {
                         Ok(u16_val) => self.inner.explain_match(u16_val),
                         Err(_) => Description::new().text(format!("number out of u16 range: {n}")),
                     },
-                    None => Description::new().text(format!("number out of u64 range: {n}")),
+                    None => integer_conversion_error(n, "u16"),
                 },
                 _ => Description::new().text("which is not a JSON number"),
             }
@@ -493,7 +501,7 @@ pub mod internal {
                         Ok(u32_val) => self.inner.explain_match(u32_val),
                         Err(_) => Description::new().text(format!("number out of u32 range: {n}")),
                     },
-                    None => Description::new().text(format!("number out of u64 range: {n}")),
+                    None => integer_conversion_error(n, "u32"),
                 },
                 _ => Description::new().text("which is not a JSON number"),
             }
@@ -540,7 +548,7 @@ pub mod internal {
                             Description::new().text(format!("number out of usize range: {n}"))
                         }
                     },
-                    None => Description::new().text(format!("number not convertible to u64: {n}")),
+                    None => integer_conversion_error(n, "usize"),
                 },
                 _ => Description::new().text("which is not a JSON number"),
             }

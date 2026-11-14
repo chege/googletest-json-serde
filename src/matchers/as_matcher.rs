@@ -257,6 +257,10 @@ pub mod internal {
                     match actual.as_number() {
                         Some(n) => match n.$conv() {
                             Some(v) => self.inner.explain_match(v),
+                            None if $desc != "f64" && !n.is_i64() && !n.is_u64() => {
+                                format!("which is not a JSON integer representable as {}", $desc)
+                                    .into()
+                            }
                             None => {
                                 format!("which is a JSON number but out of {} range", $desc).into()
                             }

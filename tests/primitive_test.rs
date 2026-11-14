@@ -214,3 +214,92 @@ fn primitive_produces_correct_failure_message() -> Result<()> {
         ))))
     )
 }
+
+#[test]
+fn integer_primitives_explain_float_encoded_numbers() -> Result<()> {
+    for val in [json!(1.0), json!(1.5)] {
+        let signed = verify_that!(val, j::primitive!(eq(1i64)));
+        verify_that!(
+            signed,
+            err(displays_as(contains_substring(
+                "not a JSON integer representable as i64"
+            )))
+        )?;
+        let unsigned = verify_that!(val, j::primitive!(eq(1u64)));
+        verify_that!(
+            unsigned,
+            err(displays_as(contains_substring(
+                "not a JSON integer representable as u64"
+            )))
+        )?;
+        let small_signed = verify_that!(val, j::primitive!(eq(1i8)));
+        verify_that!(
+            small_signed,
+            err(displays_as(contains_substring(
+                "not a JSON integer representable as i8"
+            )))
+        )?;
+        let signed_16 = verify_that!(val, j::primitive!(eq(1i16)));
+        verify_that!(
+            signed_16,
+            err(displays_as(contains_substring(
+                "not a JSON integer representable as i16"
+            )))
+        )?;
+        let signed_32 = verify_that!(val, j::primitive!(eq(1i32)));
+        verify_that!(
+            signed_32,
+            err(displays_as(contains_substring(
+                "not a JSON integer representable as i32"
+            )))
+        )?;
+        let small_unsigned = verify_that!(val, j::primitive!(eq(1u8)));
+        verify_that!(
+            small_unsigned,
+            err(displays_as(contains_substring(
+                "not a JSON integer representable as u8"
+            )))
+        )?;
+        let unsigned_16 = verify_that!(val, j::primitive!(eq(1u16)));
+        verify_that!(
+            unsigned_16,
+            err(displays_as(contains_substring(
+                "not a JSON integer representable as u16"
+            )))
+        )?;
+        let unsigned_32 = verify_that!(val, j::primitive!(eq(1u32)));
+        verify_that!(
+            unsigned_32,
+            err(displays_as(contains_substring(
+                "not a JSON integer representable as u32"
+            )))
+        )?;
+        let size = verify_that!(val, j::primitive!(eq(1usize)));
+        verify_that!(
+            size,
+            err(displays_as(contains_substring(
+                "not a JSON integer representable as usize"
+            )))
+        )?;
+    }
+    Ok(())
+}
+
+#[test]
+fn integer_primitives_explain_out_of_range_integers() -> Result<()> {
+    let signed = verify_that!(json!(u64::MAX), j::primitive!(eq(1i64)));
+    verify_that!(
+        signed,
+        err(displays_as(contains_substring("out of i64 range")))
+    )?;
+    let unsigned = verify_that!(json!(-1), j::primitive!(eq(1u64)));
+    verify_that!(
+        unsigned,
+        err(displays_as(contains_substring("out of u64 range")))
+    )?;
+    let narrow = verify_that!(json!(u64::MAX), j::primitive!(eq(1i8)));
+    verify_that!(
+        narrow,
+        err(displays_as(contains_substring("out of i8 range")))
+    )
+}
