@@ -74,6 +74,12 @@ fn has_path_with_supports_escaped_dot_paths() -> Result<()> {
 }
 
 #[test]
+fn has_path_with_supports_escaped_backslash_paths() -> Result<()> {
+    let value = json!({"user\\name": {"id": 1}});
+    verify_that!(value, j::has_path_with!(r"user\\name.id", eq(1)))
+}
+
+#[test]
 fn has_path_with_supports_numeric_object_keys() -> Result<()> {
     let value = json!({"0": "zero"});
     verify_that!(value, j::has_path_with!("0", eq("zero")))

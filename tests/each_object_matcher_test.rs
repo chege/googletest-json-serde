@@ -12,6 +12,19 @@ fn each_key_matches_top_level_object_keys() -> Result<()> {
 }
 
 #[test]
+fn each_key_matches_empty_object() -> Result<()> {
+    verify_that!(json!({}), j::each_key(starts_with("usr_")))
+}
+
+#[test]
+fn each_key_does_not_check_nested_keys() -> Result<()> {
+    verify_that!(
+        json!({"usr_profile": {"name": "Nadja"}}),
+        j::each_key(starts_with("usr_"))
+    )
+}
+
+#[test]
 fn each_key_unmatches_when_a_key_fails() -> Result<()> {
     verify_that!(
         json!({"usr_id": 1, "name": "Nadja"}),
@@ -37,6 +50,19 @@ fn each_key_explains_failed_key() -> Result<()> {
 #[test]
 fn each_value_matches_top_level_object_values() -> Result<()> {
     verify_that!(json!({"hp": 10, "mp": 20}), j::each_value(j::as_i64(gt(0))))
+}
+
+#[test]
+fn each_value_matches_empty_object() -> Result<()> {
+    verify_that!(json!({}), j::each_value(j::is_number()))
+}
+
+#[test]
+fn each_value_does_not_check_nested_values() -> Result<()> {
+    verify_that!(
+        json!({"profile": {"name": "Nadja"}}),
+        j::each_value(j::is_object())
+    )
 }
 
 #[test]

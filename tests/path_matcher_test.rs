@@ -50,6 +50,40 @@ fn has_paths_supports_numeric_object_keys() -> Result<()> {
 }
 
 #[test]
+fn path_matchers_support_escaped_dots_and_backslashes() -> Result<()> {
+    let value = json!({"user.name": {"first\\last": "Ada"}});
+    verify_that!(value, j::has_paths(&[r"user\.name.first\\last"]))?;
+    verify_that!(
+        value,
+        j::has_only_paths(&[r"user\.name", r"user\.name.first\\last"])
+    )
+}
+
+#[test]
+fn path_matchers_handle_empty_expected_paths() -> Result<()> {
+    verify_that!(json!({}), j::has_paths(&[]))?;
+    verify_that!(json!({"id": 1}), j::has_paths(&[]))?;
+    verify_that!(json!({}), j::has_only_paths(&[]))?;
+    verify_that!(json!({"id": 1}), not(j::has_only_paths(&[])))?;
+    verify_that!(json!([]), not(j::has_paths(&[])))?;
+    verify_that!(json!([]), not(j::has_only_paths(&[])))
+}
+
+#[test]
+fn path_matchers_include_empty_containers_as_paths() -> Result<()> {
+    let value = json!({"object": {}, "array": []});
+    verify_that!(value, j::has_paths(&["object", "array"]))?;
+    verify_that!(value, j::has_only_paths(&["object", "array"]))
+}
+
+#[test]
+fn path_matchers_ignore_duplicate_expected_paths() -> Result<()> {
+    let value = json!({"id": 1});
+    verify_that!(value, j::has_paths(&["id", "id"]))?;
+    verify_that!(value, j::has_only_paths(&["id", "id"]))
+}
+
+#[test]
 fn has_only_paths_matches_exact_set() -> Result<()> {
     verify_that!(
         json!({"id": 1, "name": "Alice"}),
@@ -134,7 +168,10 @@ fn has_only_paths_reports_missing_and_extra() -> Result<()> {
     );
     verify_that!(
         result,
-        err(displays_as(contains_substring("extra paths [\"extra\"]")))
+        err(displays_as(all![
+            contains_substring("missing paths [\"name\"]"),
+            contains_substring("extra paths [\"extra\"]")
+        ]))
     )
 }
 
