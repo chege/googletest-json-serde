@@ -14,7 +14,7 @@ jobs:
       contents: read
     concurrency:
       group: release-plz
-      cancel-in-progress: false
+      queue: max
     environment: 'release'
     steps:
       - name: Require main

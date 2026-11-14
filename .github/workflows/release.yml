@@ -2,21 +2,28 @@ name: Publish Crate and Create GitHub Release
 
 on:
   workflow_dispatch:
-
+    inputs:
+      ci_run_id:
+        description: Successful main CI run ID for the release commit
+        required: true
+        type: string
 permissions: {}
 
 jobs:
-  release:
-    name: Tag, Publish Crate, and Create GitHub Release
-    runs-on: ubuntu-24.04
+  identify:
+    name: Identify release commit
     if: ${{ github.repository_owner == 'chege' }}
-    environment: release
-    concurrency:
-      group: release-plz
-      cancel-in-progress: false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     permissions:
+      actions: read
       contents: read
-      id-token: write # Required for trusted publishing
+      pull-requests: read
+    outputs:
+      eligible: ${{ steps.identify.outputs.eligible }}
+      sha: ${{ steps.identify.outputs.sha }}
+      pr: ${{ steps.identify.outputs.pr }}
+      pr_head: ${{ steps.identify.outputs.pr_head }}
     steps:
       - name: Require main
         run: |
@@ -24,11 +31,48 @@ jobs:
             echo "::error::Publishing must run from main."
             exit 1
           fi
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check release PR and CI
+        id: identify
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CI_RUN_ID: ${{ inputs.ci_run_id }}
+        run: python3 scripts/identify-release.py
+
+  release:
+    name: Tag, Publish Crate, and Create GitHub Release
+    needs: identify
+    runs-on: ubuntu-24.04
+    if: ${{ needs.identify.outputs.eligible == 'true' }}
+    environment: release
+    concurrency:
+      group: release-plz
+      queue: max
+    permissions:
+      contents: read
+      id-token: write # Required for trusted publishing
+    steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5.0.1
         with:
+          ref: ${{ needs.identify.outputs.sha }}
           fetch-depth: 0
           persist-credentials: false
+      - name: Check reviewed tree and release-plz checkout
+        env:
+          RELEASE_SHA: ${{ needs.identify.outputs.sha }}
+          PR_NUMBER: ${{ needs.identify.outputs.pr }}
+          PR_HEAD: ${{ needs.identify.outputs.pr_head }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin "refs/pull/$PR_NUMBER/head"
+          if [[ "$(git rev-parse FETCH_HEAD)" != "$PR_HEAD" ]]; then
+            echo "::error::Release PR head changed; investigate before publishing."
+            exit 1
+          fi
+          bash scripts/check-release-tree.sh
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8
         with:
@@ -41,8 +85,8 @@ jobs:
         with:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
-          # pull-requests permission is not needed for the `release` command, so restricting it to contents only
           permission-contents: write
+          permission-pull-requests: read
       - name: Run `release-plz release`
         uses: release-plz/action@8921286633dfa0c4020f7f30bd1c14fe19cbb10e # v0.5.142
         with:

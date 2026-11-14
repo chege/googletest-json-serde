@@ -1,0 +1,36 @@
+name: Dispatch Release After CI
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  dispatch:
+    name: Identify and dispatch release
+    if: ${{ github.repository_owner == 'chege' && github.event.workflow_run.event == 'push' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      actions: write
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check release PR and CI
+        id: identify
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CI_RUN_ID: ${{ github.event.workflow_run.id }}
+        run: python3 scripts/identify-release.py
+      - name: Start publication
+        if: ${{ steps.identify.outputs.eligible == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CI_RUN_ID: ${{ github.event.workflow_run.id }}
+        run: gh workflow run release.yml --repo "$GITHUB_REPOSITORY" --ref main -f "ci_run_id=$CI_RUN_ID"

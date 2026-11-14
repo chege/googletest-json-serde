@@ -9,7 +9,7 @@ permissions:
   contents: read  # least-privilege
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.run_id || github.ref }}
   cancel-in-progress: true
 
 env:
@@ -53,7 +53,6 @@ jobs:
 
   audit:
     name: Audit dependencies
-    if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -199,6 +198,21 @@ jobs:
     name: pr-gate
     if: ${{ always() && github.event_name == 'pull_request' }}
     needs: [commitlint, audit, guardrail-tests, format, clippy, msrv, docs, minimal-versions, coverage, test]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check required job results
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: bash scripts/check-pr-gate.sh
+
+  main-gate:
+    name: main-gate
+    if: ${{ always() && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    needs: [audit, guardrail-tests, format, clippy, msrv, docs, minimal-versions, coverage, test]
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:

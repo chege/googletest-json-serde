@@ -1,5 +1,6 @@
 [workspace]
 semver_check = false
+release_always = false
 repo_url = "https://github.com/chege/googletest-json-serde"
 
 [changelog]
