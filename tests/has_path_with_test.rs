@@ -86,6 +86,24 @@ fn has_path_with_supports_numeric_object_keys() -> Result<()> {
 }
 
 #[test]
+fn has_path_with_supports_noncanonical_numeric_object_keys() -> Result<()> {
+    let value = json!({"00": "zero", "+0": "also zero"});
+    verify_that!(value, j::has_path_with!("00", "zero"))?;
+    verify_that!(value, j::has_path_with!("+0", "also zero"))
+}
+
+#[test]
+fn has_path_with_rejects_noncanonical_array_indices() -> Result<()> {
+    let value = json!({"items": [10, 20]});
+    for path in ["items.00", "items.+0", "items.01", "items.+1"] {
+        verify_that!(value, not(j::has_path_with!(path, j::is_number())))?;
+        verify_that!(value, not(j::has_paths(&[path])))?;
+    }
+    verify_that!(value, j::has_path_with!("items.0", 10))?;
+    verify_that!(value, j::has_path_with!("items.1", 20))
+}
+
+#[test]
 fn has_path_with_supports_root_arrays() -> Result<()> {
     verify_that!(json!([{"id": 7}]), j::has_path_with!("0.id", 7))
 }

@@ -9,7 +9,9 @@ use std::collections::BTreeSet;
 ///
 /// The path uses the same dot-and-escape rules as [`has_paths`]. The matcher can be a literal,
 /// a `serde_json::Value`, or any native googletest matcher. Paths can traverse objects and arrays,
-/// including a root array.
+/// including a root array. Array indices use canonical decimal notation (`0`, `1`, `10`, ...),
+/// without a leading `+` or leading zeroes (except for `0` itself). Object keys such as `"00"`
+/// remain valid.
 ///
 /// # Examples
 ///
@@ -247,6 +249,9 @@ pub mod internal {
                         current = map.get(name)?;
                     }
                     (PathSegment::KeyOrIndex(index), Value::Array(arr)) => {
+                        if index.starts_with('+') || (index.starts_with('0') && index.len() != 1) {
+                            return None;
+                        }
                         current = arr.get(index.parse::<usize>().ok()?)?;
                     }
                     _ => return None,

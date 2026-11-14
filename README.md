@@ -243,7 +243,9 @@ assert_that!(value, j::has_path_with!("user", json!({"id": 7, "name": "Ada"})));
 assert_that!(json!([{"id": 7}]), j::has_path_with!("0.id", 7));
 ```
 
-`j::has_path_with!` traverses root arrays as well as objects.
+`j::has_path_with!` traverses root arrays as well as objects. Array indices use
+canonical decimal notation (`0`, `1`, `10`, ...), without a leading `+` or
+leading zeroes (except for `0` itself). Object keys such as `"00"` remain valid.
 
 ### Predicates
 
