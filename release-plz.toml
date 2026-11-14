@@ -3,6 +3,7 @@ semver_check = false
 repo_url = "https://github.com/chege/googletest-json-serde"
 
 [changelog]
+trim = false
 header = """# Changelog
 
 All notable changes to this project will be documented in this file.
@@ -27,16 +28,8 @@ body = """
 ### {{ group | upper_first }}
 
 {% for commit in commits %}
-{%- if commit.scope -%}
-- *({{commit.scope}})* {% if commit.breaking %}[**breaking**] {% endif %}\
-{{ commit.message }}\
-{%- if commit.links %} \
-({% for link in commit.links %}[{{link.text}}]({{link.href}}) {% endfor -%})\
-{% endif %}
-{% else -%}
-- {% if commit.breaking %}[**breaking**] {% endif %}{{ commit.message }}
-{% endif -%}
-{% endfor -%}
+- {% if commit.scope %}*({{ commit.scope }})* {% endif %}{% if commit.breaking %}[**breaking**] {% endif %}{{ commit.message }}{% if commit.links %} ({% for link in commit.links %}[{{ link.text }}]({{ link.href }}){% if not loop.last %} {% endif %}{% endfor %}){% endif %}{% if commit.breaking_description %} - **Breaking change:** {{ commit.breaking_description | trim | replace(from="\n", to="\n  ") }}{% endif %}
+{% endfor %}
 {% endfor %}
 """
 
