@@ -6,6 +6,30 @@ use serde_json::json;
 use googletest_json_serde::json as j;
 
 #[test]
+fn unordered_elements_are_matches_multiple_mixed_type_arrays() -> Result<()> {
+    let value = json!([[true, null, 3], [], [1, "x"]]);
+    verify_that!(
+        value,
+        j::unordered_elements_are![[1, "x"], [true, null, 3], []]
+    )?;
+    verify_that!(
+        value,
+        not(j::unordered_elements_are![[1, "x"], [true, null, 3]])
+    )
+}
+
+#[test]
+fn unordered_elements_are_treats_inner_array_as_one_value() -> Result<()> {
+    verify_that!(json!([[1, 2]]), j::unordered_elements_are![[1, 2]])?;
+    verify_that!(json!([[1, 2]]), j::unordered_elements_are!([1, 2]))?;
+    verify_that!(json!([1, 2]), not(j::unordered_elements_are![[1, 2]]))?;
+    verify_that!(
+        json!([[[1, 2], [3, 4]]]),
+        j::unordered_elements_are![[[1, 2], [3, 4]]]
+    )
+}
+
+#[test]
 fn unordered_elements_are_matches_empty_array() -> Result<()> {
     let value = json!([]);
     verify_that!(value, j::unordered_elements_are![])

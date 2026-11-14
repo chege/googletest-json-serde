@@ -4,6 +4,24 @@ use indoc::indoc;
 use serde_json::json;
 
 #[test]
+fn is_contained_in_matches_multiple_mixed_type_arrays() -> Result<()> {
+    let value = json!([[1, "x"], [true, null, 3], []]);
+    verify_that!(
+        value,
+        j::is_contained_in![[1, "x"], [false], [], [true, null, 3]]
+    )?;
+    verify_that!(value, not(j::is_contained_in![[1, "x"], [], [false]]))
+}
+
+#[test]
+fn is_contained_in_treats_inner_array_as_one_value() -> Result<()> {
+    verify_that!(json!([[1, 2]]), j::is_contained_in![[1, 2]])?;
+    verify_that!(json!([[1, 2]]), j::is_contained_in!([1, 2]))?;
+    verify_that!(json!([1, 2]), not(j::is_contained_in![[1, 2]]))?;
+    verify_that!(json!([1, 2]), j::is_contained_in![1, 2])
+}
+
+#[test]
 fn is_contained_in_matches_empty_array() -> Result<()> {
     verify_that!(json!([]), j::is_contained_in![])
 }

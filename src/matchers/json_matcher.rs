@@ -718,6 +718,22 @@ pub mod internal {
         }
     }
 
+    impl<T: Into<Value>, const N: usize> IntoJsonMatcher<Literal> for [T; N] {
+        fn into_json_matcher(self) -> Box<dyn JsonMatcher> {
+            Box::new(JsonEqMatcher {
+                expected: Value::from(self),
+            })
+        }
+    }
+
+    impl<T: Clone + Into<Value>, const N: usize> IntoJsonMatcher<Literal> for &[T; N] {
+        fn into_json_matcher(self) -> Box<dyn JsonMatcher> {
+            Box::new(JsonEqMatcher {
+                expected: Value::from(self.as_slice()),
+            })
+        }
+    }
+
     impl IntoJsonMatcher<Literal> for bool {
         fn into_json_matcher(self) -> Box<dyn JsonMatcher> {
             Box::new(JsonEqMatcher {

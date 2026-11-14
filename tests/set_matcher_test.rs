@@ -3,6 +3,35 @@ use googletest_json_serde::json as j;
 use serde_json::json;
 
 #[test]
+fn subset_of_matches_multiple_mixed_type_arrays() -> Result<()> {
+    let value = json!([[1, "x"], [true, null, 3], [], [1, "x"]]);
+    verify_that!(value, j::subset_of![[1, "x"], [true, null, 3], []])?;
+    verify_that!(value, not(j::subset_of![[1, "x"], []]))
+}
+
+#[test]
+fn superset_of_matches_multiple_mixed_type_arrays() -> Result<()> {
+    let value = json!([[1, "x"], [true, null, 3], []]);
+    verify_that!(
+        value,
+        j::superset_of![[1, "x"], [true, null, 3], [], [1, "x"]]
+    )?;
+    verify_that!(value, not(j::superset_of![[1, "x"], [false]]))
+}
+
+#[test]
+fn set_matchers_match_array_expressions() -> Result<()> {
+    verify_that!(
+        json!([1, [2, 2], [3, "x"]]),
+        j::subset_of![[1, 0][0], [2; 2], [3, "x"]]
+    )?;
+    verify_that!(
+        json!([1, [2, 2], [3, "x"]]),
+        j::superset_of![[1, 0][0], [2; 2], [3, "x"]]
+    )
+}
+
+#[test]
 fn subset_of_ignores_duplicates_in_actual_and_expected() -> Result<()> {
     verify_that!(json!([1, 1, 2]), j::subset_of![1, 2])?;
     verify_that!(json!([1, 2]), j::subset_of![1, 1, 2])

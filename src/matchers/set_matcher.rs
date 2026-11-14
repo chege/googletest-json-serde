@@ -8,7 +8,8 @@
 /// Non-arrays do not match. Comparison takes up to the product of the array
 /// and expected lengths in value equality checks.
 ///
-/// Values are converted using `serde_json::json!`; use `json!(null)` for null.
+/// Values are converted using `serde_json::json!`; use `json!(null)` for a
+/// top-level null. An inner array literal may contain mixed types and `null`.
 /// Conversion panics if a value cannot be serialized as JSON; non-finite
 /// floats become JSON null, as with `serde_json::json!`.
 ///
@@ -17,6 +18,7 @@
 /// # use googletest_json_serde::json as j;
 /// # use serde_json::json;
 /// assert_that!(json!([1, 1, "x"]), j::subset_of![1, "x"]);
+/// assert_that!(json!([[1, "x"]]), j::subset_of![[1, "x"], []]);
 /// ```
 ///
 /// ```compile_fail
@@ -27,9 +29,9 @@
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_subset_of {
-    ($($value:expr),* $(,)?) => {{
+    ($($value:tt)*) => {{
         $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonSetMatcher::new(
-            vec![$($crate::matchers::__internal_unstable_do_not_depend_on_these::json!($value)),*],
+            $crate::__json_array_arguments!(value; $($value)*),
             $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonSetRelation::Subset,
         )
     }};
@@ -45,7 +47,8 @@ macro_rules! __json_subset_of {
 /// Non-arrays do not match. Comparison takes up to the product of the array
 /// and expected lengths in value equality checks.
 ///
-/// Values are converted using `serde_json::json!`; use `json!(null)` for null.
+/// Values are converted using `serde_json::json!`; use `json!(null)` for a
+/// top-level null. An inner array literal may contain mixed types and `null`.
 /// Conversion panics if a value cannot be serialized as JSON; non-finite
 /// floats become JSON null, as with `serde_json::json!`.
 ///
@@ -54,6 +57,7 @@ macro_rules! __json_subset_of {
 /// # use googletest_json_serde::json as j;
 /// # use serde_json::json;
 /// assert_that!(json!([1, "x"]), j::superset_of![1, 1]);
+/// assert_that!(json!([[1, "x"], []]), j::superset_of![[1, "x"]]);
 /// ```
 ///
 /// ```compile_fail
@@ -64,9 +68,9 @@ macro_rules! __json_subset_of {
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_superset_of {
-    ($($value:expr),* $(,)?) => {{
+    ($($value:tt)*) => {{
         $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonSetMatcher::new(
-            vec![$($crate::matchers::__internal_unstable_do_not_depend_on_these::json!($value)),*],
+            $crate::__json_array_arguments!(value; $($value)*),
             $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonSetRelation::Superset,
         )
     }};
