@@ -11,18 +11,25 @@ jobs:
     runs-on: ubuntu-24.04
     if: ${{ github.repository_owner == 'chege' }}
     environment: release
+    concurrency:
+      group: release-plz
+      cancel-in-progress: false
     permissions:
       contents: read
       id-token: write # Required for trusted publishing
     steps:
-      - &checkout
-        name: Checkout repository
+      - name: Require main
+        run: |
+          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "::error::Publishing must run from main."
+            exit 1
+          fi
+      - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
-      - &setup-rust
-        name: Install Rust toolchain
+      - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8
         with:
           toolchain: stable

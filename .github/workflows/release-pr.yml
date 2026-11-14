@@ -13,10 +13,16 @@ jobs:
     permissions:
       contents: read
     concurrency:
-      group: release-plz-${{ github.ref }}
+      group: release-plz
       cancel-in-progress: false
     environment: 'release'
     steps:
+      - name: Require main
+        run: |
+          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "::error::Release preparation must run from main."
+            exit 1
+          fi
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5.0.1
         with:
