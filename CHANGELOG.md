@@ -6,6 +6,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.6.0](https://github.com/chege/googletest-json-serde/compare/v0.5.3...v0.6.0) - 2026-11-14
+
+[View diff on diff.rs](https://diff.rs/googletest-json-serde/0.5.3/googletest-json-serde/0.6.0/Cargo.toml)
+
+### <!-- 0 -->⛰️ Features
+
+
+- add JSON array subset and superset matchers that ignore duplicates
+
+
+### <!-- 1 -->🐛 Bug Fixes
+
+
+- [**breaking**] require canonical JSON array path indices - **Breaking change:** has_path_with! no longer accepts array indices with leading zeroes or a leading plus sign. Use canonical indices such as 0 or 1 instead. Object keys are unchanged.
+
+- report missing paths in root JSON arrays
+
+- clarify integer matcher conversion errors
+
+- explain matching predicates correctly
+
+- [**breaking**] treat inner arrays as single matcher values and support mixed-type arrays - **Breaking change:** elements_are!, contains_each!, and is_contained_in! no longer expand inner brackets into multiple expected entries. Remove those brackets to retain the previous behavior.
+
+
+
 ## [0.5.3](https://github.com/chege/googletest-json-serde/compare/v0.5.2...v0.5.3) - 2026-09-12
 
 > **Recovery release:** This release replaces the yanked version 0.5.2. It contains all changes
