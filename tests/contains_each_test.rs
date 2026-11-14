@@ -5,6 +5,21 @@ use indoc::indoc;
 use serde_json::json;
 
 #[test]
+fn contains_each_matches_multiple_mixed_type_arrays() -> Result<()> {
+    let value = json!([[true, null, 3], [], [1, "x"], "extra"]);
+    verify_that!(value, j::contains_each![[1, "x"], [true, null, 3], []])?;
+    verify_that!(value, not(j::contains_each![[1, "x"], [false]]))
+}
+
+#[test]
+fn contains_each_treats_inner_array_as_one_value() -> Result<()> {
+    verify_that!(json!([[1, 2], 3]), j::contains_each![[1, 2]])?;
+    verify_that!(json!([[1, 2], 3]), j::contains_each!([1, 2]))?;
+    verify_that!(json!([1, 2]), not(j::contains_each![[1, 2]]))?;
+    verify_that!(json!([1, 2]), j::contains_each![1, 2])
+}
+
+#[test]
 fn contains_each_matches_one_to_one() -> Result<()> {
     verify_that!(
         json!(["alpha", "bravo", "charlie"]),

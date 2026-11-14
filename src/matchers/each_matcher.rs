@@ -1,4 +1,8 @@
 /// Matches every element of a JSON array against the same matcher.
+/// An array literal matches a single array value and uses `serde_json::json!`
+/// syntax and conversion, including mixed types and `null`. Conversion panics
+/// for values that cannot be serialized as JSON; non-finite floats become JSON
+/// null.
 ///
 /// # Examples
 ///
@@ -10,6 +14,7 @@
 /// assert_that!(json!(["ab", "ax"]), j::each!(starts_with("a")));
 /// assert_that!(json!([1, 1]), j::each!(1));
 /// assert_that!(json!([json!(2), json!(2)]), j::each!(json!(2)));
+/// assert_that!(json!([[1, "x"]]), j::each!([1, "x"]));
 /// ```
 ///
 /// # Errors
@@ -23,6 +28,13 @@
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_each {
+    ([$($array:tt)*]) => {
+        $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonEachMatcher::new(
+            $crate::matchers::__internal_unstable_do_not_depend_on_these::IntoJsonMatcher::into_json_matcher(
+                $crate::__json_array_value!([$($array)*])
+            )
+        )
+    };
     ($inner:expr) => {
         $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonEachMatcher::new(
             $crate::matchers::__internal_unstable_do_not_depend_on_these::IntoJsonMatcher::into_json_matcher($inner)

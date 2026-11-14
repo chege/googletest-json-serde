@@ -5,6 +5,55 @@ use indoc::indoc;
 use serde_json::{Value, json};
 
 #[test]
+fn elements_are_matches_multiple_mixed_type_arrays() -> Result<()> {
+    let value = json!([[1, "x"], [true, null, 3], []]);
+    verify_that!(value, j::elements_are![[1, "x"], [true, null, 3], []])?;
+    verify_that!(value, not(j::elements_are![[true, null, 3], [1, "x"], []]))?;
+    verify_that!(value, not(j::elements_are![[1, "x"], [true, null, 3]]))
+}
+
+#[test]
+fn elements_are_matches_nested_mixed_arrays_and_array_variables() -> Result<()> {
+    let expected = [4, 5];
+    verify_that!(
+        json!([[[1, "x"], [true]], [4, 5]]),
+        j::elements_are![[[1, "x"], [true]], expected]
+    )
+}
+
+#[test]
+fn elements_are_matches_array_expressions() -> Result<()> {
+    verify_that!(
+        json!([1, [2, 2], [3, "x"]]),
+        j::elements_are![[1, 0][0], [2; 2], [3, "x"]]
+    )
+}
+
+#[test]
+fn elements_are_evaluates_nested_array_values_once() -> Result<()> {
+    let mut count = 0;
+    let matcher = j::elements_are![[
+        ({
+            count += 1;
+            count
+        }),
+        "x"
+    ]];
+    verify_that!(count, eq(1))?;
+    verify_that!(json!([[1, "x"]]), matcher)
+}
+
+#[test]
+fn elements_are_treats_inner_array_as_one_value() -> Result<()> {
+    verify_that!(json!([[1, 2]]), j::elements_are![[1, 2]])?;
+    verify_that!(json!([[1, 2]]), j::elements_are!([1, 2]))?;
+    verify_that!(json!([1, 2]), not(j::elements_are![[1, 2]]))?;
+    verify_that!(json!([1, 2]), j::elements_are![1, 2])?;
+    let expected = [1, 2];
+    verify_that!(json!([0, [1, 2]]), j::elements_are![0, &expected])
+}
+
+#[test]
 fn elements_are_matches_json_array() -> Result<()> {
     let value = json!(["alex", "b", "c"]);
     verify_that!(value, j::elements_are![starts_with("a"), eq("b"), eq("c")])

@@ -1,6 +1,11 @@
 /// Matches a JSON array against a list of matchers in order.
 ///
 /// The array length must equal the matcher count.
+/// An array argument is one expected JSON array value; for example,
+/// `j::elements_are![[1, "x"]]` matches `json!([[1, "x"]])`. Array literals
+/// use `serde_json::json!` syntax and conversion, including `null` and mixed
+/// types. Conversion panics for values that cannot be serialized as JSON;
+/// non-finite floats become JSON null.
 ///
 /// # Examples
 ///
@@ -41,21 +46,15 @@
 /// # Supported Inputs
 /// - Literal JSON-compatible values
 /// - Direct `serde_json::Value`
+/// - Rust arrays of values convertible to `serde_json::Value`
 /// - Native googletest matchers
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_elements_are {
-    // Preferred bracketed form: __json_elements_are!([ m1, m2, ... ])
-    ([$($matcher:expr),* $(,)?]) => {{
-        $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonElementsAre::new(vec![
-            $(
-                $crate::matchers::__internal_unstable_do_not_depend_on_these::IntoJsonMatcher::into_json_matcher($matcher)
-            ),*
-        ])
-    }};
-    // Convenience: allow unbracketed list and forward to the bracketed arm.
-    ($($matcher:expr),* $(,)?) => {{
-        $crate::__json_elements_are!([$($matcher),*])
+    ($($matcher:tt)*) => {{
+        $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonElementsAre::new(
+            $crate::__json_array_arguments!(matcher; $($matcher)*)
+        )
     }};
 }
 

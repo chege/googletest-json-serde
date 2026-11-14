@@ -14,6 +14,10 @@
 /// Matches a JSON array whose elements pair one-to-one with the provided matchers, ignoring order.
 ///
 /// The array length must equal the matcher count.
+/// An array argument is one expected JSON array value. Array literals use
+/// `serde_json::json!` syntax and conversion, including mixed types and `null`.
+/// Conversion panics for values that cannot be serialized as JSON;
+/// non-finite floats become JSON null.
 ///
 /// # Examples
 ///
@@ -40,26 +44,15 @@
 /// # Supported Inputs
 /// - Literal JSON-compatible values
 /// - Direct `serde_json::Value`
+/// - Rust arrays of values convertible to `serde_json::Value`
 /// - Native googletest matchers
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_unordered_elements_are {
-    ($(,)?) => {{
+    ($($matcher:tt)*) => {{
         $crate::matchers::__internal_unstable_do_not_depend_on_these::
         JsonUnorderedElementsAreMatcher::new(
-            vec![],
-            $crate::matchers::__internal_unstable_do_not_depend_on_these::Requirements::PerfectMatch,
-        )
-    }};
-
-    ($($matcher:expr),* $(,)?) => {{
-        $crate::matchers::__internal_unstable_do_not_depend_on_these::
-        JsonUnorderedElementsAreMatcher::new(
-            vec![
-                $(
-                    $crate::matchers::__internal_unstable_do_not_depend_on_these::IntoJsonMatcher::into_json_matcher($matcher)
-                ),*
-            ],
+            $crate::__json_array_arguments!(matcher; $($matcher)*),
             $crate::matchers::__internal_unstable_do_not_depend_on_these::Requirements::PerfectMatch,
         )
     }};
@@ -68,6 +61,10 @@ macro_rules! __json_unordered_elements_are {
 /// Matches a JSON array that contains distinct matches for each provided matcher, ignoring order.
 ///
 /// Extra array elements are allowed.
+/// An array argument is one expected JSON array value. Array literals use
+/// `serde_json::json!` syntax and conversion, including mixed types and `null`.
+/// Conversion panics for values that cannot be serialized as JSON;
+/// non-finite floats become JSON null.
 ///
 /// # Examples
 ///
@@ -92,29 +89,26 @@ macro_rules! __json_unordered_elements_are {
 /// # Supported Inputs
 /// - Literal JSON-compatible values
 /// - Direct `serde_json::Value`
+/// - Rust arrays of values convertible to `serde_json::Value`
 /// - Native googletest matchers
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_contains_each {
-    ([$($matcher:expr),* $(,)?]) => {{
+    ($($matcher:tt)*) => {{
         $crate::matchers::__internal_unstable_do_not_depend_on_these::
         JsonUnorderedElementsAreMatcher::new(
-            vec![
-                $(
-                    $crate::matchers::__internal_unstable_do_not_depend_on_these::IntoJsonMatcher::into_json_matcher($matcher)
-                ),*
-            ],
+            $crate::__json_array_arguments!(matcher; $($matcher)*),
             $crate::matchers::__internal_unstable_do_not_depend_on_these::Requirements::Superset,
         )
-    }};
-    // Convenience: allow unbracketed list and forward to the bracketed arm.
-    ($($matcher:expr),* $(,)?) => {{
-        $crate::__json_contains_each!([$($matcher),*])
     }};
 }
 /// Matches a JSON array where every element satisfies one of the provided matchers without reuse.
 ///
 /// Matchers may remain unused; order is irrelevant.
+/// An array argument is one expected JSON array value. Array literals use
+/// `serde_json::json!` syntax and conversion, including mixed types and `null`.
+/// Conversion panics for values that cannot be serialized as JSON;
+/// non-finite floats become JSON null.
 ///
 /// # Examples
 ///
@@ -141,23 +135,16 @@ macro_rules! __json_contains_each {
 /// # Supported Inputs
 /// - Literal JSON-compatible values
 /// - Direct `serde_json::Value`
+/// - Rust arrays of values convertible to `serde_json::Value`
 /// - Native googletest matchers
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __json_is_contained_in {
-    ([$($matcher:expr),* $(,)?]) => {{
+    ($($matcher:tt)*) => {{
         $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonUnorderedElementsAreMatcher::new(
-            vec![
-                $(
-                    $crate::matchers::__internal_unstable_do_not_depend_on_these::IntoJsonMatcher::into_json_matcher($matcher)
-                ),*
-            ],
+            $crate::__json_array_arguments!(matcher; $($matcher)*),
             $crate::matchers::__internal_unstable_do_not_depend_on_these::Requirements::Subset,
         )
-    }};
-    // Convenience: allow unbracketed list and forward to the bracketed arm.
-    ($($matcher:expr),* $(,)?) => {{
-        $crate::__json_is_contained_in!([$($matcher),*])
     }};
 }
 #[doc(hidden)]

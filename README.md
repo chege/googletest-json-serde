@@ -272,16 +272,49 @@ assert_that!(
 
 ### Arrays
 
+In array matcher macros, an inner array is one expected JSON array value:
+`j::elements_are![[1, 2]]` matches `json!([[1, 2]])`. To specify two
+expected entries, use `j::elements_are![1, 2]`. Array literals use
+`serde_json::json!` syntax, so they can contain mixed types, `null`, and nested
+arrays. Array variables and references are also supported. Rust's repeat form
+(`[value; count]`) remains a Rust array expression:
+
+```rust
+use googletest::prelude::*;
+use googletest_json_serde::json as j;
+use serde_json::json;
+
+let numbers = [4, 5];
+assert_that!(
+    json!([[1, "x"], [true, null, 3], [], [4, 5]]),
+    j::elements_are![[1, "x"], [true, null, 3], [], numbers]
+);
+assert_that!(json!([[1, "x"], [1, "x"]]), j::each!([1, "x"]));
+assert_that!(json!({"values": [1, "x"]}), j::pat!({"values": [1, "x"]}));
+```
+
+Array literals are converted with `serde_json::json!`: conversion panics if a
+value cannot be serialized as JSON, and non-finite floats become JSON null.
+For matching nested elements with matchers rather than literal values, use a
+nested matcher such as `j::elements_are![j::elements_are![gt(0), "x"]]`.
+Very long lists of complex expressions or long array literals can exceed Rust's
+macro recursion limit; increase it in the calling crate with, for example,
+`#![recursion_limit = "512"]`.
+
+**Breaking change:** `j::elements_are!([1, 2])`, `j::contains_each!([1, 2])`,
+and `j::is_contained_in!([1, 2])` previously treated the inner brackets as
+an argument list. Remove those inner brackets to keep the previous behavior.
+
 `j::subset_of!` and `j::superset_of!` compare JSON values for equality, ignoring
 order and duplicates in both arrays, like googletest's native set matchers.
 In contrast, `j::is_contained_in!` and `j::contains_each!` accept values or
 matchers and require distinct element-to-expected-entry assignments;
 duplicates therefore matter.
 The set macros accept mixed JSON-serializable values, not matchers, and convert
-each value using `serde_json::json!`; use `json!(null)` for null. Conversion
-panics if a value cannot be serialized as JSON; non-finite floats become JSON
-null. Unlike `j::as_array` with the native set matchers, they own expectations
-and compose inside JSON patterns.
+each value using `serde_json::json!`; use `json!(null)` for a top-level null.
+Conversion panics if a value cannot be serialized as JSON; non-finite floats
+become JSON null. Unlike `j::as_array` with the native set matchers, they own
+expectations and compose inside JSON patterns.
 Native set matchers can also be used after extracting an array with
 `Value::as_array()`, but passing ordinary borrowed JSON expectations through
 `j::as_array` encounters the native matchers' iterator lifetime bounds.

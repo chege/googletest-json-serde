@@ -1,6 +1,9 @@
 /// Matches a JSON object against a pattern of key-value matchers.
 ///
 /// Fields listed in the pattern must match; a trailing `..` allows extra fields.
+/// Array literals are exact JSON values using `serde_json::json!` syntax,
+/// including mixed types and `null`. Conversion panics if a value cannot be
+/// serialized as JSON; non-finite floats become JSON null.
 ///
 /// # Examples
 ///
@@ -72,6 +75,17 @@ macro_rules! __json_matches_pattern {
         $fields.push((
             $key,
             $crate::__json_matches_pattern!(@wrap_matcher { $($inner)* }),
+        ));
+        $crate::__json_matches_pattern!(@parse $fields $strict; $($($rest)*)?);
+    }};
+    (@parse $fields:ident $strict:ident;
+        $key:literal : [$($array:tt)*] $(, $($rest:tt)*)?
+    ) => {{
+        $fields.push((
+            $key,
+            $crate::matchers::__internal_unstable_do_not_depend_on_these::IntoJsonMatcher::into_json_matcher(
+                $crate::__json_array_value!([$($array)*])
+            ),
         ));
         $crate::__json_matches_pattern!(@parse $fields $strict; $($($rest)*)?);
     }};
