@@ -5,6 +5,20 @@ use indoc::indoc;
 use serde_json::json;
 
 #[test]
+fn pat_with_empty_strict_pattern_matches_only_empty_object() -> Result<()> {
+    verify_that!(json!({}), j::pat!({}))?;
+    verify_that!(json!({"id": 1}), not(j::pat!({})))?;
+    verify_that!(json!([]), not(j::pat!({})))
+}
+
+#[test]
+fn pat_with_empty_relaxed_pattern_matches_any_object() -> Result<()> {
+    verify_that!(json!({}), j::pat!({ .. }))?;
+    verify_that!(json!({"id": 1}), j::pat!({ .. }))?;
+    verify_that!(json!([]), not(j::pat!({ .. })))
+}
+
+#[test]
 fn pat_matches_nested_object_strict() -> Result<()> {
     let val = json!({
         "user": {

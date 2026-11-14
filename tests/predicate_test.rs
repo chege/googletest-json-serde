@@ -1,5 +1,6 @@
 use googletest::Result;
 use googletest::description::Description;
+use googletest::matcher::MatcherResult;
 use googletest::prelude::*;
 use googletest_json_serde::json as j;
 use indoc::indoc;
@@ -32,6 +33,14 @@ fn predicate_default_descriptions_are_used_when_no_description_provided() -> Res
 #[test]
 fn predicate_with_description_overrides_default() -> Result<()> {
     let matcher = j::predicate(|v| v.is_string()).with_description("a string", "not a string");
+    verify_that!(
+        matcher.describe(MatcherResult::Match),
+        displays_as(eq("a string"))
+    )?;
+    verify_that!(
+        matcher.describe(MatcherResult::NoMatch),
+        displays_as(eq("not a string"))
+    )?;
     let result = verify_that!(json!(1), matcher);
     verify_that!(
         result,

@@ -91,6 +91,35 @@ fn test_all_int_types() {
 }
 
 #[test]
+fn integer_adapters_match_boundary_values() -> Result<()> {
+    verify_that!(json!(i8::MIN), j::as_i8(eq(i8::MIN)))?;
+    verify_that!(json!(i8::MAX), j::as_i8(eq(i8::MAX)))?;
+    verify_that!(json!(i16::MIN), j::as_i16(eq(i16::MIN)))?;
+    verify_that!(json!(i16::MAX), j::as_i16(eq(i16::MAX)))?;
+    verify_that!(json!(i32::MIN), j::as_i32(eq(i32::MIN)))?;
+    verify_that!(json!(i32::MAX), j::as_i32(eq(i32::MAX)))?;
+    verify_that!(json!(i64::MIN), j::as_i64(eq(i64::MIN)))?;
+    verify_that!(json!(i64::MAX), j::as_i64(eq(i64::MAX)))?;
+    verify_that!(json!(0), j::as_u8(eq(0)))?;
+    verify_that!(json!(u8::MAX), j::as_u8(eq(u8::MAX)))?;
+    verify_that!(json!(u16::MAX), j::as_u16(eq(u16::MAX)))?;
+    verify_that!(json!(u32::MAX), j::as_u32(eq(u32::MAX)))?;
+    verify_that!(json!(u64::MAX), j::as_u64(eq(u64::MAX)))?;
+    verify_that!(json!(usize::MAX), j::as_usize(eq(usize::MAX)))
+}
+
+#[test]
+fn integer_adapters_reject_float_encoded_numbers() -> Result<()> {
+    for value in [json!(1.0), json!(1.5)] {
+        verify_that!(value, not(j::as_i64(anything())))?;
+        verify_that!(value, not(j::as_u64(anything())))?;
+        verify_that!(value, not(j::as_i32(anything())))?;
+        verify_that!(value, not(j::as_u32(anything())))?;
+    }
+    Ok(())
+}
+
+#[test]
 fn as_i8_fails_on_overflow() {
     assert_that!(json!(128), not(j::as_i8(anything())));
     assert_that!(json!(-129), not(j::as_i8(anything())));
