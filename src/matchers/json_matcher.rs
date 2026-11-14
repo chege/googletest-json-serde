@@ -627,7 +627,11 @@ pub mod internal {
             if let Some(ref f) = self.explain_fn {
                 return f(actual);
             }
-            Description::new().text("which does not match the predicate")
+            match self.matches(actual) {
+                Match => "which matches the predicate",
+                NoMatch => "which does not match the predicate",
+            }
+            .into()
         }
     }
     /// Marker trait for JSON-aware matchers.
