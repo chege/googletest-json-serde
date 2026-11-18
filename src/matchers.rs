@@ -14,9 +14,64 @@ mod unordered_elements_are_matcher;
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __json_array_value {
-    // Detect repeat syntax without parsing JSON objects as Rust expressions.
-    (@scan [$($before:tt)*] ; $($after:tt)*) => {
-        [$($before)*; $($after)*]
+    (@parse $values:ident;) => {};
+    (@parse $values:ident; $($item:tt),+ $(,)?) => {{
+        $($crate::__json_array_value!(@push_item $values; $item);)+
+    }};
+    (@parse $values:ident; $first:tt, $second:tt $(, $($rest:tt)*)?) => {{
+        $crate::__json_array_value!(@push_item $values; $first);
+        $crate::__json_array_value!(@push_item $values; $second);
+        $crate::__json_array_value!(@parse $values; $($($rest)*)?);
+    }};
+    (@parse $values:ident; $first:tt, $second:expr $(, $($rest:tt)*)?) => {{
+        $crate::__json_array_value!(@push_item $values; $first);
+        $crate::__json_array_value!(@push_expr $values; $second);
+        $crate::__json_array_value!(@parse $values; $($($rest)*)?);
+    }};
+    (@parse $values:ident; $first:expr, $second:tt $(, $($rest:tt)*)?) => {{
+        $crate::__json_array_value!(@push_expr $values; $first);
+        $crate::__json_array_value!(@push_item $values; $second);
+        $crate::__json_array_value!(@parse $values; $($($rest)*)?);
+    }};
+    (@parse $values:ident; $first:expr, $second:expr $(, $($rest:tt)*)?) => {{
+        $crate::__json_array_value!(@push_expr $values; $first);
+        $crate::__json_array_value!(@push_expr $values; $second);
+        $crate::__json_array_value!(@parse $values; $($($rest)*)?);
+    }};
+    (@parse $values:ident; $item:tt $(,)?) => {
+        $crate::__json_array_value!(@push_item $values; $item)
+    };
+    (@parse $values:ident; $value:expr $(,)?) => {
+        $crate::__json_array_value!(@push_expr $values; $value)
+    };
+    (@push_item $values:ident; null) => {
+        $values.push($crate::matchers::__internal_unstable_do_not_depend_on_these::json!(null));
+    };
+    (@push_item $values:ident; [$($array:tt)*]) => {
+        $values.push($crate::matchers::__internal_unstable_do_not_depend_on_these::json!(
+            $crate::__json_array_value!([$($array)*])
+        ));
+    };
+    (@push_item $values:ident; {$($object:tt)*}) => {
+        $values.push($crate::matchers::__internal_unstable_do_not_depend_on_these::json!({$($object)*}));
+    };
+    (@push_item $values:ident; $value:tt) => {
+        $crate::__json_array_value!(@push_expr $values; $value);
+    };
+    (@push_expr $values:ident; $value:expr) => {
+        $values.push($crate::matchers::__internal_unstable_do_not_depend_on_these::json!($value));
+    };
+    // Scan several tokens at a time, checking each position for repeat syntax.
+    (@scan [$($before:tt)*] ; $($after:tt)*) => { [$($before)*; $($after)*] };
+    (@scan [$($before:tt)*] $a:tt ; $($after:tt)*) => { [$($before)* $a; $($after)*] };
+    (@scan [$($before:tt)*] $a:tt $b:tt ; $($after:tt)*) => { [$($before)* $a $b; $($after)*] };
+    (@scan [$($before:tt)*] $a:tt $b:tt $c:tt ; $($after:tt)*) => { [$($before)* $a $b $c; $($after)*] };
+    (@scan [$($before:tt)*] $a:tt $b:tt $c:tt $d:tt ; $($after:tt)*) => { [$($before)* $a $b $c $d; $($after)*] };
+    (@scan [$($before:tt)*] $a:tt $b:tt $c:tt $d:tt $e:tt ; $($after:tt)*) => { [$($before)* $a $b $c $d $e; $($after)*] };
+    (@scan [$($before:tt)*] $a:tt $b:tt $c:tt $d:tt $e:tt $f:tt ; $($after:tt)*) => { [$($before)* $a $b $c $d $e $f; $($after)*] };
+    (@scan [$($before:tt)*] $a:tt $b:tt $c:tt $d:tt $e:tt $f:tt $g:tt ; $($after:tt)*) => { [$($before)* $a $b $c $d $e $f $g; $($after)*] };
+    (@scan [$($before:tt)*] $a:tt $b:tt $c:tt $d:tt $e:tt $f:tt $g:tt $h:tt $($rest:tt)*) => {
+        $crate::__json_array_value!(@scan [$($before)* $a $b $c $d $e $f $g $h] $($rest)*)
     };
     (@scan [$($before:tt)*] $next:tt $($rest:tt)*) => {
         $crate::__json_array_value!(@scan [$($before)* $next] $($rest)*)
@@ -26,24 +81,10 @@ macro_rules! __json_array_value {
         $crate::__json_array_value!(@parse values; $($array)*);
         $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonValue::Array(values)
     }};
-    (@parse $values:ident;) => {};
-    (@parse $values:ident; null $(, $($rest:tt)*)?) => {{
-        $values.push($crate::matchers::__internal_unstable_do_not_depend_on_these::json!(null));
-        $crate::__json_array_value!(@parse $values; $($($rest)*)?);
-    }};
-    (@parse $values:ident; [$($array:tt)*] $(, $($rest:tt)*)?) => {{
-        $values.push($crate::matchers::__internal_unstable_do_not_depend_on_these::json!(
-            $crate::__json_array_value!([$($array)*])
-        ));
-        $crate::__json_array_value!(@parse $values; $($($rest)*)?);
-    }};
-    (@parse $values:ident; {$($object:tt)*} $(, $($rest:tt)*)?) => {{
-        $values.push($crate::matchers::__internal_unstable_do_not_depend_on_these::json!({$($object)*}));
-        $crate::__json_array_value!(@parse $values; $($($rest)*)?);
-    }};
-    (@parse $values:ident; $value:expr $(, $($rest:tt)*)?) => {{
-        $values.push($crate::matchers::__internal_unstable_do_not_depend_on_these::json!($value));
-        $crate::__json_array_value!(@parse $values; $($($rest)*)?);
+    ([$($item:tt),* $(,)?]) => {{
+        let mut values = ::std::vec::Vec::new();
+        $($crate::__json_array_value!(@push_item values; $item);)*
+        $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonValue::Array(values)
     }};
     ([$($array:tt)*]) => {
         $crate::__json_array_value!(@scan [] $($array)*)
