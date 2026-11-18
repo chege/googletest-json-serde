@@ -303,8 +303,8 @@ Array literals are converted with `serde_json::json!`: conversion panics if a
 value cannot be serialized as JSON, and non-finite floats become JSON null.
 For matching nested elements with matchers rather than literal values, use a
 nested matcher such as `j::elements_are![j::elements_are![gt(0), "x"]]`.
-Very long lists of complex expressions or long array literals can exceed Rust's
-macro recursion limit; increase it in the calling crate with, for example,
+Very long lists of complex expressions or deeply nested arrays can still exceed
+Rust's macro recursion limit; increase it in the calling crate with, for example,
 `#![recursion_limit = "512"]`.
 
 **Breaking change:** `j::elements_are!([1, 2])`, `j::contains_each!([1, 2])`,
