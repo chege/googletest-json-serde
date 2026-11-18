@@ -33,6 +33,24 @@ macro_rules! __json_array_value {
         $crate::__json_array_value!(@push_item $values; $second);
         $crate::__json_array_value!(@parse $values; $($($rest)*)?);
     }};
+    // Keep grouped JSON values opaque before attempting to parse expressions.
+    (@parse $values:ident; $first:expr, $second:expr, $third:tt $(, $($rest:tt)*)?) => {{
+        $crate::__json_array_value!(@push_expr $values; $first);
+        $crate::__json_array_value!(@push_expr $values; $second);
+        $crate::__json_array_value!(@parse $values; $third $(, $($rest)*)?);
+    }};
+    (@parse $values:ident; $first:expr, $second:expr, $third:expr, $fourth:tt $(, $($rest:tt)*)?) => {{
+        $crate::__json_array_value!(@push_expr $values; $first);
+        $crate::__json_array_value!(@push_expr $values; $second);
+        $crate::__json_array_value!(@parse $values; $third, $fourth $(, $($rest)*)?);
+    }};
+    (@parse $values:ident; $a:expr, $b:expr, $c:expr, $d:expr $(, $($rest:tt)*)?) => {{
+        $crate::__json_array_value!(@push_expr $values; $a);
+        $crate::__json_array_value!(@push_expr $values; $b);
+        $crate::__json_array_value!(@push_expr $values; $c);
+        $crate::__json_array_value!(@push_expr $values; $d);
+        $crate::__json_array_value!(@parse $values; $($($rest)*)?);
+    }};
     (@parse $values:ident; $first:expr, $second:expr $(, $($rest:tt)*)?) => {{
         $crate::__json_array_value!(@push_expr $values; $first);
         $crate::__json_array_value!(@push_expr $values; $second);
@@ -86,6 +104,18 @@ macro_rules! __json_array_value {
         $($crate::__json_array_value!(@push_item values; $item);)*
         $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonValue::Array(values)
     }};
+    // A complete first item followed by a comma cannot be repeat syntax.
+    ([$first:tt, $($rest:tt)*]) => {{
+        let mut values = ::std::vec::Vec::new();
+        $crate::__json_array_value!(@parse values; $first, $($rest)*);
+        $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonValue::Array(values)
+    }};
+    ([$first:expr, $($rest:tt)*]) => {{
+        let mut values = ::std::vec::Vec::new();
+        $crate::__json_array_value!(@push_expr values; $first);
+        $crate::__json_array_value!(@parse values; $($rest)*);
+        $crate::matchers::__internal_unstable_do_not_depend_on_these::JsonValue::Array(values)
+    }};
     ([$($array:tt)*]) => {
         $crate::__json_array_value!(@scan [] $($array)*)
     };
@@ -95,7 +125,7 @@ macro_rules! __json_array_value {
 #[macro_export]
 macro_rules! __json_array_arguments {
     (@parse $kind:ident, $values:ident;) => {};
-    // Batch simple tokens or pairs of expressions to reduce expansion depth.
+    // Batch simple tokens or groups of expressions to reduce expansion depth.
     (@parse $kind:ident, $values:ident; $($item:tt),+ $(,)?) => {{
         $($crate::__json_array_arguments!(@push_item $kind, $values; $item);)+
     }};
@@ -112,6 +142,23 @@ macro_rules! __json_array_arguments {
     (@parse $kind:ident, $values:ident; $first:expr, [$($second:tt)*] $(, $($rest:tt)*)?) => {{
         $crate::__json_array_arguments!(@push_expr $kind, $values; $first);
         $crate::__json_array_arguments!(@push_array $kind, $values; [$($second)*]);
+        $crate::__json_array_arguments!(@parse $kind, $values; $($($rest)*)?);
+    }};
+    (@parse $kind:ident, $values:ident; $first:expr, $second:expr, [$($third:tt)*] $(, $($rest:tt)*)?) => {{
+        $crate::__json_array_arguments!(@push_expr $kind, $values; $first);
+        $crate::__json_array_arguments!(@push_expr $kind, $values; $second);
+        $crate::__json_array_arguments!(@parse $kind, $values; [$($third)*] $(, $($rest)*)?);
+    }};
+    (@parse $kind:ident, $values:ident; $first:expr, $second:expr, $third:expr, [$($fourth:tt)*] $(, $($rest:tt)*)?) => {{
+        $crate::__json_array_arguments!(@push_expr $kind, $values; $first);
+        $crate::__json_array_arguments!(@push_expr $kind, $values; $second);
+        $crate::__json_array_arguments!(@parse $kind, $values; $third, [$($fourth)*] $(, $($rest)*)?);
+    }};
+    (@parse $kind:ident, $values:ident; $a:expr, $b:expr, $c:expr, $d:expr $(, $($rest:tt)*)?) => {{
+        $crate::__json_array_arguments!(@push_expr $kind, $values; $a);
+        $crate::__json_array_arguments!(@push_expr $kind, $values; $b);
+        $crate::__json_array_arguments!(@push_expr $kind, $values; $c);
+        $crate::__json_array_arguments!(@push_expr $kind, $values; $d);
         $crate::__json_array_arguments!(@parse $kind, $values; $($($rest)*)?);
     }};
     (@parse $kind:ident, $values:ident; $first:expr, $second:expr $(, $($rest:tt)*)?) => {{
