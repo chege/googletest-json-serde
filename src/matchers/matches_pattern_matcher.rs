@@ -68,6 +68,28 @@ macro_rules! __json_matches_pattern {
     (@parse $fields:ident $strict:ident; .. , $($rest:tt)+) => {
         compile_error!("`..` must be the last token in a j::pat! object pattern");
     };
+    // Expand simple fields together rather than recursing once per field.
+    (@parse $fields:ident $strict:ident; $($key:literal : $value:tt,)+ ..) => {{
+        $($crate::__json_matches_pattern!(@field $fields; $key : $value);)+
+        $strict = false;
+    }};
+    (@parse $fields:ident $strict:ident; $($key:literal : $value:tt),+ $(,)?) => {{
+        $($crate::__json_matches_pattern!(@field $fields; $key : $value);)+
+    }};
+    (@field $fields:ident; $key:literal : [$($array:tt)*]) => {
+        $fields.push((
+            $key,
+            $crate::matchers::__internal_unstable_do_not_depend_on_these::IntoJsonMatcher::into_json_matcher(
+                $crate::__json_array_value!([$($array)*])
+            ),
+        ));
+    };
+    (@field $fields:ident; $key:literal : $value:tt) => {
+        $fields.push((
+            $key,
+            $crate::__json_matches_pattern!(@wrap_matcher $value),
+        ));
+    };
     // Nested object value: recurse into the inner pattern (e.g., `"user": { "id": eq(1) }`).
     (@parse $fields:ident $strict:ident;
         $key:literal : { $($inner:tt)* } $(, $($rest:tt)*)?
